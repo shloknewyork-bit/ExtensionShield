@@ -1,0 +1,154 @@
+.scan-progress {
+  width: 100%;
+  max-width: 900px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+
+.scan-progress-stages {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.scan-progress-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 120px;
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.stage-icon {
+  font-size: 1.5rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 20, 20, 0.8);
+  border: 2px solid hsl(var(--color-border));
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.scan-progress-stage.active .stage-icon {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.scan-progress-stage.completed .stage-icon {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.6);
+}
+
+.scan-progress-stage.pending .stage-icon {
+  opacity: 0.4;
+}
+
+.stage-label {
+  font-size: 0.75rem;
+  color: hsl(var(--color-foreground-muted));
+  text-align: center;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.scan-progress-stage.active .stage-label {
+  color: hsl(var(--color-foreground));
+  font-weight: 600;
+}
+
+.scan-progress-stage.completed .stage-label {
+  color: rgba(34, 197, 94, 0.8);
+}
+
+.stage-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.2);
+  animation: pulse-ring 2s ease-in-out infinite;
+  z-index: -1;
+}
+
+.scan-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: hsl(var(--color-surface));
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.scan-progress-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.8),
+    rgba(59, 130, 246, 0.4)
+  );
+  border-radius: 2px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .scan-progress-stages {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .scan-progress-stage {
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    min-width: auto;
+  }
+
+  .stage-label {
+    text-align: left;
+    margin-left: 1rem;
+  }
+
+  .scan-progress-bar {
+    display: none;
+  }
+}
+
