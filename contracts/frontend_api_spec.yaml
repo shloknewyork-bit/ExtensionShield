@@ -1,0 +1,436 @@
+openapi: 3.0.3
+info:
+  title: Project Atlas API
+  version: 1.0.0
+  description: |
+    API contract for Chrome Extension Security Scanner.
+    
+    This is the interface your frontend will communicate with.
+    Use this spec to:
+    - Understand request/response formats
+    - Generate mock data for development
+    - Build API client services
+
+servers:
+  - url: http://localhost:8007
+    description: Local development server
+
+paths:
+  /scan:
+    post:
+      operationId: startScan
+      summary: Start a new extension scan
+      description: |
+        Initiates analysis of a Chrome extension.
+        Accepts either a Chrome Web Store URL or a local file path.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  description: Chrome Web Store URL or local path to .crx/.zip
+                  example: "https://chromewebstore.google.com/detail/extension-name/abcdefghijklmnop"
+            examples:
+              webstore_url:
+                summary: Chrome Web Store URL
+                value:
+                  url: "https://chromewebstore.google.com/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm"
+              local_path:
+                summary: Local file path
+                value:
+                  url: "/path/to/extension.crx"
+      responses:
+        "200":
+          description: Scan started successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanStartResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /scan/{scan_id}/status:
+    get:
+      operationId: getScanStatus
+      summary: Get scan status and results
+      description: |
+        Poll this endpoint to get current scan status.
+        When status is "completed", the results field will contain analysis data.
+      parameters:
+        - name: scan_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Scan ID returned from /scan endpoint
+      responses:
+        "200":
+          description: Scan status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanStatusResponse"
+        "404":
+          description: Scan not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /scans:
+    get:
+      operationId: listScans
+      summary: List recent scans
+      description: Returns list of recent scans with basic metadata
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of scans
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scans:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ScanSummary"
+                  total:
+                    type: integer
+
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Health check endpoint
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  version:
+                    type: string
+                    example: "1.0.0"
+
+components:
+  schemas:
+    ScanStartResponse:
+      type: object
+      required:
+        - scan_id
+        - status
+      properties:
+        scan_id:
+          type: string
+          description: Unique identifier for tracking the scan
+          example: "scan_abc123def456"
+        status:
+          $ref: "#/components/schemas/ScanStatus"
+        message:
+          type: string
+          example: "Scan started successfully"
+
+    ScanStatusResponse:
+      type: object
+      required:
+        - scan_id
+        - status
+      properties:
+        scan_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/ScanStatus"
+        progress:
+          type: number
+          description: Progress percentage (0-100)
+          minimum: 0
+          maximum: 100
+          example: 65
+        current_step:
+          type: string
+          description: Current analysis step
+          enum:
+            - downloading
+            - extracting
+            - parsing_manifest
+            - analyzing_permissions
+            - running_sast
+            - analyzing_webstore
+            - generating_summary
+            - completed
+          example: "running_sast"
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        error:
+          type: string
+          description: Error message if status is "failed"
+        results:
+          $ref: "#/components/schemas/AnalysisResults"
+
+    ScanStatus:
+      type: string
+      enum:
+        - pending
+        - running
+        - completed
+        - failed
+      description: Current status of the scan
+
+    ScanSummary:
+      type: object
+      properties:
+        scan_id:
+          type: string
+        extension_name:
+          type: string
+        extension_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/ScanStatus"
+        risk_level:
+          $ref: "#/components/schemas/RiskLevel"
+        created_at:
+          type: string
+          format: date-time
+
+    AnalysisResults:
+      type: object
+      description: Complete analysis results (only present when status is "completed")
+      properties:
+        extension_metadata:
+          $ref: "#/components/schemas/ExtensionMetadata"
+        manifest:
+          type: object
+          description: Raw manifest.json content
+        overall_risk_score:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Aggregate risk score (0.0 = safe, 1.0 = critical)
+          example: 0.72
+        risk_level:
+          $ref: "#/components/schemas/RiskLevel"
+        permissions_analysis:
+          $ref: "#/components/schemas/PermissionsAnalysis"
+        sast_analysis:
+          $ref: "#/components/schemas/SASTAnalysis"
+        webstore_analysis:
+          $ref: "#/components/schemas/WebstoreAnalysis"
+        executive_summary:
+          $ref: "#/components/schemas/ExecutiveSummary"
+        governance:
+          $ref: "#/components/schemas/GovernanceResults"
+
+    ExtensionMetadata:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Example Extension"
+        version:
+          type: string
+          example: "1.2.3"
+        extension_id:
+          type: string
+          example: "abcdefghijklmnop"
+        author:
+          type: string
+        description:
+          type: string
+        size_bytes:
+          type: integer
+
+    RiskLevel:
+      type: string
+      enum:
+        - low
+        - medium
+        - high
+        - critical
+      description: Human-readable risk classification
+
+    PermissionsAnalysis:
+      type: object
+      properties:
+        risk_score:
+          type: number
+          minimum: 0
+          maximum: 1
+        permissions:
+          type: array
+          items:
+            $ref: "#/components/schemas/PermissionRisk"
+        summary:
+          type: string
+
+    PermissionRisk:
+      type: object
+      properties:
+        permission:
+          type: string
+          example: "tabs"
+        risk_level:
+          $ref: "#/components/schemas/RiskLevel"
+        description:
+          type: string
+        justification:
+          type: string
+
+    SASTAnalysis:
+      type: object
+      properties:
+        risk_score:
+          type: number
+        findings:
+          type: array
+          items:
+            $ref: "#/components/schemas/SASTFinding"
+        rules_triggered:
+          type: integer
+        files_scanned:
+          type: integer
+        summary:
+          type: string
+
+    SASTFinding:
+      type: object
+      properties:
+        rule_id:
+          type: string
+          example: "atlas-credential-theft"
+        severity:
+          type: string
+          enum: [critical, high, medium, low, info]
+        message:
+          type: string
+        file:
+          type: string
+        line:
+          type: integer
+        code_snippet:
+          type: string
+        cwe:
+          type: string
+          example: "CWE-312"
+        mitre_attack:
+          type: string
+          example: "T1555"
+
+    WebstoreAnalysis:
+      type: object
+      properties:
+        risk_score:
+          type: number
+        user_count:
+          type: integer
+          example: 1500000
+        rating:
+          type: number
+          example: 4.5
+        rating_count:
+          type: integer
+        developer:
+          type: object
+          properties:
+            name:
+              type: string
+            verified:
+              type: boolean
+            website:
+              type: string
+        last_updated:
+          type: string
+          format: date
+        flags:
+          type: array
+          items:
+            type: string
+          example: ["low_user_count", "recent_update"]
+
+    ExecutiveSummary:
+      type: object
+      properties:
+        overall_assessment:
+          type: string
+          example: "HIGH RISK - This extension exhibits multiple concerning behaviors..."
+        key_findings:
+          type: array
+          items:
+            type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+        risk_breakdown:
+          type: object
+          properties:
+            permissions:
+              type: number
+            code:
+              type: number
+            reputation:
+              type: number
+
+    GovernanceResults:
+      type: object
+      description: Compliance and policy evaluation results
+      properties:
+        verdict:
+          type: string
+          enum: [APPROVED, NEEDS_REVIEW, DENIED]
+        policy_violations:
+          type: array
+          items:
+            type: object
+            properties:
+              policy:
+                type: string
+              violation:
+                type: string
+              severity:
+                type: string
+        compliance_matrix:
+          type: object
+          additionalProperties:
+            type: boolean
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        detail:
+          type: string
+        code:
+          type: string
+

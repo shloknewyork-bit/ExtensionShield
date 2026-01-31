@@ -61,10 +61,16 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
+# Configure CORS with production support
+def get_cors_origins() -> list[str]:
+    """Get CORS origins from environment or use defaults."""
+    # Check for custom CORS origins (comma-separated)
+    custom_origins = os.getenv("CORS_ORIGINS", "")
+    if custom_origins:
+        return [origin.strip() for origin in custom_origins.split(",")]
+    
+    # Default origins for development and common production patterns
+    origins = [
         "http://localhost:5173",  # Vite dev server (default)
         "http://localhost:5174",  # Vite fallback port
         "http://localhost:5175",  # Vite fallback port
@@ -72,7 +78,24 @@ app.add_middleware(
         "http://localhost:5177",  # Vite fallback port
         "http://localhost:3000",  # Alternative dev port
         "http://localhost:8007",  # Same-origin in container
-    ],
+    ]
+    
+    # Add Railway production URLs if deployed
+    railway_url = os.getenv("RAILWAY_PUBLIC_DOMAIN")
+    if railway_url:
+        origins.append(f"https://{railway_url}")
+    
+    # Add custom domain if configured
+    custom_domain = os.getenv("CUSTOM_DOMAIN")
+    if custom_domain:
+        origins.append(f"https://{custom_domain}")
+    
+    return origins
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=get_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

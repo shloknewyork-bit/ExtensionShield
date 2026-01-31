@@ -1,0 +1,196 @@
+# Semgrep Rule Template for Project Atlas
+# =========================================
+#
+# Use this template to create new security rules for Chrome extension analysis.
+# 
+# Documentation: https://semgrep.dev/docs/writing-rules/overview
+#
+# Naming Convention:
+#   atlas-[category]-[specific-behavior]
+#   Examples:
+#     - atlas-credential-theft
+#     - atlas-data-exfiltration
+#     - atlas-banking-overlay
+
+rules:
+  # === TEMPLATE: Copy and modify this for your new rule ===
+  - id: atlas-your-rule-name
+    # Short, actionable message shown to the user
+    message: "Description of what this rule detects and why it's concerning"
+    
+    # Severity level (choose one)
+    # ERROR = Critical security issue
+    # WARNING = Potential security concern
+    # INFO = Informational finding
+    severity: ERROR
+    
+    # Languages this rule applies to
+    languages: [javascript, typescript]
+    
+    # Metadata for categorization and reporting
+    metadata:
+      # Category for grouping in reports
+      category: security
+      subcategory: [your_subcategory]  # e.g., credential_theft, data_exfiltration
+      
+      # Common Weakness Enumeration
+      # Find CWEs at: https://cwe.mitre.org/
+      cwe: "CWE-XXX: Weakness Name"
+      
+      # MITRE ATT&CK Technique
+      # Find techniques at: https://attack.mitre.org/
+      mitre_attack: "T1XXX"
+      mitre_attack_url: "https://attack.mitre.org/techniques/T1XXX/"
+      
+      # OWASP category if applicable
+      owasp: "A03:2021 - Injection"
+      
+      # Confidence level of this rule
+      # high = Very likely malicious
+      # medium = Suspicious, needs review
+      # low = Potentially benign but notable
+      confidence: high
+      
+      # Impact if this pattern is malicious
+      impact: high
+      
+      # Likelihood of false positives
+      likelihood: low
+      
+      # Technology/API this targets
+      technology:
+        - browser_extension
+        - chrome_api
+    
+    # Pattern matching - choose ONE of these approaches:
+    
+    # Option 1: Single pattern
+    pattern: |
+      chrome.tabs.executeScript(...)
+    
+    # Option 2: Pattern with metavariables (named captures)
+    # pattern: |
+    #   fetch($URL, { body: $DATA })
+    
+    # Option 3: Multiple patterns (any match triggers)
+    # patterns:
+    #   - pattern: chrome.webRequest.onBeforeRequest.addListener(...)
+    #   - pattern: chrome.webRequest.onCompleted.addListener(...)
+    
+    # Option 4: Pattern combinations (AND logic)
+    # patterns:
+    #   - pattern: $VAR = document.getElementById("password")
+    #   - pattern: fetch($URL, { body: $VAR })
+    
+    # Option 5: Pattern NOT (exclude certain matches)
+    # patterns:
+    #   - pattern: eval($CODE)
+    #   - pattern-not: eval("safe_constant")
+    
+    # Option 6: Pattern inside specific context
+    # patterns:
+    #   - pattern-inside: |
+    #       chrome.runtime.onMessage.addListener(function($REQ, $SENDER, $RESPOND) {
+    #         ...
+    #       })
+    #   - pattern: eval($CODE)
+
+  # === EXAMPLE: Real rule for reference ===
+  - id: atlas-credential-form-interception
+    message: "Extension intercepts form submissions which may capture credentials"
+    severity: ERROR
+    languages: [javascript, typescript]
+    metadata:
+      category: security
+      subcategory: [credential_theft]
+      cwe: "CWE-312: Cleartext Storage of Sensitive Information"
+      mitre_attack: "T1056.003"
+      mitre_attack_url: "https://attack.mitre.org/techniques/T1056/003/"
+      confidence: high
+      impact: high
+      likelihood: medium
+      technology:
+        - browser_extension
+        - dom_api
+    patterns:
+      - pattern-either:
+          - pattern: |
+              document.addEventListener("submit", $HANDLER)
+          - pattern: |
+              $FORM.addEventListener("submit", $HANDLER)
+          - pattern: |
+              $FORM.onsubmit = $HANDLER
+      - metavariable-pattern:
+          metavariable: $HANDLER
+          patterns:
+            - pattern-either:
+                - pattern: |
+                    function(...) { ... fetch(...) ... }
+                - pattern: |
+                    function(...) { ... XMLHttpRequest ... }
+                - pattern: |
+                    (...) => { ... fetch(...) ... }
+
+  # === EXAMPLE: Data exfiltration detection ===
+  - id: atlas-sensitive-data-exfiltration
+    message: "Extension may exfiltrate sensitive browser data to external server"
+    severity: ERROR
+    languages: [javascript, typescript]
+    metadata:
+      category: security
+      subcategory: [data_exfiltration]
+      cwe: "CWE-200: Exposure of Sensitive Information"
+      mitre_attack: "T1041"
+      mitre_attack_url: "https://attack.mitre.org/techniques/T1041/"
+      confidence: medium
+      impact: high
+      likelihood: medium
+      technology:
+        - browser_extension
+        - chrome_api
+    patterns:
+      - pattern-inside: |
+          chrome.cookies.getAll(...)
+      - pattern-either:
+          - pattern: fetch($URL, ...)
+          - pattern: new XMLHttpRequest()
+          - pattern: $OBJ.send(...)
+
+# === TESTING YOUR RULES ===
+#
+# 1. Create test files:
+#    - positive_test.js: Code that SHOULD trigger your rule
+#    - negative_test.js: Code that should NOT trigger
+#
+# 2. Run semgrep:
+#    semgrep --config your_rules.yaml test_cases/
+#
+# 3. Check results:
+#    - positive_test.js should have findings
+#    - negative_test.js should have no findings
+#
+# === COMMON PATTERNS FOR CHROME EXTENSIONS ===
+#
+# Chrome API calls:
+#   chrome.tabs.query(...)
+#   chrome.cookies.getAll(...)
+#   chrome.webRequest.onBeforeRequest.addListener(...)
+#   chrome.storage.local.get(...)
+#   chrome.runtime.sendMessage(...)
+#
+# DOM manipulation:
+#   document.querySelector("input[type='password']")
+#   element.value
+#   document.body.innerHTML
+#
+# Network requests:
+#   fetch(url, options)
+#   new XMLHttpRequest()
+#   navigator.sendBeacon(url, data)
+#
+# Obfuscation indicators:
+#   eval(...)
+#   new Function(...)
+#   atob(...)
+#   String.fromCharCode(...)
+

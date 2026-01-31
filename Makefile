@@ -140,3 +140,29 @@ docker-down:
 # View container logs
 docker-logs:
 	docker compose logs -f
+
+# =============================================================================
+# Deployment Commands
+# =============================================================================
+
+# Deploy to Railway (requires Railway CLI and RAILWAY_TOKEN)
+deploy:
+	@echo "Deploying to Railway..."
+	@command -v railway >/dev/null 2>&1 || { echo "Installing Railway CLI..."; npm install -g @railway/cli; }
+	railway up
+	@echo "✓ Deployment complete"
+
+# Link to existing Railway project
+deploy-link:
+	@echo "Linking to Railway project..."
+	railway login
+	railway link
+	@echo "✓ Project linked"
+
+# View production logs
+deploy-logs:
+	railway logs -f
+
+# Check production status
+deploy-status:
+	railway status

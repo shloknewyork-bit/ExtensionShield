@@ -1,0 +1,187 @@
+# LLM Prompt Template for Project Atlas
+# ======================================
+#
+# This file defines the structure for LLM prompts used in extension analysis.
+# Your prompt will be used to analyze specific aspects of Chrome extensions.
+#
+# === TEMPLATE FORMAT ===
+# Each prompt YAML file should follow this structure
+
+# Unique identifier for this prompt
+name: your_analysis_type
+
+# Version for tracking changes
+version: "1.0.0"
+
+# Description of what this prompt analyzes
+description: |
+  Brief description of what this prompt does and what insights it provides.
+  This helps maintainers understand the purpose of the prompt.
+
+# The system prompt sets the AI's role and behavior
+system_prompt: |
+  You are a Chrome extension security analyst specializing in [YOUR AREA].
+  
+  Your task is to analyze extension data and provide:
+  1. Risk assessment
+  2. Specific findings
+  3. Recommendations
+  
+  Guidelines:
+  - Be specific and cite evidence from the data provided
+  - Use clear severity levels: CRITICAL, HIGH, MEDIUM, LOW, INFO
+  - Provide actionable recommendations
+  - Do not speculate without evidence
+
+# The user prompt template - use {placeholders} for dynamic data
+user_prompt: |
+  Analyze the following Chrome extension for [SPECIFIC CONCERN]:
+  
+  ## Extension Information
+  - Name: {extension_name}
+  - Version: {version}
+  - Description: {description}
+  
+  ## Data to Analyze
+  {analysis_data}
+  
+  ## Required Output Format
+  Provide your analysis in the following JSON format:
+  ```json
+  {
+    "risk_level": "HIGH|MEDIUM|LOW",
+    "risk_score": 0.0 to 1.0,
+    "findings": [
+      {
+        "type": "finding_type",
+        "severity": "CRITICAL|HIGH|MEDIUM|LOW|INFO",
+        "description": "What was found",
+        "evidence": "Specific data that supports this finding",
+        "recommendation": "What to do about it"
+      }
+    ],
+    "summary": "One paragraph executive summary"
+  }
+  ```
+
+# Available placeholders (these will be filled by the system):
+# 
+# Extension Metadata:
+#   {extension_name} - Name from manifest
+#   {version} - Version string
+#   {description} - Extension description
+#   {extension_id} - Chrome Web Store ID
+#
+# Manifest Data:
+#   {manifest_json} - Full manifest.json as formatted JSON
+#   {permissions} - List of requested permissions
+#   {host_permissions} - Host permissions array
+#   {content_scripts} - Content scripts configuration
+#
+# Analysis Results:
+#   {analysis_data} - Specific data for your analysis type
+#   {sast_findings} - SAST/Semgrep findings
+#   {permission_risks} - Permission risk assessment
+#
+# Context:
+#   {webstore_data} - Chrome Web Store metadata
+#   {user_count} - Number of users
+#   {rating} - Store rating
+
+# === EXAMPLE: Permission Analysis Prompt ===
+
+# name: permission_analysis
+# version: "1.0.0"
+# description: Analyzes Chrome extension permissions for security risks
+#
+# system_prompt: |
+#   You are a Chrome extension security analyst specializing in permission analysis.
+#   
+#   Your expertise includes:
+#   - Understanding Chrome extension permission model
+#   - Identifying overly broad or dangerous permissions
+#   - Recognizing permission combinations that enable attacks
+#   - Assessing privacy implications of permissions
+#   
+#   Guidelines:
+#   - Focus on actual risks, not theoretical concerns
+#   - Consider the extension's stated purpose when evaluating permissions
+#   - Flag permissions that exceed what's needed for stated functionality
+#   - Identify dangerous permission combinations
+#
+# user_prompt: |
+#   Analyze the permissions requested by this Chrome extension:
+#   
+#   ## Extension
+#   - Name: {extension_name}
+#   - Description: {description}
+#   
+#   ## Requested Permissions
+#   {permissions}
+#   
+#   ## Host Permissions
+#   {host_permissions}
+#   
+#   ## Analysis Required
+#   1. Evaluate each permission's risk level
+#   2. Identify if permissions match the stated purpose
+#   3. Flag dangerous permission combinations
+#   4. Provide overall risk assessment
+#   
+#   Respond in JSON format:
+#   ```json
+#   {
+#     "risk_level": "HIGH|MEDIUM|LOW",
+#     "risk_score": 0.0-1.0,
+#     "permission_analysis": [
+#       {
+#         "permission": "permission_name",
+#         "risk_level": "HIGH|MEDIUM|LOW",
+#         "justification": "Why this permission is/isn't concerning",
+#         "privacy_impact": "What user data this can access"
+#       }
+#     ],
+#     "dangerous_combinations": [
+#       {
+#         "permissions": ["perm1", "perm2"],
+#         "risk": "What attack this enables"
+#       }
+#     ],
+#     "recommendations": ["list", "of", "recommendations"],
+#     "summary": "Executive summary paragraph"
+#   }
+#   ```
+
+# === TESTING YOUR PROMPT ===
+#
+# 1. Use the test harness:
+#    python scripts/test_prompt.py --prompt your_prompt.yaml --extension test_extension/
+#
+# 2. Verify output:
+#    - JSON parses correctly
+#    - All required fields present
+#    - Risk scores in valid range
+#    - Findings are specific and actionable
+#
+# === TIPS FOR EFFECTIVE PROMPTS ===
+#
+# 1. Be specific about output format
+#    - Use JSON schemas in the prompt
+#    - Specify exact field names and types
+#
+# 2. Provide context
+#    - Explain what the extension claims to do
+#    - Include relevant manifest data
+#
+# 3. Guide the analysis
+#    - List specific things to look for
+#    - Mention known attack patterns
+#
+# 4. Request evidence
+#    - Ask for specific citations
+#    - Require justification for findings
+#
+# 5. Set appropriate tone
+#    - Security-focused but not alarmist
+#    - Actionable recommendations
+
