@@ -1,4 +1,4 @@
-# Project Atlas - CI/CD Pipeline
+# ExtensionShield - CI/CD Pipeline
 # Deploys to Railway on push to main branch
 
 name: Deploy to Production
@@ -121,7 +121,7 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           railway up --detach
-          echo "url=https://project-atlas.up.railway.app" >> $GITHUB_OUTPUT
+          echo "url=https://extensionshield.up.railway.app" >> $GITHUB_OUTPUT
 
       - name: Deployment Summary
         run: |
