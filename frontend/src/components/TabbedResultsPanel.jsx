@@ -200,7 +200,8 @@ const TabbedResultsPanel = ({
           onClick={() => {
             const extensionId = scanResults.extensionId;
             if (extensionId) {
-              window.open(`http://localhost:8007/api/scan/report/${extensionId}`, '_blank');
+              const baseURL = import.meta.env.VITE_API_URL || "";
+              window.open(`${baseURL}/api/scan/report/${extensionId}`, '_blank');
             } else {
               alert('No extension ID available for report generation');
             }

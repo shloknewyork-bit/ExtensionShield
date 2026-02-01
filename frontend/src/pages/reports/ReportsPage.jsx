@@ -58,7 +58,8 @@ const ReportsPage = () => {
   };
 
   const handleDownloadPDF = async (extensionId) => {
-    window.open(`http://localhost:8007/api/scan/report/${extensionId}`, '_blank');
+    const baseURL = import.meta.env.VITE_API_URL || "";
+    window.open(`${baseURL}/api/scan/report/${extensionId}`, '_blank');
   };
 
   // Stats summary

@@ -3,7 +3,8 @@
 
 class CLIService {
   constructor() {
-    this.baseUrl = 'http://localhost:5000'; // Future Flask backend
+    // Use environment variable for API URL, default to empty string for same-origin (production)
+    this.baseUrl = import.meta.env.VITE_API_URL || "";
     this.isLocalMode = true; // For now, we'll simulate CLI calls
   }
 

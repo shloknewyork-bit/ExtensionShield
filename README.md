@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="images/logo.png" alt="ExtensionShield Logo" width="120"/>
-</p>
-
 <h1 align="center">ExtensionShield</h1>
 
 <p align="center">

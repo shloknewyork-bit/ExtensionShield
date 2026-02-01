@@ -782,29 +782,51 @@ const HomePage = () => {
       {/* Pricing Section */}
       <section className="pricing-section">
         <div className="pricing-header">
-          <h2>Simple, Credit-Based Pricing</h2>
-          <p>Pay for what you scan. No subscriptions. Credits never expire.</p>
+          <h2>Simple, Transparent Pricing</h2>
+          <p>Start free. Upgrade when you need more. Cancel anytime.</p>
         </div>
 
         <div className="pricing-grid">
-          {/* Starter */}
+          {/* Free */}
           <div className="pricing-card">
             <div className="pricing-card-header">
-              <h3>Starter</h3>
+              <h3>Free</h3>
               <p>Try it out</p>
             </div>
             <div className="pricing-amount">
-              <span className="price">$2.99</span>
-              <span className="credits">15 scans</span>
+              <span className="price">$0</span>
+              <span className="credits">2 scans/mo</span>
             </div>
-            <div className="price-per-scan">~$0.20 per scan</div>
+            <div className="price-per-scan">No credit card required</div>
             <ul className="pricing-features">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+                <span>AI threat analysis</span>
+              </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
                 <span>Full security reports</span>
               </li>
+            </ul>
+            <button className="pricing-btn">Get Started</button>
+          </div>
+
+          {/* Starter */}
+          <div className="pricing-card">
+            <div className="pricing-card-header">
+              <h3>Starter</h3>
+              <p>See what we can do</p>
+            </div>
+            <div className="pricing-amount">
+              <span className="price">$3.99</span>
+              <span className="credits">15 scans/mo</span>
+            </div>
+            <div className="price-per-scan">Less than a coffee</div>
+            <ul className="pricing-features">
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
@@ -817,22 +839,34 @@ const HomePage = () => {
                 </svg>
                 <span>Export reports</span>
               </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+                <span>Priority scanning</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+                <span>Email support</span>
+              </li>
             </ul>
-            <button className="pricing-btn">Get Started</button>
+            <button className="pricing-btn">Get Starter</button>
           </div>
 
           {/* Pro - Popular */}
           <div className="pricing-card popular">
-            <div className="popular-badge">MOST POPULAR</div>
+            <div className="popular-badge">BEST VALUE</div>
             <div className="pricing-card-header">
               <h3>Pro</h3>
-              <p>For regular users</p>
+              <p>Your security partner</p>
             </div>
             <div className="pricing-amount">
-              <span className="price">$5.99</span>
-              <span className="credits">60 scans</span>
+              <span className="price">$9.99</span>
+              <span className="credits">50 scans/mo</span>
             </div>
-            <div className="price-per-scan">~$0.10 per scan</div>
+            <div className="price-per-scan">We grow with you</div>
             <ul className="pricing-features">
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -850,56 +884,16 @@ const HomePage = () => {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                <span>Priority queue</span>
+                <span>Bulk scan uploads</span>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                <span>Bulk scan uploads</span>
+                <span>Safe extension recommendations</span>
               </li>
             </ul>
             <button className="pricing-btn popular-btn">Get Pro</button>
-          </div>
-
-          {/* Power */}
-          <div className="pricing-card">
-            <div className="pricing-card-header">
-              <h3>Power</h3>
-              <p>For power users</p>
-            </div>
-            <div className="pricing-amount">
-              <span className="price">$9.99</span>
-              <span className="credits">120 scans</span>
-            </div>
-            <div className="price-per-scan">~$0.08 per scan</div>
-            <ul className="pricing-features">
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>Everything in Pro</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>Webhook integrations</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>Team sharing</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>Best value</span>
-              </li>
-            </ul>
-            <button className="pricing-btn">Get Power</button>
           </div>
         </div>
 
@@ -913,7 +907,7 @@ const HomePage = () => {
             </div>
             <div className="overage-content">
               <h4>Need more scans?</h4>
-              <p>Add <strong>+50 scans</strong> anytime for just <strong>$1.99</strong></p>
+              <p>Add <strong>+25 scans</strong> anytime for just <strong>$2.99</strong></p>
             </div>
             <button className="overage-btn">Add Scans</button>
           </div>

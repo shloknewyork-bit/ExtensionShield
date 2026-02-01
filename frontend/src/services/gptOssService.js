@@ -6,7 +6,8 @@
 
 class GPTOSSService {
   constructor() {
-    this.baseURL = "http://localhost:8007";
+    // Use environment variable for API URL, default to empty string for same-origin (production)
+    this.baseURL = import.meta.env.VITE_API_URL || "";
     this.endpoints = {
       analyze: "/api/analyze/file",
       upload: "/api/analyze/file/upload",
