@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import ShieldLogo from "../components/ShieldLogo";
 import "./HomePage.scss";
 
 // Static configuration - defined outside component to prevent recreation
@@ -953,13 +954,12 @@ const HomePage = () => {
       <footer className="home-footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <span className="brand-project">PROJECT</span>
-            <span className="brand-dot">•</span>
-            <span className="brand-atlas">ATLAS</span>
+            <ShieldLogo size={28} />
+            <span className="brand-extensionshield">ExtensionShield</span>
           </div>
           <p className="footer-disclaimer">
-            Security analysis tool for Chrome extensions. Reports are evidence-based 
-            and do not constitute legal advice.
+            Comprehensive extension governance through security, privacy, and compliance analysis. 
+            We aggregate multiple dimensions into a single actionable score. So you can trust the results you find.
           </p>
           <div className="footer-links">
             <a href="#docs">Documentation</a>
