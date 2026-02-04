@@ -12,6 +12,8 @@ import logging
 import hashlib
 from typing import Optional
 
+from extension_shield.core.config import get_settings
+
 logger = logging.getLogger(__name__)
 
 
@@ -65,7 +67,7 @@ def extract_extension_crx(file_path: str) -> Optional[str]:
     # Use persistent storage directory instead of /tmp
     try:
         # Get storage path from environment or use default
-        storage_path = os.environ.get("EXTENSION_STORAGE_PATH", "extensions_storage")
+        storage_path = get_settings().extension_storage_path
         os.makedirs(storage_path, exist_ok=True)
         
         # Create extraction directory with unique name
@@ -145,7 +147,7 @@ def cleanup_downloaded_crx(crx_file_path: str):
 
         # Safety: Only delete files within storage directory
         abs_crx_path = os.path.abspath(crx_file_path)
-        storage_path = os.getenv("EXTENSION_STORAGE_PATH", "./extensions_storage")
+        storage_path = get_settings().extension_storage_path
         abs_storage_path = os.path.abspath(storage_path)
 
         if not abs_crx_path.startswith(abs_storage_path):

@@ -3,12 +3,63 @@ class RealScanService {
     // Use environment variable for API URL, default to empty string for same-origin (production)
     // For local development, set VITE_API_URL=http://localhost:8007 in .env.local
     this.baseURL = import.meta.env.VITE_API_URL || "";
+    this.userIdStorageKey = "extensionshield_user_id";
+  }
+
+  getOrCreateUserId() {
+    try {
+      const existing = localStorage.getItem(this.userIdStorageKey);
+      if (existing) return existing;
+
+      const id =
+        (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function")
+          ? globalThis.crypto.randomUUID()
+          : `anon-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      localStorage.setItem(this.userIdStorageKey, id);
+      return id;
+    } catch (e) {
+      // If localStorage is unavailable, fall back to an ephemeral id.
+      return `anon-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+  }
+
+  getUserHeaders() {
+    return { "X-User-Id": this.getOrCreateUserId() };
   }
 
   // Extract extension ID from Chrome Web Store URL
   extractExtensionId(url) {
     const match = url.match(/\/detail\/(?:[^\/]+\/)?([a-z]{32})/);
     return match ? match[1] : null;
+  }
+
+  async getDeepScanLimitStatus() {
+    const response = await fetch(`${this.baseURL}/api/limits/deep-scan`, {
+      method: "GET",
+      headers: {
+        ...this.getUserHeaders(),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch deep-scan limit status");
+    }
+
+    return await response.json();
+  }
+
+  async hasCachedResults(extensionId) {
+    try {
+      const response = await fetch(`${this.baseURL}/api/scan/results/${extensionId}`, {
+        method: "GET",
+        headers: {
+          ...this.getUserHeaders(),
+        },
+      });
+      return response.ok;
+    } catch (e) {
+      return false;
+    }
   }
 
   // Trigger a scan for an extension URL
@@ -18,6 +69,7 @@ class RealScanService {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...this.getUserHeaders(),
         },
         body: JSON.stringify({ url }),
       });
@@ -26,7 +78,17 @@ class RealScanService {
         const result = await response.json();
         return result;
       } else {
-        throw new Error("Failed to trigger scan");
+        const data = await response.json().catch(() => ({}));
+        const detail = data?.detail;
+        const message =
+          (typeof detail === "string" && detail) ||
+          (typeof detail === "object" && (detail.message || detail.error || detail.detail)) ||
+          data?.message ||
+          "Failed to trigger scan";
+        const err = new Error(message);
+        err.status = response.status;
+        err.detail = detail;
+        throw err;
       }
     } catch (error) {
       console.error("Failed to trigger scan:", error);
@@ -42,6 +104,9 @@ class RealScanService {
 
       const response = await fetch(`${this.baseURL}/api/scan/upload`, {
         method: "POST",
+        headers: {
+          ...this.getUserHeaders(),
+        },
         body: formData,
       });
 
@@ -50,7 +115,15 @@ class RealScanService {
         return result;
       } else {
         const error = await response.json();
-        throw new Error(error.detail || "Failed to upload file");
+        const detail = error?.detail;
+        const message =
+          (typeof detail === "string" && detail) ||
+          (typeof detail === "object" && (detail.message || detail.error || detail.detail)) ||
+          "Failed to upload file";
+        const err = new Error(message);
+        err.status = response.status;
+        err.detail = detail;
+        throw err;
       }
     } catch (error) {
       console.error("Failed to upload file:", error);

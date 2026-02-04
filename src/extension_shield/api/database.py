@@ -12,6 +12,8 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 from contextlib import contextmanager
 
+from extension_shield.core.config import get_settings
+
 
 class Database:
     """SQLite database manager for Project Atlas."""
@@ -24,7 +26,7 @@ class Database:
                      environment variable or defaults to 'project-atlas.db'.
         """
         if db_path is None:
-            db_path = os.environ.get("DATABASE_PATH", "project-atlas.db")
+            db_path = get_settings().database_path
         self.db_path = Path(db_path)
         # Ensure parent directory exists
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -451,5 +453,220 @@ class Database:
         return result
 
 
+class SupabaseDatabase:
+    """
+    Supabase-backed storage adapter.
+
+    Uses a single `scan_results` table (JSON-friendly) and computes statistics on-the-fly.
+    This is intended for production deployments where the filesystem/SQLite may be ephemeral.
+    """
+
+    def __init__(self):
+        settings = get_settings()
+        supabase_url = settings.supabase_url
+        supabase_key = settings.supabase_key
+        if not supabase_url or not supabase_key:
+            raise ValueError("Missing SUPABASE_URL or SUPABASE_*_KEY")
+
+        self.table_scan_results = settings.supabase_scan_results_table
+
+        # Lazy import so local dev doesn't require Supabase deps unless enabled.
+        from supabase import create_client  # type: ignore
+
+        self.client = create_client(supabase_url, supabase_key)
+
+    def save_scan_result(self, result: Dict[str, Any]) -> bool:
+        try:
+            extension_id = result.get("extension_id")
+            if not extension_id:
+                return False
+
+            metadata = result.get("metadata", {}) or {}
+            extension_name = (
+                result.get("extension_name")
+                or metadata.get("title")
+                or metadata.get("name")
+                or extension_id
+            )
+
+            risk_dist = result.get("risk_distribution", {}) or {}
+            extracted_files = result.get("extracted_files") or []
+
+            row = {
+                "extension_id": extension_id,
+                "extension_name": extension_name,
+                "url": result.get("url"),
+                "timestamp": result.get("timestamp"),
+                "status": result.get("status"),
+                "security_score": result.get("overall_security_score"),
+                "risk_level": result.get("overall_risk"),
+                "total_findings": result.get("total_findings", 0),
+                "total_files": len(extracted_files),
+                "high_risk_count": risk_dist.get("high", 0),
+                "medium_risk_count": risk_dist.get("medium", 0),
+                "low_risk_count": risk_dist.get("low", 0),
+                "metadata": result.get("metadata", {}) or {},
+                "manifest": result.get("manifest", {}) or {},
+                "permissions_analysis": result.get("permissions_analysis", {}) or {},
+                "sast_results": result.get("sast_results", {}) or {},
+                "webstore_analysis": result.get("webstore_analysis", {}) or {},
+                "summary": result.get("summary", {}) or {},
+                "extracted_path": result.get("extracted_path"),
+                "extracted_files": extracted_files,
+                "error": result.get("error"),
+                "updated_at": datetime.now().isoformat(),
+            }
+
+            # Upsert on extension_id
+            self.client.table(self.table_scan_results).upsert(row).execute()
+            return True
+        except Exception as e:
+            print(f"Error saving scan result (Supabase): {e}")
+            return False
+
+    def get_scan_result(self, extension_id: str) -> Optional[Dict[str, Any]]:
+        try:
+            resp = (
+                self.client.table(self.table_scan_results)
+                .select("*")
+                .eq("extension_id", extension_id)
+                .limit(1)
+                .execute()
+            )
+            data = getattr(resp, "data", None) or []
+            return data[0] if data else None
+        except Exception as e:
+            print(f"Error getting scan result (Supabase): {e}")
+            return None
+
+    def get_scan_history(self, limit: int = 50) -> List[Dict[str, Any]]:
+        try:
+            resp = (
+                self.client.table(self.table_scan_results)
+                .select(
+                    "extension_id, extension_name, url, timestamp, status, security_score, risk_level, total_findings, total_files, high_risk_count, medium_risk_count, low_risk_count"
+                )
+                .order("timestamp", desc=True)
+                .limit(limit)
+                .execute()
+            )
+            return getattr(resp, "data", None) or []
+        except Exception as e:
+            print(f"Error getting scan history (Supabase): {e}")
+            return []
+
+    def get_recent_scans(self, limit: int = 10) -> List[Dict[str, Any]]:
+        try:
+            resp = (
+                self.client.table(self.table_scan_results)
+                .select("extension_id, extension_name, timestamp, security_score, risk_level, total_findings")
+                .eq("status", "completed")
+                .order("timestamp", desc=True)
+                .limit(limit)
+                .execute()
+            )
+            return getattr(resp, "data", None) or []
+        except Exception as e:
+            print(f"Error getting recent scans (Supabase): {e}")
+            return []
+
+    def delete_scan_result(self, extension_id: str) -> bool:
+        try:
+            self.client.table(self.table_scan_results).delete().eq("extension_id", extension_id).execute()
+            return True
+        except Exception as e:
+            print(f"Error deleting scan result (Supabase): {e}")
+            return False
+
+    def clear_all_results(self) -> bool:
+        try:
+            # PostgREST requires a filter for deletes; this matches all rows.
+            self.client.table(self.table_scan_results).delete().neq("extension_id", "").execute()
+            return True
+        except Exception as e:
+            print(f"Error clearing results (Supabase): {e}")
+            return False
+
+    def get_risk_distribution(self) -> Dict[str, int]:
+        dist = {"high": 0, "medium": 0, "low": 0}
+        try:
+            resp = (
+                self.client.table(self.table_scan_results)
+                .select("risk_level")
+                .eq("status", "completed")
+                .execute()
+            )
+            rows = getattr(resp, "data", None) or []
+            for r in rows:
+                level = (r.get("risk_level") or "").lower()
+                if level in dist:
+                    dist[level] += 1
+            return dist
+        except Exception as e:
+            print(f"Error getting risk distribution (Supabase): {e}")
+            return dist
+
+    def get_statistics(self) -> Dict[str, int]:
+        """
+        Compute stats on-the-fly from scan_results.
+        (For large datasets you can replace with a materialized stats table or RPC.)
+        """
+        try:
+            resp = (
+                self.client.table(self.table_scan_results)
+                .select("security_score, risk_level, total_files, total_findings")
+                .eq("status", "completed")
+                .execute()
+            )
+            rows = getattr(resp, "data", None) or []
+            total_scans = len(rows)
+            high_risk = sum(1 for r in rows if (r.get("risk_level") or "").lower() == "high")
+            total_files = sum(int(r.get("total_files") or 0) for r in rows)
+            total_findings = sum(int(r.get("total_findings") or 0) for r in rows)
+            security_scores = [int(r["security_score"]) for r in rows if r.get("security_score") is not None]
+            avg_security_score = int(sum(security_scores) / len(security_scores)) if security_scores else 0
+
+            return {
+                "total_scans": total_scans,
+                "high_risk_extensions": high_risk,
+                "total_files_analyzed": total_files,
+                "total_vulnerabilities": total_findings,
+                "avg_security_score": avg_security_score,
+            }
+        except Exception as e:
+            print(f"Error getting statistics (Supabase): {e}")
+            return {
+                "total_scans": 0,
+                "high_risk_extensions": 0,
+                "total_files_analyzed": 0,
+                "total_vulnerabilities": 0,
+                "avg_security_score": 0,
+            }
+
+
+def _create_db():
+    """
+    Choose storage backend:
+    - Supabase if SUPABASE_URL + key are set
+    - SQLite otherwise
+    """
+    settings = get_settings()
+
+    if settings.db_backend == "supabase":
+        try:
+            return SupabaseDatabase()
+        except Exception as e:
+            print(
+                f"Supabase enabled but failed to initialize. Falling back to SQLite. Error: {e}"
+            )
+            return Database()
+
+    if settings.db_backend == "sqlite":
+        return Database()
+
+    # Postgres not supported by current implementation (see core.config validation).
+    raise ValueError(f"Unsupported DB backend: {settings.db_backend}")
+
+
 # Global database instance
-db = Database()
+db = _create_db()

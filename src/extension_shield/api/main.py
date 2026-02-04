@@ -9,9 +9,9 @@ import os
 import json
 from pathlib import Path
 from typing import Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Response, UploadFile, File
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Response, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -25,6 +25,7 @@ from extension_shield.workflow.state import WorkflowState, WorkflowStatus
 from extension_shield.api.database import db
 from extension_shield.scoring.engine import ScoringEngine
 from extension_shield.governance.tool_adapters import SignalPackBuilder
+from extension_shield.core.config import get_settings
 
 
 # Pydantic models for request/response
@@ -87,6 +88,86 @@ STATIC_DIR = Path(__file__).parent.parent.parent.parent / "static"
 scan_results: Dict[str, Dict[str, Any]] = {}
 scan_status: Dict[str, str] = {}
 
+# -----------------------------------------------------------------------------
+# Daily deep-scan limit (placeholder, in-memory)
+# -----------------------------------------------------------------------------
+DAILY_DEEP_SCAN_LIMIT = 2
+# deep_scan_usage[user_id][YYYY-MM-DD] = used_count
+deep_scan_usage: Dict[str, Dict[str, int]] = {}
+
+
+def _get_user_id(request: Request) -> str:
+    """
+    Best-effort user identifier.
+
+    Frontend should send `X-User-Id` (stable per account/device). If absent,
+    we fallback to IP-based identifier to keep the placeholder limit functional.
+    """
+    header_user = request.headers.get("x-user-id") or request.headers.get("X-User-Id")
+    if header_user:
+        return header_user.strip()
+
+    host = getattr(getattr(request, "client", None), "host", None)
+    if host:
+        return f"anon-ip:{host}"
+    return "anon"
+
+
+def _deep_scan_limit_status(user_id: str) -> Dict[str, Any]:
+    now = datetime.now(timezone.utc)
+    day_key = now.strftime("%Y-%m-%d")
+    used = deep_scan_usage.get(user_id, {}).get(day_key, 0)
+    remaining = max(0, DAILY_DEEP_SCAN_LIMIT - used)
+    reset_at = datetime(now.year, now.month, now.day, tzinfo=timezone.utc) + timedelta(days=1)
+    return {
+        "limit": DAILY_DEEP_SCAN_LIMIT,
+        "used": used,
+        "remaining": remaining,
+        "day_key": day_key,
+        "reset_at": reset_at.isoformat(),
+    }
+
+
+def _consume_deep_scan(user_id: str) -> Dict[str, Any]:
+    status = _deep_scan_limit_status(user_id)
+    if status["remaining"] <= 0:
+        return status
+    day_key = status["day_key"]
+    deep_scan_usage.setdefault(user_id, {})
+    deep_scan_usage[user_id][day_key] = deep_scan_usage[user_id].get(day_key, 0) + 1
+    return _deep_scan_limit_status(user_id)
+
+
+def _has_cached_results(extension_id: str) -> bool:
+    if extension_id in scan_results:
+        return True
+
+    # Database lookup (fast path for cached lookups)
+    try:
+        existing = db.get_scan_result(extension_id)
+        if existing:
+            return True
+    except Exception:
+        # If DB is unavailable, fall back to file check below.
+        pass
+
+    # File fallback
+    result_file = RESULTS_DIR / f"{extension_id}_results.json"
+    return result_file.exists()
+
+
+# -----------------------------------------------------------------------------
+# Enterprise pilot request (placeholder, in-memory)
+# -----------------------------------------------------------------------------
+class EnterprisePilotRequest(BaseModel):
+    name: str
+    email: str
+    company: str
+    notes: Optional[str] = None
+
+
+enterprise_pilot_requests: list[Dict[str, Any]] = []
+
 
 # Load existing results from database on startup
 def load_existing_results():
@@ -101,9 +182,10 @@ def load_existing_results():
 load_existing_results()
 
 # Directory for storing analysis results
-# Use environment variable or default to extensions_storage in current directory
-STORAGE_PATH = os.environ.get("EXTENSION_STORAGE_PATH", "extensions_storage")
-RESULTS_DIR = Path(STORAGE_PATH).resolve()  # Convert to absolute path
+# Use centralized config (maps current behavior)
+_settings = get_settings()
+STORAGE_PATH = _settings.extension_storage_path
+RESULTS_DIR = _settings.paths.results_dir  # Convert to absolute path
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -888,8 +970,32 @@ async def root():
     return {"name": "Project Atlas API", "version": "1.0.0", "status": "running"}
 
 
+@app.get("/api/limits/deep-scan")
+async def get_deep_scan_limit(http_request: Request):
+    """Return daily deep-scan usage status for the current user (placeholder)."""
+    user_id = _get_user_id(http_request)
+    return _deep_scan_limit_status(user_id)
+
+
+@app.post("/api/enterprise/pilot-request")
+async def create_enterprise_pilot_request(request: EnterprisePilotRequest, http_request: Request):
+    """Capture an Enterprise pilot request (placeholder, no outbound email)."""
+    user_id = _get_user_id(http_request)
+    now = datetime.now(timezone.utc).isoformat()
+    item = {
+        "received_at": now,
+        "user_id": user_id,
+        "name": request.name.strip(),
+        "email": request.email.strip(),
+        "company": request.company.strip(),
+        "notes": (request.notes or "").strip() or None,
+    }
+    enterprise_pilot_requests.append(item)
+    return {"ok": True, "received_at": now}
+
+
 @app.post("/api/scan/trigger")
-async def trigger_scan(request: ScanRequest, background_tasks: BackgroundTasks):
+async def trigger_scan(request: ScanRequest, background_tasks: BackgroundTasks, http_request: Request):
     """
     Trigger a new extension scan.
 
@@ -906,6 +1012,17 @@ async def trigger_scan(request: ScanRequest, background_tasks: BackgroundTasks):
     if not extension_id:
         raise HTTPException(status_code=400, detail="Invalid Chrome Web Store URL")
 
+    # If we already have results, treat this as a cached lookup (no deep-scan consumption)
+    if _has_cached_results(extension_id):
+        scan_status[extension_id] = "completed"
+        return {
+            "message": "Cached results available",
+            "extension_id": extension_id,
+            "status": "completed",
+            "already_scanned": True,
+            "scan_type": "lookup",
+        }
+
     # Check if already scanning
     if extension_id in scan_status and scan_status[extension_id] == "running":
         return {
@@ -914,6 +1031,22 @@ async def trigger_scan(request: ScanRequest, background_tasks: BackgroundTasks):
             "status": "running",
         }
 
+    # Enforce daily deep-scan limit (placeholder)
+    user_id = _get_user_id(http_request)
+    limit_status = _deep_scan_limit_status(user_id)
+    if limit_status["remaining"] <= 0:
+        raise HTTPException(
+            status_code=429,
+            detail={
+                "error_code": "DAILY_DEEP_SCAN_LIMIT",
+                "message": "Daily deep-scan limit reached. Cached lookups are still unlimited.",
+                **limit_status,
+            },
+        )
+
+    # Consume one deep scan since we are starting a new analysis run
+    after_consume = _consume_deep_scan(user_id)
+
     # Start background analysis
     background_tasks.add_task(run_analysis_workflow, url, extension_id)
 
@@ -921,11 +1054,15 @@ async def trigger_scan(request: ScanRequest, background_tasks: BackgroundTasks):
         "message": "Scan triggered successfully",
         "extension_id": extension_id,
         "status": "running",
+        "already_scanned": False,
+        "scan_type": "deep_scan",
+        "deep_scan_limit": after_consume,
     }
 
 
 @app.post("/api/scan/upload")
 async def upload_and_scan(
+    http_request: Request,
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...)
 ):
@@ -963,6 +1100,20 @@ async def upload_and_scan(
     import uuid
     extension_id = str(uuid.uuid4())
 
+    # Enforce daily deep-scan limit (uploads are always deep scans)
+    user_id = _get_user_id(http_request)
+    limit_status = _deep_scan_limit_status(user_id)
+    if limit_status["remaining"] <= 0:
+        raise HTTPException(
+            status_code=429,
+            detail={
+                "error_code": "DAILY_DEEP_SCAN_LIMIT",
+                "message": "Daily deep-scan limit reached. Cached lookups are still unlimited.",
+                **limit_status,
+            },
+        )
+    after_consume = _consume_deep_scan(user_id)
+
     # Save uploaded file to extensions_storage
     file_path = RESULTS_DIR / f"{extension_id}_{file.filename}"
 
@@ -980,6 +1131,9 @@ async def upload_and_scan(
         "extension_id": extension_id,
         "filename": file.filename,
         "status": "running",
+        "already_scanned": False,
+        "scan_type": "deep_scan",
+        "deep_scan_limit": after_consume,
     }
 
 

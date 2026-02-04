@@ -65,6 +65,10 @@ make lint           # Lint code
 
 ---
 
+## Acknowledgments
+
+ExtensionShield builds upon the foundational work of **[ThreatXtension](https://github.com/ThreatXtension/threatxtension)**. See [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md) for details on our enhancements and contributions.
+
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.

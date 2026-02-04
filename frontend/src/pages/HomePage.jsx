@@ -809,144 +809,147 @@ const HomePage = () => {
       <section className="pricing-section">
         <div className="pricing-header">
           <h2>Simple, Transparent Pricing</h2>
-          <p>Start free, upgrade for ongoing protection. Only pay for new extension scans—cached lookups are always free.</p>
+          <p>Scanning is free for individuals. Cached lookups are instant, and deep scans are capped daily to keep compute sustainable.</p>
         </div>
 
         <div className="pricing-grid">
-          {/* Free Plan */}
-          <div className="pricing-card">
+          {/* Community Plan */}
+          <div className="pricing-card popular">
+            <div className="popular-badge">ALWAYS FREE</div>
             <div className="pricing-card-header">
-              <h3>Free</h3>
-              <p>Get started with security scanning</p>
+              <h3>Community</h3>
+              <p>Always free for individuals</p>
             </div>
             <div className="pricing-amount">
               <span className="price">$0</span>
-              <span className="credits">10 scans</span>
+              <span className="credits">Always Free</span>
             </div>
             <div className="scan-credit-note">
-              10 free deep scans on signup (lifetime). Scans are only used for new extension builds—if we've already analyzed that exact version, it's an instant free lookup.
+              Deep scans are only used when we encounter a new extension version/build hash; cached results are instant.
             </div>
             <ul className="pricing-features">
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                <span>10 free deep scans (lifetime)</span>
+                <span>Unlimited cached lookups (always free)</span>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                <span>Unlimited free cached lookups</span>
+                <span>2 deep scans per day per user account (new build hash only)</span>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                <span>Full security reports (not blurred)</span>
+                <span>Full security report (not blurred)</span>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                <span>AI threat analysis</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>VirusTotal & threat intel</span>
+                <span>AI threat analysis + VirusTotal/threat intel</span>
               </li>
             </ul>
-            <button className="pricing-btn">Get Started Free</button>
+            <button className="pricing-btn popular-btn" onClick={() => navigate("/scanner")}>Start Free</button>
           </div>
 
-          {/* Pro - Popular */}
-          <div className="pricing-card popular">
-            <div className="popular-badge">BEST VALUE</div>
+          {/* Enterprise Plan */}
+          <div className="pricing-card enterprise">
             <div className="pricing-card-header">
-              <h3>Pro</h3>
-              <p>Ongoing protection & monitoring</p>
+              <h3>Enterprise</h3>
+              <p>Contact Sales</p>
             </div>
             <div className="pricing-amount">
-              <span className="price">$4.99</span>
-              <span className="price-period">/month</span>
+              <span className="price">Contact</span>
+              <span className="price-period">Sales</span>
             </div>
             <div className="scan-credit-note">
-              Pro is ongoing protection, not credits. Monitor extensions, get alerts, and see what changed when extensions update.
+              For teams that need monitoring, governance, and audit-ready exports.
             </div>
             <ul className="pricing-features">
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                <span>Everything in Free</span>
+                <span>Monitoring & auto-rescan on updates</span>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                <span><strong>Extension monitoring:</strong> watch for updates</span>
+                <span>Alerting when risk changes</span>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                <span><strong>Auto-rescan & alerts</strong> when risk changes</span>
+                <span>Policy packs + audit exports</span>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                <span><strong>"What changed" diff:</strong> permissions, domains, patterns</span>
+                <span>Org allow/block list governance</span>
               </li>
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 6L9 17l-5-5" />
                 </svg>
-                <span><strong>Blocklist & warning list</strong> management</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span><strong>Safer alternatives</strong> recommendations</span>
-              </li>
-              <li>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>Email & in-app notifications</span>
+                <span>SSO/RBAC <span className="coming-soon-tag">Coming soon</span></span>
               </li>
             </ul>
-            <button className="pricing-btn popular-btn">Upgrade to Pro</button>
+            <button className="pricing-btn enterprise-btn" onClick={() => navigate("/enterprise")}>Request Enterprise Pilot</button>
           </div>
         </div>
 
-        {/* How Scans Work */}
-        <div className="pricing-info-box">
-          <div className="info-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 16v-4M12 8h.01" />
-            </svg>
-          </div>
-          <div className="info-content">
-            <h4>How Scans Work</h4>
-            <p>A <strong>"new scan"</strong> only happens when we encounter a new extension version (new build hash). If we've already scanned that exact build, you get an instant <strong>free lookup</strong>—no credits used. Deep scans include LLM analysis, VirusTotal checks, and advanced heuristics.</p>
-          </div>
-        </div>
+        {/* Community Contribution */}
+        <div className="karma-panel">
+          <div className="karma-content">
+            {/* Icon Section */}
+            <div className="karma-icon-section">
+              <div className="karma-icon-wrapper">
+                <div className="karma-ring karma-ring-1" />
+                <div className="karma-ring karma-ring-2" />
+                <div className="karma-icon-main">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
 
-        {/* Enterprise CTA */}
-        <div className="enterprise-cta">
-          <div className="enterprise-cta-content">
-            <div className="enterprise-icon">🏢</div>
-            <div className="enterprise-text">
-              <h4>Enterprise</h4>
-              <p>Governance, Compliance <span className="addon-tag">ADD-ON</span>, SSO, and audit logs for teams.</p>
+            {/* Text Section */}
+            <div className="karma-text-section">
+              <h4>Have thoughts? Share with the community.</h4>
+              <p>
+                Help others by sharing extension insights, reporting issues, or recommending safe alternatives.
+                Your contributions build trust and keep the ecosystem safer.
+              </p>
+              <div className="karma-actions">
+                <div className="karma-action-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Verify findings</span>
+                </div>
+                <div className="karma-action-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <span>Report issues</span>
+                </div>
+                <div className="karma-action-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                  <span>Recommend safe alternatives</span>
+                </div>
+              </div>
             </div>
           </div>
-          <button className="enterprise-cta-btn">Contact Sales</button>
         </div>
       </section>
 

@@ -124,6 +124,22 @@ export const ScanProvider = ({ children }) => {
       }
 
       setCurrentExtensionId(extId);
+
+      // Daily deep-scan limit check (cached lookups still allowed)
+      try {
+        const limit = await realScanService.getDeepScanLimitStatus();
+        if (limit?.remaining <= 0) {
+          const cached = await realScanService.hasCachedResults(extId);
+          if (!cached) {
+            setError("Daily deep-scan limit reached. Cached lookups are still unlimited.");
+            setScanStage(null);
+            setIsScanning(false);
+            return;
+          }
+        }
+      } catch (e) {
+        // If the limit check fails, fall back to backend enforcement.
+      }
       
       // Navigate to progress page
       navigate(`/scanner/progress/${extId}`);
@@ -133,7 +149,8 @@ export const ScanProvider = ({ children }) => {
       if (!status.scanned) {
         const scanTrigger = await realScanService.triggerScan(urlToScan);
 
-        if (scanTrigger.status !== "running") {
+        // For cached lookups, backend may return status=completed + already_scanned=true
+        if (!scanTrigger.already_scanned && scanTrigger.status !== "running") {
           throw new Error(scanTrigger.error || "Failed to start scan");
         }
 
@@ -170,6 +187,19 @@ export const ScanProvider = ({ children }) => {
     setScanStage("extracting");
 
     try {
+      // Daily deep-scan limit check (uploads are always deep scans)
+      try {
+        const limit = await realScanService.getDeepScanLimitStatus();
+        if (limit?.remaining <= 0) {
+          setError("Daily deep-scan limit reached. Cached lookups are still unlimited.");
+          setScanStage(null);
+          setIsScanning(false);
+          return;
+        }
+      } catch (e) {
+        // If the limit check fails, fall back to backend enforcement.
+      }
+
       const uploadResult = await realScanService.uploadAndScan(file);
 
       if (!uploadResult || !uploadResult.extension_id) {

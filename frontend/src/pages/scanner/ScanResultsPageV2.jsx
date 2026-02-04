@@ -38,6 +38,7 @@ const ScanResultsPageV2 = () => {
   const [rawData, setRawData] = useState(null);
   const [viewModel, setViewModel] = useState(null);
   const [normalizationError, setNormalizationError] = useState(null);
+  const [showHeroIcon, setShowHeroIcon] = useState(true);
   const [fileViewerModal, setFileViewerModal] = useState({
     isOpen: false,
     file: null,
@@ -104,6 +105,17 @@ const ScanResultsPageV2 = () => {
   const closeEvidenceDrawer = () => {
     setEvidenceDrawer({ open: false, evidenceIds: [] });
   };
+
+  const baseURL = import.meta.env.VITE_API_URL || "";
+  const extensionIdForIcon = viewModel?.meta?.extensionId || scanId;
+  const heroIconUrl =
+    viewModel?.meta?.iconUrl ||
+    (extensionIdForIcon ? `${baseURL}/api/scan/icon/${extensionIdForIcon}` : null);
+
+  // Reset icon visibility when viewing a different extension
+  useEffect(() => {
+    setShowHeroIcon(true);
+  }, [extensionIdForIcon]);
 
   // Loading state
   if (isLoading) {
@@ -202,14 +214,19 @@ const ScanResultsPageV2 = () => {
 
       {/* Hero Section - Risk Dial Centered */}
       <header className="results-v2-hero">
-        {/* Extension Name & Meta - Above Dial */}
+        {/* Extension Name with Icon - Above Dial */}
         <div className="hero-extension-info">
-          <h1 className="hero-title">{meta?.name || "Extension Analysis"}</h1>
-          <div className="hero-meta-row">
-            <code className="hero-id">{meta?.extensionId || scanId}</code>
-            {meta?.version && (
-              <Badge variant="outline">v{meta.version}</Badge>
+          <div className="hero-header">
+            {showHeroIcon && heroIconUrl && (
+              <img
+                src={heroIconUrl}
+                alt={`${meta?.name || "Extension"} icon`}
+                className="hero-icon"
+                loading="lazy"
+                onError={() => setShowHeroIcon(false)}
+              />
             )}
+            <h1 className="hero-title">{meta?.name || "Extension Analysis"}</h1>
           </div>
         </div>
 

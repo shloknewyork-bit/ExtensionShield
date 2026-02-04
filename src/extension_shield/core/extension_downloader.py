@@ -10,6 +10,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 import requests
 from extension_shield.utils.extension import calculate_file_hash, extract_extension_id_by_url
+from extension_shield.core.config import get_settings
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -19,7 +20,7 @@ class ExtensionDownloader:
     """Downloads Chrome extensions from the Chrome Web Store"""
 
     def __init__(self):
-        self.extension_storage_path = os.getenv("EXTENSION_STORAGE_PATH", "./extensions_storage")
+        self.extension_storage_path = get_settings().extension_storage_path
 
     @staticmethod
     def _get_download_url(extension_id: str) -> str:

@@ -1627,6 +1627,20 @@
       box-shadow: 0 12px 40px var(--atlas-accent-glow);
     }
   }
+
+  &.enterprise {
+    border-color: rgba(139, 92, 246, 0.35);
+    background: linear-gradient(180deg, rgba(139, 92, 246, 0.08) 0%, rgba(10, 15, 26, 0.6) 100%);
+
+    &:hover {
+      border-color: rgba(139, 92, 246, 0.55);
+      box-shadow: 0 12px 40px rgba(139, 92, 246, 0.25);
+    }
+
+    .pricing-features li svg {
+      stroke: rgba(139, 92, 246, 0.9);
+    }
+  }
 }
 
 .popular-badge {
@@ -1683,6 +1697,19 @@
     font-size: 1rem;
     color: var(--atlas-text-secondary);
     font-weight: 500;
+  }
+}
+
+/* Enterprise pricing text sizing */
+.pricing-card.enterprise {
+  .pricing-amount {
+    .price {
+      font-size: 2rem;
+      letter-spacing: -0.01em;
+    }
+    .price-period {
+      font-size: 1rem;
+    }
   }
 }
 
@@ -1751,142 +1778,200 @@
       transform: translateY(-2px);
     }
   }
-}
 
-/* Pricing Info Box */
-.pricing-info-box {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.25rem 1.5rem;
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  
-  @media (max-width: 640px) {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-}
+  &.enterprise-btn {
+    background: rgba(139, 92, 246, 0.95);
+    color: #070813;
+    border: none;
 
-.info-icon {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(59, 130, 246, 0.15);
-  border-radius: 8px;
-  flex-shrink: 0;
-  
-  svg {
-    width: 20px;
-    height: 20px;
-    stroke: rgba(59, 130, 246, 0.9);
-  }
-}
-
-.info-content {
-  flex: 1;
-  
-  h4 {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--atlas-text-primary);
-    margin-bottom: 0.375rem;
-  }
-  
-  p {
-    font-size: 0.8125rem;
-    color: var(--atlas-text-secondary);
-    line-height: 1.6;
-    margin: 0;
-    
-    strong {
-      color: var(--atlas-text-primary);
-      font-weight: 600;
+    &:hover {
+      box-shadow: 0 8px 24px rgba(139, 92, 246, 0.35);
+      transform: translateY(-2px);
     }
   }
 }
 
-/* Enterprise CTA */
-.enterprise-cta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(10, 15, 26, 0.6) 100%);
-  border: 1px solid rgba(249, 115, 22, 0.2);
-  border-radius: 12px;
+/* Pricing Info Box */
+
+.coming-soon-tag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--atlas-text-muted);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* ============================================================================
+   KARMA PANEL - Community Contribution
+   ============================================================================ */
+.karma-panel {
+  margin-top: 2.5rem;
+  padding: 2rem;
+  background: rgba(10, 15, 26, 0.6);
+  border: 1px solid var(--atlas-border);
+  border-radius: 16px;
+  transition: all 0.3s ease;
   
-  @media (max-width: 640px) {
-    flex-direction: column;
-    gap: 1.25rem;
+  &:hover {
+    border-color: rgba(34, 197, 94, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.karma-content {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 2rem;
+  align-items: center;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
     text-align: center;
   }
 }
 
-.enterprise-cta-content {
+/* Icon Section - Similar to Honey logo */
+.karma-icon-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.karma-icon-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+}
+
+.karma-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  animation: karmaRingPulse 3s ease-out infinite;
   
-  @media (max-width: 640px) {
-    flex-direction: column;
-    gap: 0.75rem;
+  &.karma-ring-1 {
+    width: 100%;
+    height: 100%;
+    animation-delay: 0s;
+  }
+  
+  &.karma-ring-2 {
+    width: 150%;
+    height: 150%;
+    animation-delay: 0.5s;
   }
 }
 
-.enterprise-icon {
-  font-size: 1.75rem;
+@keyframes karmaRingPulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.3);
+  }
 }
 
-.enterprise-text {
+.karma-icon-main {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border: 2px solid rgba(34, 197, 94, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.2);
+  animation: karmaIconFloat 4s ease-in-out infinite;
+  
+  svg {
+    width: 32px;
+    height: 32px;
+    stroke: var(--atlas-accent);
+  }
+}
+
+@keyframes karmaIconFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Text Section */
+.karma-text-section {
   h4 {
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 1.125rem;
+    font-weight: 700;
     color: var(--atlas-text-primary);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
   }
   
   p {
-    font-size: 0.875rem;
-    color: var(--atlas-text-muted);
-    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--atlas-text-secondary);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
   }
 }
 
-.addon-tag {
-  display: inline-block;
-  padding: 0.125rem 0.375rem;
-  background: rgba(249, 115, 22, 0.2);
-  border: 1px solid rgba(249, 115, 22, 0.4);
-  border-radius: 3px;
-  font-size: 0.5625rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: var(--atlas-orange);
-  margin-left: 0.25rem;
-  vertical-align: middle;
+/* Action Items */
+.karma-actions {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
 }
 
-.enterprise-cta-btn {
-  padding: 0.75rem 1.5rem;
-  background: var(--atlas-orange);
-  color: #030712;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  cursor: pointer;
+.karma-action-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 999px;
   transition: all 0.3s ease;
-  font-family: inherit;
-  white-space: nowrap;
+  
+  svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--atlas-accent);
+    flex-shrink: 0;
+  }
+  
+  span {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--atlas-text-secondary);
+  }
   
   &:hover {
-    box-shadow: 0 8px 24px var(--atlas-orange-glow);
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.4);
     transform: translateY(-2px);
+    
+    span {
+      color: var(--atlas-accent);
+    }
   }
 }
 

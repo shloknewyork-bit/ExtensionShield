@@ -13,6 +13,9 @@ const EnhancedUrlInput = ({
   onScan,
   onFileUpload,
   isScanning = false,
+  scanDisabled = false,
+  scanDisabledTooltip = "",
+  scanButtonLabel = "Scan Extension",
   className = "",
   ...props
 }) => {
@@ -54,24 +57,30 @@ const EnhancedUrlInput = ({
         </div>
 
         {/* Scan Button */}
-        <Button
-          onClick={onScan}
-          disabled={isScanning || !value.trim()}
-          className="scan-button"
-          size="lg"
+        <div
+          className={`scan-button-wrapper ${scanDisabled ? "is-disabled" : ""}`}
+          title={scanDisabled ? scanDisabledTooltip : ""}
         >
-          {isScanning ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Scanning...
-            </>
-          ) : (
-            <>
-              <Search className="mr-2 h-4 w-4" />
-              Scan Extension
-            </>
-          )}
-        </Button>
+          <Button
+            onClick={onScan}
+            disabled={isScanning || !value.trim() || scanDisabled}
+            className="scan-button"
+            size="lg"
+            aria-disabled={isScanning || !value.trim() || scanDisabled}
+          >
+            {isScanning ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Scanning...
+              </>
+            ) : (
+              <>
+                <Search className="mr-2 h-4 w-4" />
+                {scanButtonLabel}
+              </>
+            )}
+          </Button>
+        </div>
 
         {/* File Upload Section */}
         {onFileUpload && (

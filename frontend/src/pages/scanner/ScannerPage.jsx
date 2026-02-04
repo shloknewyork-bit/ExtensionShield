@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import EnhancedUrlInput from "../../components/EnhancedUrlInput";
 import { useScan } from "../../context/ScanContext";
 import databaseService from "../../services/databaseService";
+import realScanService from "../../services/realScanService";
 import {
   enrichScanWithSignals,
   getRiskColorClass,
@@ -89,12 +90,12 @@ const RowActions = ({ scan, onViewReport, onMonitor, onCopyLink, showActions }) 
         </svg>
         <span>View</span>
       </button>
-      <button className="hover-action-btn pro" onClick={onMonitor} title="Monitor (Pro)">
+      <button className="hover-action-btn pro" onClick={onMonitor} title="Monitor (Enterprise)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
         </svg>
         <span>Monitor</span>
-        <span className="pro-badge">PRO</span>
+        <span className="pro-badge">ENTERPRISE</span>
       </button>
       <button className="hover-action-btn" onClick={onCopyLink} title="Copy Share Link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -142,6 +143,10 @@ const ScannerPage = () => {
   const [hoveredRow, setHoveredRow] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const tableWrapperRef = useRef(null);
+
+  // Daily deep-scan limit UI state (cached lookups remain available)
+  const [deepScanLimit, setDeepScanLimit] = useState(null);
+  const [cachedAvailable, setCachedAvailable] = useState(false);
 
   // Load all scans on mount
   useEffect(() => {
@@ -233,6 +238,73 @@ const ScannerPage = () => {
     loadScans();
   }, []);
 
+  // Load deep-scan limit status (best-effort)
+  useEffect(() => {
+    let cancelled = false;
+    const loadLimit = async () => {
+      try {
+        const limit = await realScanService.getDeepScanLimitStatus();
+        if (!cancelled) setDeepScanLimit(limit);
+      } catch (e) {
+        // Ignore - backend may be unavailable in some dev setups
+      }
+    };
+    loadLimit();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // If backend blocks a deep scan (429), refresh limit status so the button can disable immediately.
+  useEffect(() => {
+    if (!error || typeof error !== "string") return;
+    if (!error.toLowerCase().includes("daily deep-scan limit reached")) return;
+
+    let cancelled = false;
+    const refresh = async () => {
+      try {
+        const limit = await realScanService.getDeepScanLimitStatus();
+        if (!cancelled) setDeepScanLimit(limit);
+      } catch (e) {
+        // ignore
+      }
+    };
+    refresh();
+    return () => {
+      cancelled = true;
+    };
+  }, [error]);
+
+  // If limit is reached, check whether this URL maps to an extension with cached results.
+  useEffect(() => {
+    if (!deepScanLimit || deepScanLimit.remaining > 0) {
+      setCachedAvailable(false);
+      return;
+    }
+
+    const raw = (url || "").trim();
+    const extId = realScanService.extractExtensionId(raw);
+    if (!raw || !extId) {
+      setCachedAvailable(false);
+      return;
+    }
+
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      try {
+        const cached = await realScanService.hasCachedResults(extId);
+        if (!cancelled) setCachedAvailable(Boolean(cached));
+      } catch (e) {
+        if (!cancelled) setCachedAvailable(false);
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [url, deepScanLimit]);
+
   // Handle scroll shadows for horizontal scrolling on mobile
   useEffect(() => {
     const tableWrapper = tableWrapperRef.current;
@@ -293,6 +365,15 @@ const ScannerPage = () => {
       window.location.reload();
     }, 2000);
   };
+
+  const deepScanLimitReached = deepScanLimit && deepScanLimit.remaining <= 0;
+  const scanDisabledDueToLimit = Boolean(deepScanLimitReached && !cachedAvailable);
+  const scanDisabledTooltip = "Daily deep-scan limit reached. Cached lookups are still unlimited.";
+  const scanButtonLabel = scanDisabledDueToLimit
+    ? "Daily Limit Reached"
+    : deepScanLimitReached && cachedAvailable
+      ? "Lookup Report"
+      : "Scan Extension";
 
   // Format user count
   const formatUserCount = (count) => {
@@ -379,8 +460,8 @@ const ScannerPage = () => {
   };
 
   const handleMonitor = (extId) => {
-    // Pro feature - show upgrade modal or navigate to pricing
-    alert("Monitoring is a Pro feature. Upgrade to enable continuous monitoring.");
+    // Enterprise feature
+    navigate("/enterprise");
   };
 
   const handleCopyLink = async (extId) => {
@@ -419,8 +500,17 @@ const ScannerPage = () => {
               onScan={handleScanClick}
               onFileUpload={handleFileUpload}
               isScanning={isScanning}
+              scanDisabled={scanDisabledDueToLimit}
+              scanDisabledTooltip={scanDisabledTooltip}
+              scanButtonLabel={scanButtonLabel}
             />
           </div>
+
+          {scanDisabledDueToLimit && (
+            <div className="deep-scan-limit-banner">
+              Daily deep-scan limit reached. Cached lookups are still unlimited.
+            </div>
+          )}
 
           {/* Error Message */}
           {error && !error.includes("✅") && !error.includes("🔄") && (

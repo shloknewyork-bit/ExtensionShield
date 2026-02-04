@@ -16,6 +16,11 @@
   margin-bottom: 1.5rem;
 }
 
+/* Tooltip wrapper for disabled scan button (disabled buttons don't show native tooltips) */
+.scan-button-wrapper {
+  width: 100%;
+}
+
 /* URL Field Container */
 .url-field-container {
   width: 100%;

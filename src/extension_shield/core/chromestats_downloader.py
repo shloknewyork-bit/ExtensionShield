@@ -10,6 +10,7 @@ import requests
 from typing import Optional, Dict, Tuple
 from pathlib import Path
 from dotenv import load_dotenv
+from extension_shield.core.config import get_settings
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -132,7 +133,7 @@ class ChromeStatsDownloader:
             file_ext = ".zip" if file_format == "ZIP" else ".crx"
             
             # Save to extensions_storage directory
-            storage_path = os.getenv("EXTENSION_STORAGE_PATH", "./extensions_storage")
+            storage_path = get_settings().extension_storage_path
             os.makedirs(storage_path, exist_ok=True)
             
             # Create filename with extension ID and version

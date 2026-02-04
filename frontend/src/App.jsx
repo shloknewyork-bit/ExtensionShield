@@ -9,6 +9,7 @@ import { ScannerPage, ScanProgressPage, ScanResultsPage, ScanResultsPageV2 } fro
 import { ReportsPage, ReportDetailPage } from "./pages/reports";
 import ScanHistoryPage from "./pages/ScanHistoryPage";
 import SettingsPage from "./pages/SettingsPage";
+import EnterprisePage from "./pages/EnterprisePage";
 
 // Components
 import SignInModal from "./components/SignInModal";
@@ -228,7 +229,7 @@ function InsightsMegamenu() {
                 </div>
               </NavLink>
               <NavLink to="/reports" className="megamenu-item" onClick={() => setIsOpen(false)}>
-                <span className="upgrade-badge-top">Upgrade</span>
+                <span className="upgrade-badge-top">Enterprise</span>
                 <div className="megamenu-icon">📋</div>
                 <div className="megamenu-content">
                   <div className="megamenu-label">Security Reports</div>
@@ -342,6 +343,9 @@ function AppContent() {
           
           {/* Settings */}
           <Route path="/settings" element={<SettingsPage />} />
+
+          {/* Enterprise */}
+          <Route path="/enterprise" element={<EnterprisePage />} />
           
           {/* Legacy route redirects for backwards compatibility */}
           <Route path="/dashboard" element={<ScannerPage />} />
