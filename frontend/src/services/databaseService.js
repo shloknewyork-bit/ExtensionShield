@@ -11,6 +11,17 @@ class DatabaseService {
     // For local development, set VITE_API_URL=http://localhost:8007 in .env.local
     this.baseURL = import.meta.env.VITE_API_URL || "";
     this.API_BASE_URL = `${this.baseURL}/api`;
+    this.accessToken = null;
+  }
+
+  setAccessToken(token) {
+    this.accessToken = token || null;
+  }
+
+  _authHeaders(tokenOverride = undefined) {
+    const token = tokenOverride !== undefined ? tokenOverride : this.accessToken;
+    if (!token) return {};
+    return { Authorization: `Bearer ${token}` };
   }
   /**
    * Get statistics from the database
@@ -38,10 +49,15 @@ class DatabaseService {
   /**
    * Get scan history from the database
    */
-  async getScanHistory(limit = 50) {
+  async getScanHistory(limit = 50, accessToken = undefined) {
     try {
-      const response = await fetch(`${this.API_BASE_URL}/history?limit=${limit}`);
+      const response = await fetch(`${this.API_BASE_URL}/history?limit=${limit}`, {
+        headers: {
+          ...this._authHeaders(accessToken),
+        }
+      });
       if (!response.ok) {
+        if (response.status === 401) return [];
         throw new Error("Failed to fetch scan history");
       }
       const data = await response.json();

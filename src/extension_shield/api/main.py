@@ -107,6 +107,8 @@ FRONTEND_PUBLIC_DIR = Path(__file__).parent.parent.parent.parent / "frontend" / 
 # Storage for scan results (in-memory cache + database persistence)
 scan_results: Dict[str, Dict[str, Any]] = {}
 scan_status: Dict[str, str] = {}
+# extension_id -> authenticated user_id (Supabase `sub`) at scan trigger time
+scan_user_ids: Dict[str, Optional[str]] = {}
 
 # -----------------------------------------------------------------------------
 # Daily deep-scan limit (placeholder, in-memory)
@@ -357,6 +359,14 @@ async def run_analysis_workflow(url: str, extension_id: str):
 
             # Save to database
             db.save_scan_result(scan_results[extension_id])
+
+            # Save to user history (best-effort; anonymous scans are not saved)
+            user_id = scan_user_ids.pop(extension_id, None)
+            if user_id:
+                try:
+                    db.add_user_scan_history(user_id=user_id, extension_id=extension_id)
+                except Exception:
+                    pass
 
             # Save to file (backup)
             result_file = RESULTS_DIR / f"{extension_id}_results.json"
@@ -1034,6 +1044,13 @@ async def trigger_scan(request: ScanRequest, background_tasks: BackgroundTasks, 
 
     # If we already have results, treat this as a cached lookup (no deep-scan consumption)
     if _has_cached_results(extension_id):
+        # Record user history even for cached lookups (if authenticated)
+        user_id = getattr(getattr(http_request, "state", None), "user_id", None)
+        if user_id:
+            try:
+                db.add_user_scan_history(user_id=user_id, extension_id=extension_id)
+            except Exception:
+                pass
         scan_status[extension_id] = "completed"
         return {
             "message": "Cached results available",
@@ -1068,6 +1085,7 @@ async def trigger_scan(request: ScanRequest, background_tasks: BackgroundTasks, 
     after_consume = _consume_deep_scan(user_id)
 
     # Start background analysis
+    scan_user_ids[extension_id] = getattr(getattr(http_request, "state", None), "user_id", None)
     background_tasks.add_task(run_analysis_workflow, url, extension_id)
 
     return {
@@ -1144,6 +1162,7 @@ async def upload_and_scan(
         raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
 
     # Start background analysis with local file path
+    scan_user_ids[extension_id] = getattr(getattr(http_request, "state", None), "user_id", None)
     background_tasks.add_task(run_analysis_workflow, str(file_path), extension_id)
 
     return {
@@ -1480,7 +1499,7 @@ async def telemetry_summary(days: int = 14):
 
 
 @app.get("/api/history")
-async def get_history(limit: int = 50):
+async def get_history(http_request: Request, limit: int = 50):
     """
     Get scan history.
 
@@ -1490,7 +1509,11 @@ async def get_history(limit: int = 50):
     Returns:
         List of scan history items
     """
-    history = db.get_scan_history(limit=limit)
+    user_id = getattr(getattr(http_request, "state", None), "user_id", None)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Sign in to view history")
+
+    history = db.get_user_scan_history(user_id=user_id, limit=limit)
     return {"history": history, "total": len(history)}
 
 

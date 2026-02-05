@@ -7,6 +7,7 @@ Handles persistent storage of scan results, statistics, and history.
 import os
 import sqlite3
 import json
+import uuid
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Optional, Dict, Any, List
@@ -59,6 +60,18 @@ class Database:
                     path TEXT NOT NULL,
                     count INTEGER NOT NULL DEFAULT 0,
                     PRIMARY KEY (day, path)
+                )
+            """
+            )
+
+            # User-scoped scan history (references global scan_results by extension_id)
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_scan_history (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    extension_id TEXT NOT NULL,
+                    created_at TEXT NOT NULL
                 )
             """
             )
@@ -143,6 +156,13 @@ class Database:
                 """
                 CREATE INDEX IF NOT EXISTS idx_page_views_day
                 ON page_views_daily(day)
+            """
+            )
+
+            cursor.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_user_scan_history_user_created
+                ON user_scan_history(user_id, created_at DESC)
             """
             )
 
@@ -297,6 +317,64 @@ class Database:
             "by_path": by_path,
             "rows": rows,
         }
+
+    def add_user_scan_history(self, user_id: str, extension_id: str) -> bool:
+        """
+        Insert a user-scoped scan history entry.
+        """
+        try:
+            now = datetime.now(timezone.utc).isoformat()
+            row_id = str(uuid.uuid4())
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    INSERT INTO user_scan_history (id, user_id, extension_id, created_at)
+                    VALUES (?, ?, ?, ?)
+                """,
+                    (row_id, user_id, extension_id, now),
+                )
+            return True
+        except Exception as e:
+            print(f"Error adding user scan history: {e}")
+            return False
+
+    def get_user_scan_history(self, user_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+        """
+        Get scan history for a single user, joined with global scan_results by extension_id.
+        """
+        try:
+            with self.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    SELECT
+                        h.extension_id,
+                        r.extension_name,
+                        r.url,
+                        r.timestamp,
+                        r.status,
+                        r.security_score,
+                        r.risk_level,
+                        r.total_findings,
+                        r.total_files,
+                        r.high_risk_count,
+                        r.medium_risk_count,
+                        r.low_risk_count
+                    FROM user_scan_history h
+                    LEFT JOIN scan_results r
+                        ON r.extension_id = h.extension_id
+                    WHERE h.user_id = ?
+                    ORDER BY h.created_at DESC
+                    LIMIT ?
+                """,
+                    (user_id, limit),
+                )
+                rows = cursor.fetchall()
+                return [dict(row) for row in rows]
+        except Exception as e:
+            print(f"Error getting user scan history: {e}")
+            return []
 
     def get_scan_result(self, extension_id: str) -> Optional[Dict[str, Any]]:
         """Get scan result by extension ID."""
@@ -629,6 +707,60 @@ class SupabaseDatabase:
         except Exception as e:
             print(f"Error saving scan result (Supabase): {e}")
             return False
+
+    def add_user_scan_history(self, user_id: str, extension_id: str) -> bool:
+        """
+        Insert into Supabase `user_scan_history`.
+        Relies on RLS policies in production.
+        """
+        try:
+            self.client.table("user_scan_history").insert(
+                {"user_id": user_id, "extension_id": extension_id}
+            ).execute()
+            return True
+        except Exception as e:
+            print(f"Error adding user scan history (Supabase): {e}")
+            return False
+
+    def get_user_scan_history(self, user_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+        """
+        Fetch user history rows, then look up global scan_results by extension_id.
+        """
+        try:
+            hist_resp = (
+                self.client.table("user_scan_history")
+                .select("extension_id, created_at")
+                .eq("user_id", user_id)
+                .order("created_at", desc=True)
+                .limit(limit)
+                .execute()
+            )
+            hist_rows = getattr(hist_resp, "data", None) or []
+            ext_ids = [r.get("extension_id") for r in hist_rows if r.get("extension_id")]
+            if not ext_ids:
+                return []
+
+            scans_resp = (
+                self.client.table(self.table_scan_results)
+                .select(
+                    "extension_id, extension_name, url, timestamp, status, security_score, risk_level, total_findings, total_files, high_risk_count, medium_risk_count, low_risk_count"
+                )
+                .in_("extension_id", ext_ids)
+                .execute()
+            )
+            scans = getattr(scans_resp, "data", None) or []
+            by_id = {r.get("extension_id"): r for r in scans}
+
+            # Preserve user history ordering; attach scan summary where available.
+            out: List[Dict[str, Any]] = []
+            for h in hist_rows:
+                ext = h.get("extension_id")
+                row = by_id.get(ext, {"extension_id": ext})
+                out.append(row)
+            return out
+        except Exception as e:
+            print(f"Error getting user scan history (Supabase): {e}")
+            return []
 
     def get_scan_result(self, extension_id: str) -> Optional[Dict[str, Any]]:
         try:

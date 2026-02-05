@@ -88,7 +88,7 @@ const ScanHistoryPage = () => {
   const [copiedId, setCopiedId] = useState(null);
   const tableWrapperRef = useRef(null);
   const navigate = useNavigate();
-  const { isAuthenticated, openSignInModal } = useAuth();
+  const { isAuthenticated, openSignInModal, accessToken } = useAuth();
 
   // API base URL - use environment variable or same-origin
   const API_BASE_URL = import.meta.env.VITE_API_URL || "";
@@ -107,8 +107,13 @@ const ScanHistoryPage = () => {
   useEffect(() => {
     const loadHistory = async () => {
       setLoading(true);
+      if (!isAuthenticated) {
+        setAllScans([]);
+        setLoading(false);
+        return;
+      }
       try {
-        const history = await databaseService.getRecentScans(100);
+        const history = await databaseService.getScanHistory(100, accessToken);
         
         // Fetch full details for each scan to get signals data
         const enrichedScans = await Promise.all(
@@ -193,7 +198,7 @@ const ScanHistoryPage = () => {
     };
 
     loadHistory();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, accessToken]);
 
   // Handle scroll shadows for horizontal scrolling
   useEffect(() => {
@@ -654,16 +659,29 @@ const ScanHistoryPage = () => {
         {!loading && filteredScans.length === 0 && (
           <div className="empty-state">
             <div className="empty-icon">📭</div>
-            <h3>{searchTerm ? "No matching scans found" : "No scan history yet"}</h3>
+            <h3>
+              {searchTerm
+                ? "No matching scans found"
+                : isPublicView
+                  ? "Sign in to view your scan history"
+                  : "No scan history yet"}
+            </h3>
             <p>
               {searchTerm
                 ? `No scans match "${searchTerm}". Try a different search term.`
-                : "Start by scanning your first Chrome extension."}
+                : isPublicView
+                  ? "Your saved scans are tied to your account."
+                  : "Start by scanning your first Chrome extension."}
             </p>
-            {!searchTerm && (
+            {!searchTerm && !isPublicView && (
               <button className="empty-action-btn" onClick={() => navigate("/scanner")}>
                 <span>⚡</span>
                 Start Your First Scan
+              </button>
+            )}
+            {!searchTerm && isPublicView && (
+              <button className="empty-action-btn" onClick={openSignInModal}>
+                Sign In
               </button>
             )}
           </div>
