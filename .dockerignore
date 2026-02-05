@@ -38,7 +38,15 @@ data/
 .bob/
 
 # Documentation and misc (keep README.md for pyproject.toml)
-docs/
+# Exclude documentation markdown files but keep supabase_migrations/ directory
+docs/AUTH_SETUP_COMPLETE.md
+docs/FIX_REDIRECT_URI_MISMATCH.md
+docs/GOOGLE_OAUTH_SETUP.md
+docs/MIGRATIONS.md
+docs/PRODUCTION_DEPLOYMENT.md
+docs/SUPABASE_VERIFICATION_CHECKLIST.md
+docs/scoring_v2_design.md
+# Note: docs/supabase_migrations/ is needed and will be included
 images/
 AGENTS.md
 CLAUDE.md
