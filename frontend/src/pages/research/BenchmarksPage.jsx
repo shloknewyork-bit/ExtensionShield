@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { TrendChart, CoverageChart, SourcesBox } from "../../components/benchmarks";
+import { TrendChart, SourcesBox } from "../../components/benchmarks";
 import "./BenchmarksPage.scss";
 
 const BenchmarksPage = () => {
@@ -8,6 +8,7 @@ const BenchmarksPage = () => {
   const [benchmarksData, setBenchmarksData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expandedCategory, setExpandedCategory] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -116,57 +117,303 @@ const BenchmarksPage = () => {
             <div className="trends-disclaimer">
               <p>Compiled from public reporting; not a complete measure of all incidents.</p>
             </div>
+          </section>
 
+          {/* Benchmark Highlights */}
+          <section className="highlights-section">
+            <div className="highlights-grid">
+              <div className="highlight-tile">
+                <div className="highlight-number">9</div>
+                <div className="highlight-label">Signal Categories</div>
+                <div className="highlight-detail">Comprehensive coverage across security, privacy, and compliance</div>
+              </div>
+              
+              <div className="highlight-tile">
+                <div className="highlight-badge">✓ Included</div>
+                <div className="highlight-label">Privacy + Compliance</div>
+                <div className="highlight-detail">Beyond traditional security scanning</div>
+              </div>
+              
+              <div className="highlight-tile">
+                <div className="highlight-number">50+</div>
+                <div className="highlight-label">Evidence Artifacts</div>
+                <div className="highlight-detail">Hashes, rule hits, IOCs, screenshots</div>
+              </div>
+              
+              <div className="highlight-tile">
+                <div className="highlight-number">502</div>
+                <div className="highlight-label">
+                  {(() => {
+                    const latestIncident = trendsData.maliciousExtensions[trendsData.maliciousExtensions.length - 1];
+                    const hasSource = latestIncident && latestIncident.source_url;
+                    return hasSource ? (
+                      <>
+                        Reported Incidents (Q4 2024)
+                        <a 
+                          href={latestIncident.source_url}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          style={{
+                            fontSize: '0.75rem',
+                            color: '#22c55e',
+                            textDecoration: 'none',
+                            marginLeft: '0.5rem',
+                            fontWeight: 500
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Source →
+                        </a>
+                      </>
+                    ) : 'Reported incidents (public reports)';
+                  })()}
+                </div>
+                <div className="highlight-detail">From public reports</div>
+              </div>
+            </div>
+          </section>
+
+          {/* Data Sources Section */}
+          <section className="sources-section">
+            <div className="section-header">
+              <h2>Data Sources</h2>
+              <p>Credible sources for industry trend data</p>
+            </div>
             <SourcesBox sources={trendsData.sources} />
           </section>
 
-          {/* ExtensionShield Benchmarking Section */}
-          <section className="benchmarks-section">
+          {/* Capability Grid */}
+          <section className="capability-section">
             <div className="section-header">
-              <h2>Scanner Coverage Comparison</h2>
-              <p>Comparing supported signals across tools; results may differ by methodology.</p>
+              <h2>Signals We Measure</h2>
+              <p>Our rubric covers security, privacy, and compliance signals</p>
             </div>
-
-            {/* Coverage */}
-            <div className="chart-card large">
-              <CoverageChart data={benchmarksData.coverage} />
-            </div>
-
-            {/* Why Our Score Differs - Simplified */}
-            <div className="differentiator-card-simple">
-              <h3>🎯 Why ExtensionShield Scores Differ</h3>
-              <p>We do everything from user reviews to SAST, VirusTotal checks, and compliance analysis:</p>
-              <div className="key-features">
-                <span>• User Reviews Analysis</span>
-                <span>• SAST (Static Analysis)</span>
-                <span>• VirusTotal Integration</span>
-                <span>• Data Collection Patterns</span>
-                <span>• Third-Party Endpoints</span>
-                <span>• Remote Code Execution</span>
-                <span>• ToS/Policy Violations</span>
-                <span>• Permission Alignment</span>
-                <span>• Evidence Chain Tracking</span>
-                <span>• Compliance Checks</span>
-              </div>
-            </div>
-
-            {/* Safer Alternatives - Simplified */}
-            <div className="alternatives-card-simple">
-              <h3>💡 Safer Alternative Recommendations</h3>
-              <p>When risk is high, we recommend better extensions in the same category. Free, always.</p>
-              
-              <div className="examples-grid-simple">
-                {benchmarksData.differentiators.safer_alternatives.example_recommendations.map((rec, index) => (
-                  <div key={index} className="example-card-simple">
-                    <div className="example-header-simple">
-                      <h4>{rec.name}</h4>
-                      <span className="category-badge">{rec.category}</span>
-                      <span className="score-badge">Risk: {rec.risk_score}</span>
-                    </div>
-                    <p className="reason-simple">{rec.reason}</p>
+            <div className="capability-grid">
+              {[
+                {
+                  id: 'permissions',
+                  name: 'Permissions',
+                  status: 'implemented',
+                  signals: [
+                    'Host permissions mismatch',
+                    'Overly broad requests',
+                    'Permission-purpose alignment'
+                  ],
+                  allSignals: [
+                    'Host permissions mismatch',
+                    'Overly broad permission requests',
+                    'Permission-purpose alignment',
+                    'Optional vs required permissions',
+                    'Permission escalation risks'
+                  ]
+                },
+                {
+                  id: 'network',
+                  name: 'Network',
+                  status: 'implemented',
+                  signals: [
+                    'Remote code fetch',
+                    'Tracker endpoints',
+                    'Data exfiltration'
+                  ],
+                  allSignals: [
+                    'Remote code fetch',
+                    'Tracker endpoints',
+                    'Third-party domain analysis',
+                    'HTTPS enforcement',
+                    'Data exfiltration patterns',
+                    'CORS policy violations'
+                  ]
+                },
+                {
+                  id: 'sast',
+                  name: 'SAST',
+                  status: 'implemented',
+                  signals: [
+                    'Static code analysis',
+                    'Malicious patterns',
+                    'Code injection risks'
+                  ],
+                  allSignals: [
+                    'Static code analysis',
+                    'Obfuscation detection',
+                    'Malicious pattern matching',
+                    'Code injection risks',
+                    'Eval() usage detection',
+                    'Dynamic import analysis'
+                  ]
+                },
+                {
+                  id: 'obfuscation',
+                  name: 'Obfuscation',
+                  status: 'implemented',
+                  signals: [
+                    'Code obfuscation',
+                    'String encoding',
+                    'Base64 detection'
+                  ],
+                  allSignals: [
+                    'Code obfuscation detection',
+                    'String encoding analysis',
+                    'Minification patterns',
+                    'Base64 encoding detection',
+                    'Unicode obfuscation'
+                  ]
+                },
+                {
+                  id: 'reputation',
+                  name: 'Reputation',
+                  status: 'implemented',
+                  signals: [
+                    'User review analysis',
+                    'Store ratings',
+                    'Developer reputation'
+                  ],
+                  allSignals: [
+                    'User review analysis',
+                    'Store rating trends',
+                    'Developer reputation',
+                    'Report history',
+                    'Community feedback'
+                  ]
+                },
+                {
+                  id: 'privacy',
+                  name: 'Privacy',
+                  status: 'implemented',
+                  signals: [
+                    'Data collection patterns',
+                    'Tracking surface',
+                    'PII exposure risks'
+                  ],
+                  allSignals: [
+                    'Data collection patterns',
+                    'Tracking surface analysis',
+                    'PII exposure risks',
+                    'User data handling',
+                    'Cookie & storage analysis',
+                    'Cross-site tracking detection'
+                  ]
+                },
+                {
+                  id: 'governance',
+                  name: 'Governance',
+                  status: 'implemented',
+                  signals: [
+                    'Policy/auditability',
+                    'Transparency indicators',
+                    'Evidence chain'
+                  ],
+                  allSignals: [
+                    'Policy/auditability signals',
+                    'Transparency indicators',
+                    'Compliance tracking',
+                    'Evidence chain-of-custody',
+                    'Audit trail generation'
+                  ]
+                },
+                {
+                  id: 'tos-policy',
+                  name: 'ToS/Policy',
+                  status: 'implemented',
+                  signals: [
+                    'Store policy violations',
+                    'Deception indicators',
+                    'Intent mismatch'
+                  ],
+                  allSignals: [
+                    'Store policy violations',
+                    'Deception risk indicators',
+                    'Automation tool detection',
+                    'Intent mismatch analysis',
+                    'Affiliate link hijacking'
+                  ]
+                },
+                {
+                  id: 'evidence',
+                  name: 'Evidence',
+                  status: 'implemented',
+                  signals: [
+                    'Reproducible artifacts',
+                    'File hashes',
+                    'IOC tracking'
+                  ],
+                  allSignals: [
+                    'Reproducible artifacts',
+                    'File hashes & signatures',
+                    'Rule hit documentation',
+                    'IOC tracking',
+                    'Screenshot evidence',
+                    'Network capture logs'
+                  ]
+                }
+              ].map((category) => (
+                <div 
+                  key={category.id}
+                  className={`capability-card ${expandedCategory === category.id ? 'expanded' : ''}`}
+                  onClick={() => setExpandedCategory(expandedCategory === category.id ? null : category.id)}
+                >
+                  <div className="capability-header">
+                    <h4>{category.name}</h4>
+                    <span className="status-badge implemented">Implemented</span>
                   </div>
-                ))}
-              </div>
+                  <ul className="capability-signals">
+                    {category.signals.map((signal, index) => (
+                      <li key={index}>{signal}</li>
+                    ))}
+                  </ul>
+                  {expandedCategory === category.id && (
+                    <div className="capability-expanded">
+                      <ul className="capability-signals-full">
+                        {category.allSignals.map((signal, index) => (
+                          <li key={index}>{signal}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Safer Alternatives */}
+          <section className="recommendations-section">
+            <div className="section-header">
+              <h2>Safer Alternative Recommendations</h2>
+              <p>When risk is elevated, we suggest lower-risk alternatives in the same category (based on our rubric + public signals).</p>
+            </div>
+            
+            <div className="recommendations-grid">
+              {benchmarksData.differentiators.safer_alternatives.example_recommendations.map((rec, index) => (
+                <div key={index} className="recommendation-card">
+                  <div className="recommendation-header">
+                    <h4>{rec.name}</h4>
+                    <span className="risk-badge">Recommended alternative</span>
+                  </div>
+                  <p className="recommendation-reason">{rec.reason}</p>
+                  <div className="recommendation-actions">
+                    <a 
+                      href={rec.reportUrl || `/extension/${rec.name.toLowerCase().replace(/\s+/g, '-')}`} 
+                      className="recommendation-link primary"
+                    >
+                      View report →
+                    </a>
+                    {rec.storeUrl && (
+                      <>
+                        <span style={{ color: '#64748b', margin: '0 0.5rem' }}>·</span>
+                        <a 
+                          href={rec.storeUrl} 
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="recommendation-link secondary"
+                        >
+                          Chrome Web Store
+                        </a>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
         </div>

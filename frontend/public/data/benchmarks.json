@@ -110,7 +110,8 @@
         {
           "name": "uBlock Origin",
           "category": "Ad Blocker",
-          "url": "https://chrome.google.com/webstore/detail/ublock-origin/...",
+          "storeUrl": "https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm",
+          "reportUrl": "/extension/ublock-origin",
           "reason": "Open source, no data collection, transparent development",
           "risk_score": 15,
           "key_differences": "No remote code execution, minimal permissions, active community audit"
@@ -118,7 +119,8 @@
         {
           "name": "Bitwarden",
           "category": "Password Manager",
-          "url": "https://chrome.google.com/webstore/detail/bitwarden/...",
+          "storeUrl": "https://chrome.google.com/webstore/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb",
+          "reportUrl": "/extension/bitwarden",
           "reason": "Open source, end-to-end encryption, security audits",
           "risk_score": 12,
           "key_differences": "Transparent security model, no third-party tracking, SOC 2 certified"
