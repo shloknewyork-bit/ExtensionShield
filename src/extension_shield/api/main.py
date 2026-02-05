@@ -83,6 +83,8 @@ app.add_middleware(
 
 # Static files directory for React frontend (in container)
 STATIC_DIR = Path(__file__).parent.parent.parent.parent / "static"
+# Frontend public directory for development (serves data files)
+FRONTEND_PUBLIC_DIR = Path(__file__).parent.parent.parent.parent / "frontend" / "public"
 
 # Storage for scan results (in-memory cache + database persistence)
 scan_results: Dict[str, Dict[str, Any]] = {}
@@ -1694,10 +1696,23 @@ if STATIC_DIR.exists() and (STATIC_DIR / "assets").exists():
     app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets"), name="assets")
     # Mount root static files (vite.svg, etc.)
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-    # Mount data files from public/data directory
-    data_dir = STATIC_DIR / "data"
-    if data_dir.exists():
-        app.mount("/data", StaticFiles(directory=data_dir), name="data")
+
+# Mount data files - check production first, then fallback to development
+# This allows data files to be served both in production (from static/) and local dev (from frontend/public/)
+data_dir = None
+if STATIC_DIR.exists():
+    prod_data_dir = STATIC_DIR / "data"
+    if prod_data_dir.exists():
+        data_dir = prod_data_dir
+
+# Fallback to development directory if production static dir doesn't exist
+if not data_dir and FRONTEND_PUBLIC_DIR.exists():
+    dev_data_dir = FRONTEND_PUBLIC_DIR / "data"
+    if dev_data_dir.exists():
+        data_dir = dev_data_dir
+
+if data_dir:
+    app.mount("/data", StaticFiles(directory=data_dir), name="data")
 
 
 # Catch-all route for SPA - must be defined last

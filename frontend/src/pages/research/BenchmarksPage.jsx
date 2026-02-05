@@ -13,12 +13,11 @@ const BenchmarksPage = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Use base URL from environment or default to empty string for same-origin
-        const baseURL = import.meta.env.BASE_URL || '';
-        
-        // Construct paths - public folder files are served from root in production
-        const trendsUrl = `${baseURL}/data/trends.json`;
-        const benchmarksUrl = `${baseURL}/data/benchmarks.json`;
+        // Use relative paths - Vite serves public/ files at root in dev
+        // In production, they're also at root after build
+        // Ensure paths start with '/' to make them absolute from domain root
+        const trendsUrl = new URL('/data/trends.json', window.location.origin).href;
+        const benchmarksUrl = new URL('/data/benchmarks.json', window.location.origin).href;
 
         const [trendsRes, benchmarksRes] = await Promise.all([
           fetch(trendsUrl),
