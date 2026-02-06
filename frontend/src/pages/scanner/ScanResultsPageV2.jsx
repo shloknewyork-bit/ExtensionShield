@@ -148,9 +148,14 @@ const ScanResultsPageV2 = () => {
 
   const baseURL = import.meta.env.VITE_API_URL || "";
   const extensionIdForIcon = viewModel?.meta?.extensionId || scanId;
+  // Construct icon URL - use full URL if baseURL is set, otherwise use relative path
   const heroIconUrl =
     viewModel?.meta?.iconUrl ||
-    (extensionIdForIcon ? `${baseURL}/api/scan/icon/${extensionIdForIcon}` : null);
+    (extensionIdForIcon 
+      ? (baseURL 
+          ? `${baseURL}/api/scan/icon/${extensionIdForIcon}` 
+          : `/api/scan/icon/${extensionIdForIcon}`)
+      : null);
 
   // Reset icon visibility when viewing a different extension
   useEffect(() => {
@@ -263,7 +268,11 @@ const ScanResultsPageV2 = () => {
                 alt={`${meta?.name || "Extension"} icon`}
                 className="hero-icon"
                 loading="lazy"
-                onError={() => setShowHeroIcon(false)}
+                onError={(e) => {
+                  // Try to fallback to placeholder or hide icon
+                  e.target.onerror = null;
+                  setShowHeroIcon(false);
+                }}
               />
             )}
             <h1 className="hero-title">{meta?.name || "Extension Analysis"}</h1>
