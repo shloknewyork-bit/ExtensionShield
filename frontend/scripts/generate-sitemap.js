@@ -85,6 +85,11 @@ const sitemapRoutes = [
     path: '/gsoc/blog',
     priority: 0.5,
     changefreq: 'weekly'
+  },
+  {
+    path: '/glossary',
+    priority: 0.7,
+    changefreq: 'monthly'
   }
 ];
 
