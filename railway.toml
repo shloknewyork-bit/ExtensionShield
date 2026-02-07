@@ -32,7 +32,7 @@ startCommand = ""
 
 # Restart policy
 restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 3
+restartPolicyMaxRetries = 1
 
 # Resource limits (optional - adjust based on your plan)
 # memory = "1GB"
