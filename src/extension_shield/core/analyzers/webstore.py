@@ -229,17 +229,29 @@ class WebstoreAnalyzer(BaseAnalyzer):
 
     def _llm_analysis_risk_assessment(self, metadata: Dict, red_flags: List[str]) -> Optional[str]:
         """Perform LLM-based risk assessment of the extension metadata."""
+        from extension_shield.llm.clients.fallback import invoke_with_fallback
+
         model_name = os.getenv("LLM_MODEL", "rits/openai/gpt-oss-20b")
-        llm = get_chat_llm_client(
-            model_name=model_name,
-            model_parameters={
-                "temperature": 0.05,
-                "max_tokens": 1024,
-            },
-        )
+        model_parameters = {
+            "temperature": 0.05,
+            "max_tokens": 1024,
+        }
         prompt = self._llm_analysis_prompt_template(metadata, red_flags)
-        chain = prompt | llm | JsonOutputParser()
-        llm_analysis = chain.invoke({})
+
+        # Format prompt to messages
+        formatted_prompt = prompt.format_prompt({})
+        messages = formatted_prompt.to_messages()
+
+        # Invoke with fallback
+        response = invoke_with_fallback(
+            messages=messages,
+            model_name=model_name,
+            model_parameters=model_parameters,
+        )
+
+        # Parse JSON response
+        parser = JsonOutputParser()
+        llm_analysis = parser.parse(response.content if hasattr(response, "content") else str(response))
         return self._format_analysis_results(llm_analysis)
 
     def analyze(

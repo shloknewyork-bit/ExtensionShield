@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from extension_shield.llm.prompts import get_prompts
-from extension_shield.llm.clients import get_chat_llm_client
+from extension_shield.llm.clients.fallback import invoke_with_fallback
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -107,17 +107,26 @@ class SummaryGenerator:
             manifest=manifest,
         )
         model_name = os.getenv("LLM_MODEL", "rits/openai/gpt-oss-120b")
-        llm = get_chat_llm_client(
-            model_name=model_name,
-            model_parameters={
-                "temperature": 0.05,
-                "max_tokens": 4096,
-            },
-        )
+        model_parameters = {
+            "temperature": 0.05,
+            "max_tokens": 4096,
+        }
 
         try:
-            chain = prompt | llm | JsonOutputParser()
-            summary = chain.invoke({})
+            # Format prompt to messages
+            formatted_prompt = prompt.format_prompt({})
+            messages = formatted_prompt.to_messages()
+
+            # Invoke with fallback
+            response = invoke_with_fallback(
+                messages=messages,
+                model_name=model_name,
+                model_parameters=model_parameters,
+            )
+
+            # Parse JSON response
+            parser = JsonOutputParser()
+            summary = parser.parse(response.content if hasattr(response, "content") else str(response))
             logger.info("Executive summary generated successfully")
             return summary
         except Exception as exc:

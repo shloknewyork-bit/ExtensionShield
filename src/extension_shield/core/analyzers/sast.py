@@ -526,8 +526,7 @@ class JavaScriptAnalyzer(BaseAnalyzer):
     ) -> Optional[str]:
         """Generate LLM-based summary of SAST findings."""
         from extension_shield.llm.prompts import get_prompts
-        from extension_shield.llm.clients import get_chat_llm_client
-        from langchain_core.output_parsers import StrOutputParser
+        from extension_shield.llm.clients.fallback import invoke_with_fallback
         from langchain_core.prompts import PromptTemplate
 
         try:
@@ -550,16 +549,12 @@ class JavaScriptAnalyzer(BaseAnalyzer):
             prompts = get_prompts("sast_analysis.yaml")
             template = PromptTemplate.from_template(prompts["sast_analysis_prompt"])
 
-            # Get LLM client
+            # Get LLM configuration
             model_name = os.getenv("LLM_MODEL", "meta-llama/llama-3-3-70b-instruct")
             model_parameters = {"max_tokens": 500, "temperature": 0.1}
-            llm = get_chat_llm_client(model_name=model_name, model_parameters=model_parameters)
 
-            # Create chain
-            chain = template | llm | StrOutputParser()
-
-            # Invoke LLM
-            summary = chain.invoke(
+            # Format prompt to messages
+            formatted_prompt = template.format_prompt(
                 {
                     "extension_name": extension_name,
                     "files_scanned": files_scanned,
@@ -571,6 +566,17 @@ class JavaScriptAnalyzer(BaseAnalyzer):
                     "findings_details": findings_details,
                 }
             )
+            messages = formatted_prompt.to_messages()
+
+            # Invoke with fallback
+            response = invoke_with_fallback(
+                messages=messages,
+                model_name=model_name,
+                model_parameters=model_parameters,
+            )
+
+            # Parse string response
+            summary = response.content if hasattr(response, "content") else str(response)
 
             logger.info("Generated SAST summary with LLM")
             return summary.strip()

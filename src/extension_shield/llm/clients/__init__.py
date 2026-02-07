@@ -10,22 +10,43 @@ load_dotenv()
 LLM_PROVIDER = LLMProviderType(os.getenv("LLM_PROVIDER", LLMProviderType.WATSONX.value))
 
 
-def _get_base_llm_settings(model_name: str, model_parameters: Optional[Dict]) -> Dict:
+def _get_base_llm_settings(
+    model_name: str, model_parameters: Optional[Dict], provider: Optional[LLMProviderType] = None
+) -> Dict:
+    """Get base LLM settings for a specific provider.
+
+    Args:
+        model_name: The name of the model to use.
+        model_parameters: Optional model parameters.
+        provider: Optional provider override. If None, uses global LLM_PROVIDER.
+
+    Returns:
+        Dictionary of settings for the LLM client.
+    """
     if model_parameters is None:
         model_parameters = {}
 
-    if LLM_PROVIDER == LLMProviderType.OLLAMA:
+    current_provider = provider if provider is not None else LLM_PROVIDER
+
+    if current_provider == LLMProviderType.OLLAMA:
         parameters = {
             "num_predict": model_parameters.get("max_tokens", 1024),
             "temperature": model_parameters.get("temperature", 0.05),
         }
 
-        return {
+        settings = {
             "model": model_name,
             **parameters,
         }
 
-    if LLM_PROVIDER == LLMProviderType.WATSONX:
+        # Add base_url if configured (for remote Ollama instances)
+        ollama_base_url = os.getenv("OLLAMA_BASE_URL")
+        if ollama_base_url:
+            settings["base_url"] = ollama_base_url
+
+        return settings
+
+    if current_provider == LLMProviderType.WATSONX:
         parameters = {
             "max_new_tokens": model_parameters.get("max_tokens", 100),
             "decoding_method": model_parameters.get("decoding_method", "greedy"),
@@ -44,7 +65,7 @@ def _get_base_llm_settings(model_name: str, model_parameters: Optional[Dict]) ->
             "params": parameters,
         }
 
-    if LLM_PROVIDER == LLMProviderType.RITS:
+    if current_provider == LLMProviderType.RITS:
         rits_base_url = os.getenv("RITS_API_BASE_URL")
 
         parameters = {
@@ -63,7 +84,7 @@ def _get_base_llm_settings(model_name: str, model_parameters: Optional[Dict]) ->
             "extra_body": parameters,
         }
 
-    if LLM_PROVIDER == LLMProviderType.OPENAI:
+    if current_provider == LLMProviderType.OPENAI:
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise ValueError(
@@ -92,52 +113,64 @@ def _get_base_llm_settings(model_name: str, model_parameters: Optional[Dict]) ->
             "temperature": model_parameters.get("temperature", 0.7),
         }
 
-    raise ValueError(f"Incorrect LLM provider: {LLM_PROVIDER}")
+    raise ValueError(f"Incorrect LLM provider: {current_provider}")
 
 
 def get_chat_llm_client(
     model_name: str = "meta-llama/llama-3-3-70b-instruct",
     model_parameters: Optional[Dict] = None,
+    provider_override: Optional[LLMProviderType] = None,
 ) -> Any:
     """Get a chat LLM client based on the configured provider.
 
     Args:
         model_name: The name of the model to use.
         model_parameters: Optional model parameters.
+        provider_override: Optional provider to use instead of env config.
 
     Returns:
         The LLM client instance.
     """
-    if LLM_PROVIDER == LLMProviderType.OLLAMA:
+    current_provider = provider_override if provider_override is not None else LLM_PROVIDER
+
+    if current_provider == LLMProviderType.OLLAMA:
         from langchain_ollama import (
             ChatOllama,
         )  # pylint: disable=import-outside-toplevel
 
         return ChatOllama(
-            **_get_base_llm_settings(model_name=model_name, model_parameters=model_parameters)
+            **_get_base_llm_settings(
+                model_name=model_name, model_parameters=model_parameters, provider=current_provider
+            )
         )
 
-    if LLM_PROVIDER == LLMProviderType.RITS:
+    if current_provider == LLMProviderType.RITS:
         from langchain_openai import (
             ChatOpenAI,
         )  # pylint: disable=import-outside-toplevel
 
         return ChatOpenAI(
-            **_get_base_llm_settings(model_name=model_name, model_parameters=model_parameters)
+            **_get_base_llm_settings(
+                model_name=model_name, model_parameters=model_parameters, provider=current_provider
+            )
         )
 
-    if LLM_PROVIDER == LLMProviderType.WATSONX:
+    if current_provider == LLMProviderType.WATSONX:
         from langchain_ibm import ChatWatsonx  # pylint: disable=import-outside-toplevel
 
         return ChatWatsonx(
-            **_get_base_llm_settings(model_name=model_name, model_parameters=model_parameters)
+            **_get_base_llm_settings(
+                model_name=model_name, model_parameters=model_parameters, provider=current_provider
+            )
         )
 
-    if LLM_PROVIDER == LLMProviderType.OPENAI:
+    if current_provider == LLMProviderType.OPENAI:
         from langchain_openai import ChatOpenAI  # pylint: disable=import-outside-toplevel
 
         return ChatOpenAI(
-            **_get_base_llm_settings(model_name=model_name, model_parameters=model_parameters)
+            **_get_base_llm_settings(
+                model_name=model_name, model_parameters=model_parameters, provider=current_provider
+            )
         )
 
-    raise ValueError(f"Unsupported LLM provider: {LLM_PROVIDER}")
+    raise ValueError(f"Unsupported LLM provider: {current_provider}")
