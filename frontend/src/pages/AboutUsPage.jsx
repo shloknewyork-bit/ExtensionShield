@@ -65,19 +65,17 @@ const AboutUsPage = () => {
             <div className="story-section">
               <h2>Background</h2>
               <p>
-                I got my start through <strong>Google Summer of Code</strong> with Drupal (<a href="https://www.drupal.org/u/stanzin" target="_blank" rel="noopener noreferrer">drupal.org/u/stanzin</a>), and that pretty much rewired how I think about software. Open source taught me the good stuff: transparency, community review, "show your work," and the occasional spicy-but-correct code review.
+                I got my start through the <strong>Google Open Source program</strong> and found my passion for software development. I joined Drupal (<a href="https://www.drupal.org/u/stanzin" target="_blank" rel="noopener noreferrer">drupal.org/u/stanzin</a>), where I learned the value of transparency, community review, "show your work," and the occasional spicy-but-correct code review.
               </p>
               <p>
                 Drupal's community is also genuinely fun—smart engineers, real collaboration, and a culture that makes you level up fast.
               </p>
               <p>
-                Today, I work in insurance at Hanover, which is basically the opposite vibe: regulated environments where security, privacy, and compliance aren't optional—they're the job. That experience shaped ExtensionShield into what I wanted in the first place:
+                Later, I joined Hanover Insurance, which is basically the opposite vibe: regulated environments where security, privacy, and compliance aren't optional—they're the job. That experience shaped ExtensionShield into what I wanted in the first place.
               </p>
-              <ul>
-                <li><strong>Evidence-driven analysis</strong> (not vibes)</li>
-                <li><strong>Explainable findings</strong> (not black-box scores)</li>
-                <li><strong>Practical remediation</strong> (what to do next, not just "good luck")</li>
-              </ul>
+              <p>
+                ExtensionShield is partially open source, and you can see how we calculate everything to be transparent.
+              </p>
             </div>
 
             <div className="video-placeholder">

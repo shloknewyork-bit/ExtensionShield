@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
-import { Card, CardContent } from "../../components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { Download, X, Clock, TrendingUp, TrendingDown, Minus, Copy, ChevronDown, ChevronUp } from "lucide-react";
 import FileViewerModal from "../../components/FileViewerModal";
@@ -15,6 +15,218 @@ import {
   isDevelopmentMode 
 } from "../../utils/normalizeScanResult";
 import "./ReportDetailPage.scss";
+
+// -----------------------------------------------------------------------------
+// New UI renderer for backend `report_view_model` (production payload)
+// -----------------------------------------------------------------------------
+const badgeVariantForRisk = (risk) => {
+  const r = String(risk || "").toUpperCase();
+  if (r.includes("HIGH") || r.includes("CRITICAL") || r === "FAIL") return "destructive";
+  if (r.includes("MEDIUM") || r === "WARN") return "secondary";
+  if (r.includes("LOW") || r === "PASS") return "default";
+  return "outline";
+};
+
+const ReportViewModelDetail = ({ report, extensionId, onExportPdf }) => {
+  const [mode, setMode] = useState("simple"); // simple | advanced
+
+  const meta = report?.meta || {};
+  const scorecard = report?.scorecard || {};
+  const highlights = report?.highlights || {};
+  const impactCards = Array.isArray(report?.impact_cards) ? report.impact_cards : [];
+  const privacy = report?.privacy_snapshot || {};
+
+  const why = Array.isArray(highlights?.why_this_score) ? highlights.why_this_score : [];
+  const watch = Array.isArray(highlights?.what_to_watch) ? highlights.what_to_watch : [];
+
+  return (
+    <div className="report-detail-page">
+      <div className="report-bg-effects">
+        <div className="report-bg-gradient report-gradient-1" />
+        <div className="report-bg-gradient report-gradient-2" />
+      </div>
+
+      <div className="report-content">
+        <div className="report-nav" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Link to="/reports" className="back-link">← Back to Reports</Link>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <Button variant="outline" size="sm" onClick={onExportPdf}>
+              <Download size={16} />
+              PDF
+            </Button>
+          </div>
+        </div>
+
+        <Card className="content-card">
+          <CardHeader>
+            <CardTitle style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+              <span>{meta?.name || "Extension Report"}</span>
+              <span style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                <Badge variant="outline">{extensionId}</Badge>
+                <Badge variant={badgeVariantForRisk(scorecard?.score_label)}>{scorecard?.score_label || "UNKNOWN"}</Badge>
+                <Badge variant="outline">Confidence: {scorecard?.confidence || "UNKNOWN"}</Badge>
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div style={{ display: "flex", gap: "1rem", alignItems: "baseline", flexWrap: "wrap" }}>
+              <div style={{ fontSize: "2rem", fontWeight: 700 }}>
+                {Number.isFinite(scorecard?.score) ? scorecard.score : 0}
+                <span style={{ fontSize: "1rem", opacity: 0.7 }}>/100</span>
+              </div>
+              <div style={{ fontSize: "1rem", opacity: 0.9 }}>{scorecard?.one_liner || ""}</div>
+            </div>
+
+            <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem" }}>
+              <Button
+                variant={mode === "simple" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setMode("simple")}
+              >
+                Simple
+              </Button>
+              <Button
+                variant={mode === "advanced" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setMode("advanced")}
+              >
+                Advanced
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div style={{ marginTop: "1rem", display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Why this score</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {why.length > 0 ? (
+                <ul style={{ marginLeft: "1rem", listStyle: "disc" }}>
+                  {why.slice(0, 3).map((item, idx) => <li key={idx}>{item}</li>)}
+                </ul>
+              ) : (
+                <div style={{ opacity: 0.7 }}>No highlights available.</div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>What to watch</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {watch.length > 0 ? (
+                <ul style={{ marginLeft: "1rem", listStyle: "disc" }}>
+                  {watch.slice(0, 2).map((item, idx) => <li key={idx}>{item}</li>)}
+                </ul>
+              ) : (
+                <div style={{ opacity: 0.7 }}>No watch items.</div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div style={{ marginTop: "1rem", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1rem" }}>
+          {impactCards.slice(0, 3).map((c) => (
+            <Card key={c.id}>
+              <CardHeader>
+                <CardTitle style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}>
+                  <span>{c.title || c.id}</span>
+                  <Badge variant={badgeVariantForRisk(c.risk_level)}>{c.risk_level || "UNKNOWN"}</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {Array.isArray(c.bullets) && c.bullets.length > 0 ? (
+                  <ul style={{ marginLeft: "1rem", listStyle: "disc" }}>
+                    {c.bullets.map((b, idx) => <li key={idx}>{b}</li>)}
+                  </ul>
+                ) : (
+                  <div style={{ opacity: 0.7 }}>No details available.</div>
+                )}
+
+                {Array.isArray(c.mitigations) && c.mitigations.length > 0 && (
+                  <div style={{ marginTop: "0.75rem" }}>
+                    <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>Mitigations</div>
+                    <ul style={{ marginLeft: "1rem", listStyle: "disc" }}>
+                      {c.mitigations.map((m, idx) => <li key={idx}>{m}</li>)}
+                    </ul>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {mode === "advanced" && (
+          <div style={{ marginTop: "1rem", display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Privacy &amp; Compliance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {privacy?.privacy_snapshot && (
+                  <div style={{ marginBottom: "0.75rem", opacity: 0.9 }}>{privacy.privacy_snapshot}</div>
+                )}
+
+                {Array.isArray(privacy?.governance_checks) && privacy.governance_checks.length > 0 ? (
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <thead>
+                        <tr style={{ textAlign: "left", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                          <th style={{ padding: "0.5rem" }}>Check</th>
+                          <th style={{ padding: "0.5rem" }}>Status</th>
+                          <th style={{ padding: "0.5rem" }}>Note</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {privacy.governance_checks.map((row, idx) => (
+                          <tr key={idx} style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                            <td style={{ padding: "0.5rem" }}>{row?.check || ""}</td>
+                            <td style={{ padding: "0.5rem" }}>
+                              <Badge variant={badgeVariantForRisk(row?.status)}>{row?.status || "UNKNOWN"}</Badge>
+                            </td>
+                            <td style={{ padding: "0.5rem", opacity: 0.9 }}>{row?.note || ""}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div style={{ opacity: 0.7 }}>No governance checks available.</div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Evidence</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <details>
+                  <summary style={{ cursor: "pointer", userSelect: "none" }}>Show evidence JSON</summary>
+                  <pre
+                    style={{
+                      marginTop: "0.75rem",
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-word",
+                      fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                      fontSize: "0.85rem",
+                      opacity: 0.95
+                    }}
+                  >
+                    {JSON.stringify({ evidence: report?.evidence, raw: report?.raw }, null, 2)}
+                  </pre>
+                </details>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 // Version History Component
 const VersionHistorySection = ({ currentVersion, currentScore, extensionId, scanHistory }) => {
@@ -222,6 +434,7 @@ const ReportDetailPage = () => {
   const [scanResults, setScanResults] = useState(null);
   const [rawScanData, setRawScanData] = useState(null); // Keep raw data for error display
   const [reportViewModel, setReportViewModel] = useState(null); // Normalized view model
+  const [uiReportViewModel, setUiReportViewModel] = useState(null); // Backend report_view_model
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [normalizationError, setNormalizationError] = useState(null);
@@ -246,6 +459,13 @@ const ReportDetailPage = () => {
       
       // Store raw data for error display
       setRawScanData(rawResults);
+
+      // Prefer backend UI payload when available
+      const backendReportVM =
+        rawResults && typeof rawResults === "object" && rawResults.report_view_model && typeof rawResults.report_view_model === "object"
+          ? rawResults.report_view_model
+          : null;
+      setUiReportViewModel(backendReportVM);
       
       // Format for legacy compatibility
       let results = rawResults;
@@ -349,6 +569,17 @@ const ReportDetailPage = () => {
           </div>
         </div>
       </div>
+    );
+  }
+
+  // If backend report_view_model is present, render the production report UI
+  if (uiReportViewModel) {
+    return (
+      <ReportViewModelDetail
+        report={uiReportViewModel}
+        extensionId={reportId}
+        onExportPdf={handleExportPDF}
+      />
     );
   }
 
