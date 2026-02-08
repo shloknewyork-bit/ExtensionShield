@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import databaseService from "../services/databaseService";
 import realScanService from "../services/realScanService";
@@ -13,34 +13,69 @@ const AnalysisPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isMounted = true;
+    
     const loadData = async () => {
-      // 1. Try to get ID from URL query params
-      const params = new URLSearchParams(location.search);
-      let scanId = params.get("id");
+      setLoading(true);
+      
+      // Safety timeout
+      const safetyTimeout = setTimeout(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }, 3000);
 
-      // 2. Fallback: Get most recent scan from history if no ID provided
-      if (!scanId) {
-        const history = await databaseService.getScanHistory(1);
-        if (history.length > 0) {
-          scanId = history[0].extension_id;
-          // Update URL with the ID so refresh works correctly
-          navigate(`/analysis?id=${scanId}`, { replace: true });
+      try {
+        // 1. Try to get ID from URL query params
+        const params = new URLSearchParams(location.search);
+        let scanId = params.get("id");
+
+        // 2. Fallback: Get most recent scan from history if no ID provided
+        if (!scanId) {
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Request timeout')), 5000)
+          );
+          const historyPromise = databaseService.getScanHistory(1);
+          const history = await Promise.race([historyPromise, timeoutPromise]);
+          
+          if (history.length > 0) {
+            scanId = history[0].extension_id;
+            // Update URL with the ID so refresh works correctly
+            if (isMounted) {
+              navigate(`/analysis?id=${scanId}`, { replace: true });
+            }
+          }
+        }
+
+        // 3. Load scan results if we have an ID
+        if (scanId && isMounted) {
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Request timeout')), 5000)
+          );
+          const resultPromise = databaseService.getScanResult(scanId);
+          const dbResult = await Promise.race([resultPromise, timeoutPromise]);
+          
+          if (dbResult && isMounted) {
+            // Format raw database results for TabbedResultsPanel
+            const formattedResults = realScanService.formatRealResults(dbResult);
+            setScanResults(formattedResults);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load analysis data:", error);
+      } finally {
+        clearTimeout(safetyTimeout);
+        if (isMounted) {
+          setLoading(false);
         }
       }
-
-      // 3. Load scan results if we have an ID
-      if (scanId) {
-        const dbResult = await databaseService.getScanResult(scanId);
-        if (dbResult) {
-          // Format raw database results for TabbedResultsPanel
-          const formattedResults = realScanService.formatRealResults(dbResult);
-          setScanResults(formattedResults);
-        }
-      }
-      setLoading(false);
     };
 
     loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [location.search, navigate]);
 
   // Mock handlers since AnalysisPage is read-only view of past results mainly
