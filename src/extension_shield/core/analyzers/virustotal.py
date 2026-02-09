@@ -209,11 +209,38 @@ class VirusTotalAnalyzer(BaseAnalyzer):
                 return results
 
         except vt.error.APIError as e:
-            if "NotFoundError" in str(type(e).__name__) or "not found" in str(e).lower():
+            # ── DEBUG: Log VirusTotal API errors ──
+            error_str = str(e)
+            status_code = getattr(e, "status_code", None)
+            logger.warning("[DEBUG VirusTotal] API error - status_code=%s, error=%s", status_code, error_str)
+            
+            # Check for rate limit (429) or quota exceeded
+            if status_code == 429 or "rate limit" in error_str.lower() or "quota" in error_str.lower():
+                logger.warning("[DEBUG VirusTotal] Rate limit detected (429) - continuing with degraded mode")
+                return {
+                    "found": False,
+                    "status": "RATE_LIMITED",
+                    "message": "VirusTotal rate limit exceeded",
+                    "error": error_str
+                }
+            
+            # Check for invalid API key (401)
+            if status_code == 401 or "unauthorized" in error_str.lower() or "api key" in error_str.lower():
+                logger.error("[DEBUG VirusTotal] Invalid API key (401) - disabling VT analysis")
+                return {
+                    "found": False,
+                    "status": "INVALID_KEY",
+                    "message": "VirusTotal API key invalid",
+                    "error": error_str
+                }
+            
+            if "NotFoundError" in str(type(e).__name__) or "not found" in error_str.lower():
                 return {"found": False, "message": "Hash not found in VirusTotal database"}
+            
             logger.error("VirusTotal API error: %s", e)
-            return {"found": False, "error": str(e)}
+            return {"found": False, "error": error_str}
         except Exception as e:
+            logger.error("[DEBUG VirusTotal] Unexpected error: %s", e)
             logger.error("Error checking VirusTotal: %s", e)
             return {"found": False, "error": str(e)}
 
@@ -274,11 +301,40 @@ class VirusTotalAnalyzer(BaseAnalyzer):
 
                 return results
 
-        except Exception as e:
-            error_str = str(e).lower()
-            if "not found" in error_str or "404" in error_str:
+        except vt.error.APIError as e:
+            # ── DEBUG: Log VirusTotal API errors ──
+            error_str = str(e)
+            status_code = getattr(e, "status_code", None)
+            logger.warning("[DEBUG VirusTotal] API error (sync) - status_code=%s, error=%s", status_code, error_str)
+            
+            # Check for rate limit (429) or quota exceeded
+            if status_code == 429 or "rate limit" in error_str.lower() or "quota" in error_str.lower():
+                logger.warning("[DEBUG VirusTotal] Rate limit detected (429) - continuing with degraded mode")
+                return {
+                    "found": False,
+                    "status": "RATE_LIMITED",
+                    "message": "VirusTotal rate limit exceeded",
+                    "error": error_str
+                }
+            
+            # Check for invalid API key (401)
+            if status_code == 401 or "unauthorized" in error_str.lower() or "api key" in error_str.lower():
+                logger.error("[DEBUG VirusTotal] Invalid API key (401) - disabling VT analysis")
+                return {
+                    "found": False,
+                    "status": "INVALID_KEY",
+                    "message": "VirusTotal API key invalid",
+                    "error": error_str
+                }
+            
+            if "NotFoundError" in str(type(e).__name__) or "not found" in error_str.lower() or "404" in error_str:
                 return {"found": False, "message": "Hash not found in VirusTotal database"}
+            
             logger.error("VirusTotal API error: %s", e)
+            return {"found": False, "error": error_str}
+        except Exception as e:
+            logger.error("[DEBUG VirusTotal] Unexpected error (sync): %s", e)
+            logger.error("Error checking VirusTotal: %s", e)
             return {"found": False, "error": str(e)}
 
     def analyze(
