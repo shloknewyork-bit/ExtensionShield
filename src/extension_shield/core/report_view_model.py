@@ -65,25 +65,47 @@ def _ensure_max_len(items: List[str], max_len: int) -> List[str]:
     return items[:max_len]
 
 
+def _summary_contradicts_label(text: str, score_label: str) -> bool:
+    """
+    Check if executive summary text contradicts the authoritative score_label.
+
+    Returns True if the text contains wording that conflicts with the risk label,
+    e.g. a LOW RISK label paired with "high risk" language.
+    """
+    t = (text or "").lower()
+    if score_label == "LOW RISK":
+        return any(x in t for x in ["high risk", "high-risk", "critical", "avoid", "severe"])
+    if score_label == "HIGH RISK":
+        return any(x in t for x in ["low risk", "low-risk", "safe", "no concerns", "no risk"])
+    return False
+
+
 def _fallback_executive_summary(score: int, score_label: str, host_scope_label: str) -> Dict[str, Any]:
-    """Deterministic executive summary fallback (no LLM)."""
-    broad = host_scope_label == "ALL_WEBSITES"
-    one_liner = {
-        "HIGH RISK": "Higher-risk extension signals detected. Review carefully before allowing.",
-        "MEDIUM RISK": "Some risk signals detected. Review scope and capabilities before allowing.",
-        "LOW RISK": "No strong risk signals detected, but review permissions and scope.",
-    }.get(score_label, "Summary unavailable; review scope and capabilities.")
+    """
+    Deterministic executive summary fallback (no LLM).
+
+    IMPORTANT: The one_liner tone MUST match score_label.
+    The dial and summary will never contradict each other when this
+    function is the source of truth.
+    """
+    label_to_tone = {
+        "LOW RISK": "Low risk overall",
+        "MEDIUM RISK": "Some caution advised",
+        "HIGH RISK": "High risk — avoid unless necessary",
+    }
+    one_liner = label_to_tone.get(score_label, "Risk level unavailable")
+    one_liner += ". Review the notes below."
 
     what_to_watch: List[str] = []
-    if broad:
-        what_to_watch.append("Runs on all websites (broad host access increases potential impact).")
+    if host_scope_label == "ALL_WEBSITES":
+        what_to_watch.append("Runs on all websites; avoid on sensitive accounts.")
     what_to_watch.append("Watch for updates that add new permissions or expand site access.")
     what_to_watch = _ensure_max_len(what_to_watch, 2)
 
     why_this_score = [
-        f"Overall score: {int(score)}/100 ({score_label}).",
-        f"Host access scope: {host_scope_label}.",
-        "No additional narrative was generated; summary is based on scan signals.",
+        "Score is based on permissions, code signals, and store metadata.",
+        "Capabilities indicate what it could do, not intent.",
+        "Evidence links show exactly what triggered the score.",
     ]
     why_this_score = _ensure_len(why_this_score, 3)
 
@@ -91,7 +113,7 @@ def _fallback_executive_summary(score: int, score_label: str, host_scope_label: 
         "one_liner": one_liner,
         "why_this_score": why_this_score,
         "what_to_watch": what_to_watch,
-        "confidence": "LOW",
+        "confidence": "MEDIUM",
         "score": int(score),
         "score_label": score_label,
         # Legacy-compat fields (used elsewhere)
@@ -881,6 +903,27 @@ def build_report_view_model(
         if isinstance(executive_summary_raw, dict) and executive_summary_raw
         else _fallback_executive_summary(score=score, score_label=score_label, host_scope_label=host_scope_label)
     )
+
+    # ── Sanity gate: guard the EXACT text that will appear in scorecard.one_liner ──
+    # Must mirror the expression on the scorecard assembly line below:
+    #   str(executive_summary.get("one_liner") or executive_summary.get("summary") or "")
+    # Old DB summaries only have "summary" (not "one_liner"), so we must check both.
+    if isinstance(executive_summary, dict):
+        display_text = str(
+            executive_summary.get("one_liner")
+            or executive_summary.get("summary")
+            or ""
+        )
+        if _summary_contradicts_label(display_text, score_label):
+            logger.warning(
+                "Executive summary display text contradicts score_label (%s): %.80s… "
+                "Falling back to deterministic summary.",
+                score_label,
+                display_text,
+            )
+            executive_summary = _fallback_executive_summary(
+                score=score, score_label=score_label, host_scope_label=host_scope_label
+            )
 
     impact_analysis_raw: Any = analysis_results.get("impact_analysis") or analysis_results.get("impactAnalysis")
     if not (isinstance(impact_analysis_raw, dict) and impact_analysis_raw):
