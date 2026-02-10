@@ -108,6 +108,12 @@ const RiskBadge = ({ level, score }) => {
   );
 };
 
+// =============================================================================
+// TESTING: Set to true to show scan history table without signing in (uses /api/recent).
+// COMMENT OUT or set to false when login is required for production.
+// =============================================================================
+const SHOW_TABLE_WITHOUT_SIGN_IN = true;
+
 /**
  * ScanHistoryPage Component
  * Displays viewing history of scanned extensions with same design as Scanner page.
@@ -116,9 +122,10 @@ const ScanHistoryPage = () => {
   const [allScans, setAllScans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "timestamp", direction: "desc" });
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [hoveredRow, setHoveredRow] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [dashboardStats, setDashboardStats] = useState({
@@ -136,7 +143,13 @@ const ScanHistoryPage = () => {
   // API base URL - use environment variable or same-origin
   const API_BASE_URL = import.meta.env.VITE_API_URL || "";
   const supabaseConfigured = Boolean(import.meta.env.VITE_SUPABASE_URL);
-  const canLoadHistory = isAuthenticated || !supabaseConfigured;
+  const canLoadHistory = isAuthenticated || !supabaseConfigured || SHOW_TABLE_WITHOUT_SIGN_IN;
+
+  // Debounce search for server-side API calls (searches Postgres)
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
 
   // Helper function to get proper image source
   const getIconSrc = (extensionId) => {
@@ -173,9 +186,20 @@ const ScanHistoryPage = () => {
           setTimeout(() => reject(new Error('Request timeout')), 5000)
         );
 
-        const token = isAuthenticated ? accessToken : undefined;
-        const historyPromise = databaseService.getScanHistory(100, token);
-        const history = await Promise.race([historyPromise, timeoutPromise]);
+        let history;
+        if (SHOW_TABLE_WITHOUT_SIGN_IN && !isAuthenticated) {
+          // Testing: use /api/recent (no auth) - searches Postgres via ?search= param
+          history = await Promise.race([
+            databaseService.getRecentScans(25, debouncedSearch),
+            timeoutPromise
+          ]);
+        } else {
+          const token = isAuthenticated ? accessToken : undefined;
+          history = await Promise.race([
+            databaseService.getScanHistory(100, token),
+            timeoutPromise
+          ]);
+        }
         
         // Load dashboard stats for charts (best-effort, don't block)
         if (isMounted) {
@@ -214,7 +238,7 @@ const ScanHistoryPage = () => {
     return () => {
       isMounted = false;
     };
-  }, [isAuthenticated, accessToken, canLoadHistory]);
+  }, [isAuthenticated, accessToken, canLoadHistory, debouncedSearch]);
 
   // Handle scroll shadows for horizontal scrolling
   useEffect(() => {
@@ -251,8 +275,11 @@ const ScanHistoryPage = () => {
     };
   }, [allScans]);
 
-  // Filter scans by search term
+  // When using getRecentScans, search is done server-side (Postgres). Otherwise filter client-side.
   const filteredScans = useMemo(() => {
+    if (SHOW_TABLE_WITHOUT_SIGN_IN && !isAuthenticated) {
+      return allScans; // Server already filtered by debouncedSearch
+    }
     if (!searchTerm.trim()) return allScans;
     const term = searchTerm.toLowerCase();
     return allScans.filter(
@@ -260,7 +287,7 @@ const ScanHistoryPage = () => {
         scan.extension_name?.toLowerCase().includes(term) ||
         scan.extension_id?.toLowerCase().includes(term)
     );
-  }, [allScans, searchTerm]);
+  }, [allScans, searchTerm, isAuthenticated]);
 
   // Format user count
   const formatUserCount = (count) => {
@@ -379,6 +406,7 @@ const ScanHistoryPage = () => {
   };
 
   const isPublicView = !isAuthenticated;
+  const showBlur = isPublicView && !SHOW_TABLE_WITHOUT_SIGN_IN; // No blur when testing without sign-in
 
   return (
     <>
@@ -420,7 +448,7 @@ const ScanHistoryPage = () => {
               <input
                 type="text"
                 className="search-input"
-                placeholder="Search extensions..."
+                placeholder="Search extensions (searches Postgres)..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -449,7 +477,7 @@ const ScanHistoryPage = () => {
 
         {/* Extensions Table */}
         {!loading && filteredScans.length > 0 && (
-          <div className={`extensions-table-container ${isPublicView ? 'blurred-content' : ''}`}>
+          <div className={`extensions-table-container ${showBlur ? 'blurred-content' : ''}`}>
             <div className="table-wrapper" ref={tableWrapperRef}>
               <table className="extensions-table">
                 <thead>
