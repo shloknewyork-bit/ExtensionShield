@@ -1,7 +1,9 @@
 """
-SQLite Database Module for Project Atlas
+Database Module for ExtensionShield
 
 Handles persistent storage of scan results, statistics, and history.
+- Postgres (Supabase): Primary for staging/production.
+- SQLite: Dev fallback when Supabase is not configured.
 """
 
 import os
@@ -21,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class Database:
-    """SQLite database manager for Project Atlas."""
+    """SQLite database manager (dev fallback when Postgres/Supabase is not used)."""
 
     def __init__(self, db_path: str = None):
         """Initialize database connection.
@@ -29,6 +31,7 @@ class Database:
         Args:
             db_path: Path to SQLite database file. If None, uses DATABASE_PATH
                      environment variable or defaults to 'project-atlas.db'.
+                     Used only when DB_BACKEND=sqlite (dev fallback).
         """
         if db_path is None:
             db_path = get_settings().database_path
@@ -255,12 +258,11 @@ class Database:
                 # Update statistics
                 self._update_statistics()
 
-                print(f"[save_scan_result SQLite] Successfully saved scan for extension_id={extension_id}, status={result.get('status')}")
+                logger.info(f"[save_scan_result SQLite] Saved scan for extension_id={extension_id}")
                 return True
         except Exception as e:
             import traceback
-            print(f"[save_scan_result SQLite] ERROR saving scan result for extension_id={result.get('extension_id')}: {e}")
-            print(f"[save_scan_result SQLite] Traceback: {traceback.format_exc()}")
+            logger.error(f"[save_scan_result SQLite] ERROR for extension_id={result.get('extension_id')}: {e}\n{traceback.format_exc()}")
             return False
 
     def increment_page_view(self, day: str, path: str) -> int:
@@ -527,26 +529,47 @@ class Database:
             print(f"Error getting risk distribution: {e}")
             return {"high": 0, "medium": 0, "low": 0}
 
-    def get_recent_scans(self, limit: int = 10) -> List[Dict[str, Any]]:
-        """Get recent scans with summary info including metadata and signal data to avoid N+1 queries."""
+    def get_recent_scans(self, limit: int = 10, search: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Get recent scans with summary info including metadata and signal data to avoid N+1 queries.
+        Optional search filters by extension_name or extension_id (case-insensitive).
+        """
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    """
-                    SELECT 
-                        extension_id, extension_name, timestamp,
-                        security_score, risk_level, total_findings,
-                        total_files, metadata, 
-                        sast_results, permissions_analysis, manifest, 
-                        webstore_analysis, summary
-                    FROM scan_results
-                    WHERE status = 'completed'
-                    ORDER BY timestamp DESC
-                    LIMIT ?
-                """,
-                    (limit,),
-                )
+                if search and search.strip():
+                    term = f"%{search.strip()}%"
+                    cursor.execute(
+                        """
+                        SELECT 
+                            extension_id, extension_name, timestamp,
+                            security_score, risk_level, total_findings,
+                            total_files, metadata, 
+                            sast_results, permissions_analysis, manifest, 
+                            webstore_analysis, summary
+                        FROM scan_results
+                        WHERE status = 'completed'
+                          AND (extension_name LIKE ? OR extension_id LIKE ?)
+                        ORDER BY timestamp DESC
+                        LIMIT ?
+                    """,
+                        (term, term, limit),
+                    )
+                else:
+                    cursor.execute(
+                        """
+                        SELECT 
+                            extension_id, extension_name, timestamp,
+                            security_score, risk_level, total_findings,
+                            total_files, metadata, 
+                            sast_results, permissions_analysis, manifest, 
+                            webstore_analysis, summary
+                        FROM scan_results
+                        WHERE status = 'completed'
+                        ORDER BY timestamp DESC
+                        LIMIT ?
+                    """,
+                        (limit,),
+                    )
 
                 # Use _row_to_dict to parse JSON fields like metadata, sast_results, etc.
                 rows = cursor.fetchall()
@@ -990,16 +1013,20 @@ class SupabaseDatabase:
             print(f"Error getting scan history (Supabase): {e}")
             return []
 
-    def get_recent_scans(self, limit: int = 10) -> List[Dict[str, Any]]:
+    def get_recent_scans(self, limit: int = 10, search: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Get recent scans. Optional search filters by extension_name or extension_id (case-insensitive)."""
         try:
-            resp = (
+            q = (
                 self.client.table(self.table_scan_results)
                 .select("extension_id, extension_name, scanned_at, security_score, risk_level, total_findings, total_files, high_risk_count, medium_risk_count, low_risk_count, metadata, webstore_analysis, sast_results, permissions_analysis, manifest, summary")
                 .eq("status", "completed")
                 .order("scanned_at", desc=True)
-                .limit(limit)
-                .execute()
             )
+            if search and search.strip():
+                term = search.strip()
+                # PostgREST or_ syntax: column.op.pattern (ilike uses % for wildcard)
+                q = q.or_(f"extension_name.ilike.%{term}%,extension_id.ilike.%{term}%")
+            resp = q.limit(limit).execute()
             rows = getattr(resp, "data", None) or []
             print(f"[get_recent_scans Supabase] Retrieved {len(rows)} scans from database")
             
@@ -1274,8 +1301,8 @@ class SupabaseDatabase:
 def _create_db():
     """
     Choose storage backend:
-    - Supabase if SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are set
-    - SQLite otherwise (dev fallback)
+    - Postgres (Supabase): Primary when SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are set
+    - SQLite: Dev fallback when Supabase is not configured
     """
     import logging
     logger = logging.getLogger(__name__)
