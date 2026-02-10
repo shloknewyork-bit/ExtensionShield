@@ -59,7 +59,7 @@ const ReportScoreCard = ({
 
   const color = getBandColor();
   const displayScore = score === null ? '--' : Math.round(score);
-  const confidencePercent = confidence !== null ? Math.round(confidence * 100) : null;
+  const scorePercent = score !== null ? Math.round(score) : null;
 
   // Get top 2 contributors
   const topContributors = contributors
@@ -81,12 +81,9 @@ const ReportScoreCard = ({
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
-      {/* Score at top */}
-      <div className="score-card-top">
-        <div className="score-value-display" style={{ color }}>
-          {displayScore}
-        </div>
-        {onClick && (
+      {/* Info button at top right */}
+      {onClick && (
+        <div className="score-card-top-right">
           <button 
             className="info-icon-btn" 
             aria-label="View details"
@@ -102,8 +99,8 @@ const ReportScoreCard = ({
             </svg>
             <span className="tooltip">View details</span>
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Centered icon */}
       <div className="score-card-icon-wrapper">
@@ -119,19 +116,19 @@ const ReportScoreCard = ({
         </div>
       </div>
 
-      {/* Confidence indicator */}
-      {confidencePercent !== null && (
+      {/* Score percentage indicator */}
+      {scorePercent !== null && (
         <div className="score-confidence">
           <div className="confidence-bar-container">
             <div 
               className="confidence-bar-fill"
               style={{ 
-                width: `${confidencePercent}%`,
+                width: `${scorePercent}%`,
                 backgroundColor: color
               }}
             />
           </div>
-          <span className="confidence-value">{confidencePercent}%</span>
+          <span className="confidence-value" style={{ color }}>{scorePercent}%</span>
         </div>
       )}
 

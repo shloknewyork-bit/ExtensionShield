@@ -18,15 +18,16 @@ export const SIGNAL_LEVELS = {
 };
 
 // Score thresholds for Security and Privacy layers (0-100 scale)
+// Green: 85-100, Yellow: 60-84, Red: 0-59
 const SECURITY_PRIVACY_THRESHOLDS = {
-  HIGH: 40,   // 0-40: HIGH (red) - Critical/Bad
-  WARN: 60    // 41-60: WARN (yellow) - Review/Warning, 61-100: OK (green) - Good/Clean
+  HIGH: 59,   // 0-59: HIGH (red) - Critical/Bad
+  WARN: 84    // 60-84: WARN (yellow) - Review/Warning, 85-100: OK (green) - Good/Clean
 };
 
-// Score thresholds for Governance layer (slightly different)
+// Score thresholds for Governance layer (same thresholds for consistency)
 const GOVERNANCE_THRESHOLDS = {
-  HIGH: 60,   // 0-60: HIGH (red) - Non-compliant
-  WARN: 80    // 61-80: WARN (yellow) - Review, 81-100: OK (green) - Compliant
+  HIGH: 59,   // 0-59: HIGH (red) - Non-compliant
+  WARN: 84    // 60-84: WARN (yellow) - Review, 85-100: OK (green) - Compliant
 };
 
 // Legacy thresholds (for backward compatibility)
@@ -323,11 +324,11 @@ function calculateIntelSignal(scanResult) {
 
 /**
  * Determine risk level from score
+ * Thresholds: Green (85-100), Yellow (60-84), Red (0-59)
  */
 export function getRiskLevel(score) {
-  if (score >= 80) return 'LOW';
-  if (score >= 60) return 'MED';
-  if (score >= 40) return 'MODERATE';
+  if (score >= 85) return 'LOW';
+  if (score >= 60) return 'MEDIUM';
   return 'HIGH';
 }
 
@@ -340,8 +341,10 @@ export function getRiskColorClass(level) {
       return 'risk-low';
     case 'MED':
     case 'MEDIUM':
-    case 'MODERATE':
       return 'risk-medium';
+    case 'MODERATE':
+      // Legacy value - map to red under current threshold policy.
+      return 'risk-high';
     case 'HIGH':
     case 'CRITICAL':
       return 'risk-high';
@@ -430,11 +433,33 @@ function normalizeRiskLevel(riskLevel) {
  * Enrich scan data with signals and risk info
  */
 export function enrichScanWithSignals(scan, fullResult) {
+  // Prefer risk_and_signals mapping from API if available (new format)
+  const riskAndSignals = fullResult?.risk_and_signals || scan?.risk_and_signals || {};
+  const apiSignals = riskAndSignals.signals || {};
+  const apiSecurityScore = Number(apiSignals.security);
+  const apiPrivacyScore = Number(apiSignals.privacy);
+  const apiGovernanceScore = Number(apiSignals.gov);
+  
+  // Use risk score from API mapping if available
+  const apiRiskScore = Number.isFinite(Number(riskAndSignals.risk))
+    ? Number(riskAndSignals.risk)
+    : null;
+  const apiTotalFindings = Number.isFinite(Number(riskAndSignals.total_findings))
+    ? Number(riskAndSignals.total_findings)
+    : null;
+  const hasAllApiLayerScores =
+    Number.isFinite(apiSecurityScore) &&
+    Number.isFinite(apiPrivacyScore) &&
+    Number.isFinite(apiGovernanceScore);
+  
   // Prefer risk level from scoring_v2 if available (most up-to-date)
   let riskLevel = null;
   if (fullResult?.scoring_v2?.risk_level) {
     // scoring_v2 uses lowercase: "critical", "high", "medium", "low", "none"
     riskLevel = normalizeRiskLevel(fullResult.scoring_v2.risk_level);
+  } else if (apiRiskScore !== null) {
+    // Calculate risk from API risk score
+    riskLevel = getRiskLevel(apiRiskScore);
   } else if (fullResult?.scoring_v2?.overall_score !== undefined) {
     // Calculate risk from scoring_v2 overall_score if risk_level not available
     riskLevel = getRiskLevel(fullResult.scoring_v2.overall_score);
@@ -444,17 +469,40 @@ export function enrichScanWithSignals(scan, fullResult) {
     riskLevel = legacyRisk ? normalizeRiskLevel(legacyRisk) : null;
   }
   
-  // Calculate score - prefer scoring_v2 overall_score if available
-  const score = fullResult?.scoring_v2?.overall_score !== undefined 
-    ? fullResult.scoring_v2.overall_score
-    : (fullResult?.overall_security_score || fullResult?.security_score || scan?.security_score || 0);
+  // Calculate score - prefer API risk score, then scoring_v2 overall_score
+  const score = apiRiskScore !== null
+    ? apiRiskScore
+    : (fullResult?.scoring_v2?.overall_score !== undefined 
+      ? fullResult.scoring_v2.overall_score
+      : (fullResult?.overall_security_score || fullResult?.security_score || scan?.security_score || 0));
   
   // If we still don't have a risk level, calculate it from score
   if (!riskLevel) {
     riskLevel = getRiskLevel(score);
   }
   
-  const findingsCount = fullResult?.total_findings || countFindings(fullResult) || 0;
+  // Use API total findings if available, otherwise calculate
+  const findingsCount = apiTotalFindings !== null
+    ? apiTotalFindings
+    : (fullResult?.total_findings || countFindings(fullResult) || 0);
+  
+  // Calculate signals - prefer API signals if available, otherwise calculate from fullResult
+  let signals;
+  if (hasAllApiLayerScores) {
+    // Use API signals and calculate signal levels from scores
+    signals = {
+      security_signal: calculateSecuritySignal({ scoring_v2: { security_score: apiSecurityScore } }),
+      privacy_signal: calculatePrivacySignal({ scoring_v2: { privacy_score: apiPrivacyScore } }),
+      governance_signal: calculateGovernanceSignal({ scoring_v2: { governance_score: apiGovernanceScore } }),
+      // Legacy signals for backward compatibility
+      code_signal: calculateSecuritySignal({ scoring_v2: { security_score: apiSecurityScore } }),
+      perms_signal: calculatePrivacySignal({ scoring_v2: { privacy_score: apiPrivacyScore } }),
+      intel_signal: calculateGovernanceSignal({ scoring_v2: { governance_score: apiGovernanceScore } }),
+    };
+  } else {
+    // Fallback to calculating from fullResult
+    signals = calculateAllSignals(fullResult);
+  }
   
   return {
     ...scan,
@@ -462,7 +510,7 @@ export function enrichScanWithSignals(scan, fullResult) {
     risk_level: riskLevel,
     findings_count: findingsCount,
     top_finding_summary: getTopFindingSummary(fullResult),
-    signals: calculateAllSignals(fullResult),
+    signals,
     last_scanned_at: scan.timestamp || fullResult?.timestamp
   };
 }

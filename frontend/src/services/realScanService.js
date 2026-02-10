@@ -391,10 +391,11 @@ class RealScanService {
   }
 
   // Determine risk level from CLI results
+  // Thresholds: Green (85-100), Yellow (60-84), Red (0-59)
   determineRiskLevel(score) {
-    if (score < 30) return "HIGH";
-    if (score < 70) return "MEDIUM";
-    return "LOW";
+    if (score >= 85) return "LOW";
+    if (score >= 60) return "MEDIUM";
+    return "HIGH";
   }
 
   // Format file analysis results

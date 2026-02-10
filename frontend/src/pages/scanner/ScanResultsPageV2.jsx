@@ -395,16 +395,6 @@ const ScanResultsPageV2 = () => {
         </Link>
         <div className="nav-actions">
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              const baseURL = import.meta.env.VITE_API_URL || "";
-              window.open(`${baseURL}/api/scan/report/${scanId}`, '_blank');
-            }}
-          >
-            Export PDF
-          </Button>
-          <Button
             variant="default"
             size="sm"
             onClick={() => navigate("/scanner")}

@@ -65,7 +65,10 @@ export async function enrichScan(scan, options = {}) {
 
   // If metadata is already available in scan, use it directly (avoids N+1 queries)
   const metadata = parseMetadata(scan);
-  const hasMetadata = metadata && Object.keys(metadata).length > 0;
+  // Extract risk and signals from new API mapping if available
+  const riskAndSignals = scan.risk_and_signals || {};
+  const riskScore = riskAndSignals.risk ?? scan.security_score ?? scan.score ?? 0;
+  const totalFindings = riskAndSignals.total_findings ?? scan.total_findings ?? 0;
 
   // Build base scan object with available data
   const baseScan = {
@@ -78,9 +81,9 @@ export async function enrichScan(scan, options = {}) {
       scan.extensionId,
     extension_id: scan.extension_id || scan.extensionId,
     timestamp: scan.timestamp,
-    score: scan.security_score || scan.score || 0,
+    score: riskScore,
     risk_level: scan.risk_level || 'UNKNOWN',
-    findings_count: scan.total_findings || 0,
+    findings_count: totalFindings,
     user_count: metadata?.user_count || metadata?.userCount || null,
     rating: metadata?.rating_value || metadata?.rating || null,
     rating_count:
@@ -91,18 +94,12 @@ export async function enrichScan(scan, options = {}) {
     logo: metadata?.logo || null,
   };
 
-  // If skipFullFetch is true and we have metadata AND scoring_v2 info, skip extra API calls
-  const hasScoringV2 = Boolean(
-    scan.scoring_v2 ||
-    scan.summary?.scoring_v2 ||
-    scan.report_view_model?.scoring_v2 ||
-    scan.governance_bundle?.scoring_v2
-  );
-
-  if (hasMetadata && skipFullFetch && hasScoringV2) {
+  // If skipFullFetch is true, use available data directly (even without metadata or scoring_v2)
+  // This avoids N+1 queries and makes the table load much faster
+  if (skipFullFetch) {
     const scanDataForSignals = {
       ...scan,
-      metadata,
+      metadata: metadata || {},
       sast_results: scan.sast_results || metadata?.sast_results,
       permissions_analysis: scan.permissions_analysis || metadata?.permissions_analysis,
       virustotal_analysis: scan.virustotal_analysis || metadata?.virustotal_analysis || scan.virustotal_analysis,
@@ -112,15 +109,13 @@ export async function enrichScan(scan, options = {}) {
       governance_bundle: scan.governance_bundle || scan.summary?.governance_bundle,
     };
 
+    // Always enrich with available data when skipFullFetch is true
+    // This ensures we return a valid scan object even if metadata or scoring_v2 is missing
     const enriched = enrichScanWithSignals(baseScan, scanDataForSignals);
     return enriched;
   }
 
-  if (hasMetadata && skipFullFetch && !hasScoringV2) {
-    console.info(`[enrichScan] Missing scoring_v2 for ${scan.extension_id}, fetching full result`);
-  }
-
-  // Original behavior: fetch full result if metadata not available or skipFullFetch is false
+  // Original behavior: fetch full result if skipFullFetch is false
   try {
     const resultPromise = databaseService.getScanResult(
       scan.extension_id || scan.extensionId
@@ -151,8 +146,11 @@ export async function enrichScan(scan, options = {}) {
     return enriched;
   } catch (err) {
     // If fetch fails, use what we have and create fallback
+    // This ensures we always return a valid scan object, never null
     console.warn(`Could not fetch full result for ${scan.extension_id}, using available data:`, err);
-    return enrichScanWithSignals(baseScan, { metadata, ...scan });
+    const fallbackData = { metadata, ...scan };
+    const enriched = enrichScanWithSignals(baseScan, fallbackData);
+    return enriched;
   }
 }
 
@@ -171,17 +169,16 @@ export async function enrichScans(scans, options = {}) {
     return [];
   }
 
-  // Check if scans already have metadata - if so, we can skip full fetches for better performance
-  const hasMetadata = scans.some(scan => {
-    const metadata = parseMetadata(scan);
-    return metadata && Object.keys(metadata).length > 0;
-  });
-
-  // If metadata is available, skip full fetches to avoid N+1 queries
-  // We still need to fetch for signals, but we can do it more efficiently
+  // Respect explicit skipFullFetch option, or auto-detect if metadata is available
+  // If skipFullFetch is explicitly set, use it; otherwise, auto-detect based on metadata
   const enrichmentOptions = {
     ...options,
-    skipFullFetch: hasMetadata && options.skipFullFetch !== false,
+    skipFullFetch: options.skipFullFetch !== undefined 
+      ? options.skipFullFetch 
+      : scans.some(scan => {
+          const metadata = parseMetadata(scan);
+          return metadata && Object.keys(metadata).length > 0;
+        }),
   };
 
   console.log(`[enrichScans] Enriching ${scans.length} scans, skipFullFetch=${enrichmentOptions.skipFullFetch}`);
@@ -192,13 +189,16 @@ export async function enrichScans(scans, options = {}) {
   const enriched = results
     .map((result, index) => {
       if (result.status === 'fulfilled') {
-        return result.value;
+        // Ensure we have a valid scan object
+        return result.value || createFallbackScan(scans[index]);
       } else {
-        console.warn(`[enrichScans] Failed to enrich scan ${index}:`, result.reason);
-        return null;
+        // If enrichment failed, create a fallback scan instead of filtering it out
+        // This ensures the table always shows all scans, even if enrichment fails
+        console.warn(`[enrichScans] Failed to enrich scan ${index}, using fallback:`, result.reason);
+        return createFallbackScan(scans[index]);
       }
     })
-    .filter(Boolean);
+    .filter(scan => scan && scan.extension_id); // Only filter out scans without extension_id
   
   console.log(`[enrichScans] Successfully enriched ${enriched.length} of ${scans.length} scans`);
   return enriched;

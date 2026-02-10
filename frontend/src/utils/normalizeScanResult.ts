@@ -146,11 +146,11 @@ function bandFromRiskLevel(riskLevel: string | null | undefined): ScoreBand | nu
 
 /**
  * Get score band from score value
- * Thresholds: >= 80 => LOW (GOOD), >= 60 => MEDIUM (WARN), else => HIGH (BAD)
+ * Thresholds: Green (85-100), Yellow (60-84), Red (0-59)
  */
 function bandFromScore(score: number | null): ScoreBand {
   if (score === null) return 'NA';
-  if (score >= 80) return 'GOOD';
+  if (score >= 85) return 'GOOD';
   if (score >= 60) return 'WARN';
   return 'BAD';
 }

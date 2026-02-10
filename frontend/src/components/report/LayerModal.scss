@@ -111,6 +111,33 @@
     .section-content {
       padding: 20px;
       background: rgba(255, 255, 255, 0.005);
+
+      @media (max-width: 640px) {
+        padding: 16px;
+      }
+    }
+  }
+
+  // Responsive adjustments for findings list
+  @media (max-width: 640px) {
+    .findings-list {
+      gap: 12px;
+
+      .finding-item {
+        padding: 14px;
+        gap: 10px;
+
+        .finding-text {
+          font-size: 14px;
+        }
+
+        .view-evidence-btn {
+          padding: 8px 14px;
+          font-size: 12px;
+          width: 100%;
+          text-align: center;
+        }
+      }
     }
   }
 
@@ -120,13 +147,13 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
 
     .finding-item {
       display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      padding: 16px;
+      flex-direction: column;
+      gap: 12px;
+      padding: 18px;
       background: rgba(255, 255, 255, 0.025);
       border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -137,15 +164,19 @@
         border-color: rgba(255, 255, 255, 0.12);
       }
 
+      // Top row: severity badge and text
       .finding-severity {
-        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
         padding: 6px 10px;
         border-radius: 6px;
-        flex-shrink: 0;
         line-height: 1;
-        letter-spacing: 0.025em;
+        letter-spacing: 0.05em;
+        width: fit-content;
+        margin-bottom: 4px;
 
         &.severity-high, &.severity-critical {
           background: rgba(239, 68, 68, 0.15);
@@ -166,29 +197,41 @@
         }
       }
 
+      // Text content area
       .finding-text {
-        flex: 1;
-        font-size: 16px;
-        color: rgba(248, 250, 252, 0.85);
-        line-height: 1.5;
+        font-size: 15px;
+        color: rgba(248, 250, 252, 0.9);
+        line-height: 1.6;
         letter-spacing: -0.005em;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        margin-bottom: 8px;
       }
 
+      // Evidence button - always on its own row
       .view-evidence-btn {
-        padding: 8px 14px;
-        background: rgba(59, 130, 246, 0.1);
+        align-self: flex-start;
+        padding: 10px 16px;
+        background: rgba(59, 130, 246, 0.12);
         color: #60a5fa;
         border: 1px solid rgba(59, 130, 246, 0.3);
         border-radius: 6px;
-        font-size: 14px;
-        font-weight: 500;
+        font-size: 13px;
+        font-weight: 600;
         cursor: pointer;
         transition: all 0.2s ease;
-        flex-shrink: 0;
+        white-space: nowrap;
+        margin-top: 4px;
 
         &:hover {
           background: rgba(59, 130, 246, 0.2);
           border-color: rgba(59, 130, 246, 0.5);
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+        }
+
+        &:active {
+          transform: translateY(0);
         }
       }
     }

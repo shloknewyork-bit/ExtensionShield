@@ -36,16 +36,27 @@ class RiskLevel(str, Enum):
     
     @classmethod
     def from_score(cls, score: int) -> "RiskLevel":
-        """Convert score [0-100] to risk level (higher score = safer)."""
-        if score < 30:
-            return cls.CRITICAL
-        elif score < 50:
+        """
+        Convert score [0-100] to risk level (higher score = safer).
+        
+        Thresholds (aligned with frontend):
+        - Red (HIGH/CRITICAL): 0-59
+        - Yellow (MEDIUM/WARN): 60-84
+        - Green (LOW/NONE): 85-100
+        """
+        if score < 60:
+            # 0-59: Red zone (HIGH or CRITICAL)
+            if score < 30:
+                return cls.CRITICAL
             return cls.HIGH
-        elif score < 70:
+        elif score < 85:
+            # 60-84: Yellow zone (MEDIUM)
             return cls.MEDIUM
-        elif score < 90:
+        else:
+            # 85-100: Green zone (LOW or NONE)
+            if score >= 95:
+                return cls.NONE
             return cls.LOW
-        return cls.NONE
 
 
 class Decision(str, Enum):

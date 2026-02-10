@@ -23,6 +23,7 @@ create table "public"."scan_results" (
   "summary" jsonb,
   "extracted_path" text,
   "extracted_files" jsonb,
+  "icon_path" text,  -- Relative path to icon (e.g., "icons/128.png")
   "error" text,
   "created_at" timestamptz default now(),
   "updated_at" timestamptz default now()

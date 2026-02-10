@@ -25,6 +25,7 @@ from enum import Enum
 from typing import Any, Dict, List, Literal, Optional, Tuple
 
 from extension_shield.governance.signal_pack import (
+    NetworkSignalPack,
     PermissionsSignalPack,
     SastFindingNormalized,
     SastSignalPack,
@@ -33,6 +34,40 @@ from extension_shield.governance.signal_pack import (
     WebstoreStatsSignalPack,
 )
 from extension_shield.scoring.models import Decision, LayerScore
+
+
+# =============================================================================
+# DOMAIN LISTS (COMPLIANCE / SITE TERMS)
+# =============================================================================
+
+# US visa scheduling ecosystem domains referenced in compliance findings.
+# These sites are known to prohibit automated access/scraping and/or
+# unauthorized third-party processing in their Terms of Use.
+TRAVEL_DOCS_PROTECTED_DOMAINS: Tuple[str, ...] = (
+    "usvisascheduling.com",
+    "ustraveldocs.com",
+    "cgi-federal.com",
+    "b2clogin.com",  # Azure B2C auth used by visa portals
+)
+
+# Known third-party visa-slot / automation ecosystem domains (non-exhaustive).
+# Used to flag potential unauthorized processors when paired with protected portals.
+VISA_SLOT_ECOSYSTEM_DOMAINS: Tuple[str, ...] = (
+    "checkvisaslots.com",
+    "visaslots.ca",
+    "easyslotbooking.com",
+    "usavisaslot.com",
+    "earlyvisa.co",
+    "firstslotsalert.com",
+    "fastervisa.co",
+    "luckybee.app",
+    "visaslotwatch.com",
+    "slotbot.in",
+    "vecnaselfie.com",
+    "visaslots.info",
+    "visaslots.us",
+    "visajar.com",
+)
 
 
 # =============================================================================
@@ -96,6 +131,25 @@ class GateConfig:
         "debugger",                  # Often prohibited in enterprise
         "proxy",                     # Can intercept traffic
         "nativeMessaging",           # Can bypass browser sandbox
+    )
+
+    # Travel-docs / visa portal compliance patterns
+    travel_docs_protected_domains: Tuple[str, ...] = TRAVEL_DOCS_PROTECTED_DOMAINS
+    visa_slot_ecosystem_domains: Tuple[str, ...] = VISA_SLOT_ECOSYSTEM_DOMAINS
+    travel_docs_automation_code_patterns: Tuple[str, ...] = (
+        # Automation / interception patterns
+        r"xmlhttprequest\.prototype\.(open|send)\s*=",
+        r"\.open\s*=\s*function",
+        r"\.send\s*=\s*function",
+        r"intercept.*xmlhttprequest",
+        # Screenshot capture patterns
+        r"html2canvas",
+        r"toDataURL\(\s*[\"']image/png[\"']\s*\)",
+        r"captureVisibleTab",
+        # Credential storage patterns
+        r"chrome\.storage\.(local|sync)\.set",
+        r"logindetails",
+        r"securityquestions",
     )
     
     # PURPOSE_MISMATCH patterns
@@ -430,6 +484,8 @@ class HardGates:
     def evaluate_tos_violation(
         self,
         perms: PermissionsSignalPack,
+        sast: SastSignalPack,
+        network: NetworkSignalPack,
         manifest: Dict[str, Any],
     ) -> GateResult:
         """
@@ -437,6 +493,12 @@ class HardGates:
         
         Certain permissions or behaviors are explicitly prohibited by
         enterprise policies or Chrome Web Store ToS.
+        
+        Additionally, some sites (e.g., U.S. visa scheduling / travel-docs portals)
+        explicitly prohibit automated access/scraping and unauthorized third-party
+        processing. If an extension targets those portals and exhibits automation,
+        screenshot capture, credential storage, or third-party endpoint patterns,
+        we treat this as a high-confidence governance/compliance failure.
         
         Args:
             perms: Permissions signal pack
@@ -465,6 +527,124 @@ class HardGates:
             if "<all_urls>" in matches or "*://*/*" in matches:
                 violations.append("externally_connectable allows all URLs")
                 evidence_ids.append("tos:ext_connectable_wildcard")
+
+        # ---------------------------------------------------------------------
+        # Travel-docs / visa portal ToS risk (deterministic, evidence-based)
+        # ---------------------------------------------------------------------
+
+        def _matches_any_domain(patterns: List[str], domains: Tuple[str, ...]) -> List[str]:
+            hits: List[str] = []
+            for p in patterns:
+                if not isinstance(p, str):
+                    continue
+                low = p.lower()
+                for d in domains:
+                    if d and d in low:
+                        hits.append(d)
+            return list(dict.fromkeys(hits))
+
+        # Evidence anchor 1: protected portal host permissions / content_script matches
+        protected_domain_hits: List[str] = _matches_any_domain(
+            perms.host_permissions or [], self.config.travel_docs_protected_domains
+        )
+
+        cs_matches: List[str] = []
+        for cs in (manifest.get("content_scripts") or []):
+            if not isinstance(cs, dict):
+                continue
+            matches = cs.get("matches") or []
+            if isinstance(matches, list):
+                cs_matches.extend([m for m in matches if isinstance(m, str)])
+        protected_domain_hits = list(
+            dict.fromkeys(
+                protected_domain_hits
+                + _matches_any_domain(cs_matches, self.config.travel_docs_protected_domains)
+            )
+        )
+
+        # Evidence anchor 2: visa-slot ecosystem endpoints in network domains or externally_connectable
+        ext_conn_matches: List[str] = []
+        if isinstance(ext_conn, dict):
+            m = ext_conn.get("matches") or []
+            if isinstance(m, list):
+                ext_conn_matches = [x for x in m if isinstance(x, str)]
+
+        network_domains: List[str] = []
+        try:
+            if network and getattr(network, "enabled", False):
+                network_domains = list(getattr(network, "domains", []) or [])
+        except Exception:
+            network_domains = []
+
+        visa_ecosystem_hits = list(
+            dict.fromkeys(
+                _matches_any_domain(network_domains, self.config.visa_slot_ecosystem_domains)
+                + _matches_any_domain(ext_conn_matches, self.config.visa_slot_ecosystem_domains)
+            )
+        )
+
+        # Evidence anchor 3: code patterns in SAST findings (best-effort)
+        tos_patterns = [
+            re.compile(p, re.IGNORECASE)
+            for p in getattr(self.config, "travel_docs_automation_code_patterns", ())
+        ]
+        all_findings_text: List[str] = []
+        for f in (getattr(sast, "deduped_findings", None) or []):
+            try:
+                all_findings_text.append(
+                    f"{getattr(f, 'check_id', '')} {getattr(f, 'message', '')} {getattr(f, 'code_snippet', '')}"
+                )
+            except Exception:
+                continue
+        joined = "\n".join(all_findings_text).lower()
+
+        pattern_hits: List[str] = []
+        for rx in tos_patterns:
+            if rx.search(joined):
+                pattern_hits.append(rx.pattern)
+        pattern_hits = list(dict.fromkeys(pattern_hits))
+
+        domain_string_hits: List[str] = []
+        for d in self.config.visa_slot_ecosystem_domains:
+            if d in joined:
+                domain_string_hits.append(d)
+        domain_string_hits = list(dict.fromkeys(domain_string_hits))
+
+        # Capability inference: automation or capture capability
+        has_injection_capability = any(
+            p in (perms.api_permissions or [])
+            for p in ["scripting", "webRequest", "webRequestBlocking", "declarativeNetRequest"]
+        ) or bool(manifest.get("content_scripts"))
+        has_capture_capability = any(
+            p in (perms.api_permissions or []) for p in ["tabCapture", "desktopCapture"]
+        ) or any("html2canvas" in ph.lower() for ph in pattern_hits)
+
+        if protected_domain_hits and (
+            has_injection_capability
+            or has_capture_capability
+            or visa_ecosystem_hits
+            or domain_string_hits
+            or pattern_hits
+        ):
+            violations.append(
+                "Targets U.S. visa scheduling / travel-docs portals where automated access may violate site Terms (account ban risk)"
+            )
+            evidence_ids.append("tos:travel_docs:protected_domain_access")
+
+            if has_injection_capability:
+                violations.append("Automation/script injection capability present on protected visa portal domains")
+                evidence_ids.append("tos:travel_docs:automation_capability")
+
+            if has_capture_capability:
+                violations.append("Screenshot capture patterns/capabilities detected (may capture visa travel documents)")
+                evidence_ids.append("tos:travel_docs:screenshot_capture")
+
+            combined_exfil_hits = list(dict.fromkeys(visa_ecosystem_hits + domain_string_hits))
+            if combined_exfil_hits:
+                violations.append(
+                    "Third-party endpoints detected alongside protected visa portals (potential unauthorized processor)"
+                )
+                evidence_ids.append("tos:travel_docs:third_party_processor")
         
         if violations:
             return GateResult(
@@ -477,6 +657,12 @@ class HardGates:
                 details={
                     "violations": violations,
                     "checked_permissions": list(self.config.tos_prohibited_permissions),
+                    "travel_docs": {
+                        "protected_domains_hit": protected_domain_hits[:10],
+                        "visa_ecosystem_domains_hit": list(dict.fromkeys(visa_ecosystem_hits + domain_string_hits))[:20],
+                        "pattern_hits": pattern_hits[:20],
+                        "externally_connectable_matches": ext_conn_matches[:20],
+                    },
                 },
             )
         
@@ -766,7 +952,7 @@ class HardGates:
         results = [
             self.evaluate_vt_malware(signal_pack.virustotal),
             self.evaluate_critical_sast(signal_pack.sast),
-            self.evaluate_tos_violation(signal_pack.permissions, manifest),
+            self.evaluate_tos_violation(signal_pack.permissions, signal_pack.sast, signal_pack.network, manifest),
             self.evaluate_purpose_mismatch(manifest, signal_pack.sast, signal_pack.permissions),
             self.evaluate_sensitive_exfil(
                 signal_pack.permissions,

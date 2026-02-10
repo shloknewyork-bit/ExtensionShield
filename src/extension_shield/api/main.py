@@ -30,8 +30,6 @@ from extension_shield.workflow.graph import build_graph
 from extension_shield.workflow.state import WorkflowState, WorkflowStatus
 from extension_shield.api.database import db
 from extension_shield.api.supabase_auth import get_current_user_id as _get_current_user_id
-from extension_shield.scoring.engine import ScoringEngine
-from extension_shield.governance.tool_adapters import SignalPackBuilder
 from extension_shield.core.config import get_settings
 from extension_shield.api.csp_middleware import CSPMiddleware
 from extension_shield.core.report_view_model import build_report_view_model, build_consumer_insights
@@ -80,8 +78,20 @@ def _upgrade_legacy_payload(payload: Dict[str, Any], extension_id: str) -> Dict[
     has_consumer_insights_before = bool(payload.get("report_view_model", {}).get("consumer_insights"))
     upgraded = False
     
-    # If scoring_v2, report_view_model, and consumer_insights already exist, no upgrade needed
-    if has_scoring_v2_before and has_report_view_model_before and has_consumer_insights_before:
+    # If scoring_v2, report_view_model, and consumer_insights already exist, we *usually*
+    # don't need an upgrade. However, if the scoring engine version changed, we should
+    # recompute scoring/report so cached scans reflect the latest deterministic gates
+    # (e.g., new compliance checks).
+    force_recompute = False
+    try:
+        existing_scoring = payload.get("scoring_v2") or payload.get("governance_bundle", {}).get("scoring_v2") or {}
+        existing_version = (existing_scoring or {}).get("scoring_version")
+        if isinstance(existing_version, str) and existing_version and existing_version != ScoringEngine.VERSION:
+            force_recompute = True
+    except Exception:
+        force_recompute = False
+
+    if has_scoring_v2_before and has_report_view_model_before and has_consumer_insights_before and not force_recompute:
         logger.info("[UPGRADE] extension_id=%s, results_payload_upgraded=false, has_scoring_v2=%s→%s, has_report_view_model=%s→%s, has_consumer_insights=%s→%s",
                     extension_id, has_scoring_v2_before, has_scoring_v2_before, has_report_view_model_before, has_report_view_model_before,
                     has_consumer_insights_before, has_consumer_insights_before)
@@ -117,8 +127,8 @@ def _upgrade_legacy_payload(payload: Dict[str, Any], extension_id: str) -> Dict[
             extension_id=extension_id,
         )
         
-        # Compute scoring_v2 if missing
-        if not has_scoring_v2_before:
+        # Compute scoring_v2 if missing or if we need to force a recompute
+        if (not has_scoring_v2_before) or force_recompute:
             user_count = metadata.get("user_count") or metadata.get("users") or signal_pack.webstore_stats.installs
             scoring_engine = ScoringEngine(weights_version="v1")
             scoring_result = scoring_engine.calculate_scores(
@@ -127,27 +137,28 @@ def _upgrade_legacy_payload(payload: Dict[str, Any], extension_id: str) -> Dict[
                 user_count=user_count if isinstance(user_count, int) else None,
                 permissions_analysis=analysis_results.get("permissions_analysis"),
             )
-            
-            scoring_v2_payload = {
-                "scoring_version": "v2",
-                "weights_version": "v1",
-                "security_score": scoring_result.security_score,
-                "privacy_score": scoring_result.privacy_score,
-                "governance_score": scoring_result.governance_score,
-                "overall_score": scoring_result.overall_score,
-                "overall_confidence": scoring_result.overall_confidence,
-                "decision": scoring_result.decision.value,
-                "decision_reasons": scoring_result.reasons,
-                "hard_gates_triggered": scoring_result.hard_gates_triggered,
-                "risk_level": scoring_result.risk_level.value,
-                "explanation": scoring_result.explanation,
-            }
+
+            scoring_v2_payload = scoring_result.model_dump_for_api()
+            scoring_v2_payload["weights_version"] = "v1"
+            # Include gate results (used by frontend modals). Keep stable minimal shape.
+            gate_results = scoring_engine.get_gate_results() or []
+            scoring_v2_payload["gate_results"] = [
+                {
+                    "gate_id": g.gate_id,
+                    "decision": g.decision,
+                    "triggered": g.triggered,
+                    "confidence": g.confidence,
+                    "reasons": g.reasons,
+                }
+                for g in gate_results
+            ]
+
             payload["scoring_v2"] = scoring_v2_payload
-            logger.info("[UPGRADE] Built scoring_v2 for extension_id=%s", extension_id)
+            logger.info("[UPGRADE] Built scoring_v2 for extension_id=%s (force=%s)", extension_id, force_recompute)
             upgraded = True
         
-        # Build report_view_model if missing (this already includes consumer_insights)
-        if not has_report_view_model_before:
+        # Build report_view_model if missing OR when we recompute scoring (avoid mismatched UI)
+        if (not has_report_view_model_before) or force_recompute:
             report_view_model = build_report_view_model(
                 manifest=manifest,
                 analysis_results=analysis_results,
@@ -156,7 +167,7 @@ def _upgrade_legacy_payload(payload: Dict[str, Any], extension_id: str) -> Dict[
                 scan_id=extension_id,
             )
             payload["report_view_model"] = report_view_model
-            logger.info("[UPGRADE] Built report_view_model for extension_id=%s", extension_id)
+            logger.info("[UPGRADE] Built report_view_model for extension_id=%s (force=%s)", extension_id, force_recompute)
             upgraded = True
         
         # Ensure consumer_insights exists (double-check)
@@ -627,6 +638,45 @@ def extract_extension_id(url: str) -> Optional[str]:
     return match.group(1) if match else None
 
 
+def extract_icon_path(manifest: Dict[str, Any], extracted_path: Optional[str]) -> Optional[str]:
+    """
+    Extract icon path from manifest.json.
+    
+    Returns the relative path to the icon file (e.g., "icons/128.png")
+    based on manifest.json icons field, or None if not found.
+    
+    Args:
+        manifest: Parsed manifest.json dict
+        extracted_path: Path to extracted extension directory (for validation)
+    
+    Returns:
+        Relative icon path (e.g., "icons/128.png") or None
+    """
+    if not manifest or not isinstance(manifest, dict):
+        return None
+    
+    icons = manifest.get("icons", {})
+    if not icons or not isinstance(icons, dict):
+        return None
+    
+    # Get the largest icon (prefer 128, then 64, then 48, etc.)
+    icon_sizes = ["128", "64", "48", "32", "16", "96", "256", "38", "19"]
+    for size in icon_sizes:
+        if size in icons:
+            icon_path = icons[size]
+            if isinstance(icon_path, str):
+                # Validate path exists if extracted_path is available
+                if extracted_path:
+                    full_path = os.path.join(extracted_path, icon_path)
+                    if os.path.exists(full_path):
+                        return icon_path
+                else:
+                    # Return path even if we can't validate (for database storage)
+                    return icon_path
+    
+    return None
+
+
 async def run_analysis_workflow(url: str, extension_id: str):
     """Run the analysis workflow in the background."""
     workflow_start = datetime.now()
@@ -691,6 +741,10 @@ async def run_analysis_workflow(url: str, extension_id: str):
             if extracted_files is None:
                 extracted_files = []
 
+            # Extract icon path from manifest
+            extracted_path = final_state.get("extension_dir")
+            icon_path = extract_icon_path(manifest, extracted_path)
+
             # =================================================================
             # V2 SCORING: Build SignalPack and compute scores via ScoringEngine
             # =================================================================
@@ -753,6 +807,7 @@ async def run_analysis_workflow(url: str, extension_id: str):
                 "privacy_compliance": analysis_results.get("privacy_compliance") or {},
                 "extracted_path": final_state.get("extension_dir"),
                 "extracted_files": extracted_files,
+                "icon_path": icon_path,  # Relative path to icon (e.g., "icons/128.png")
                 # UI-first payload (production) - handle LLM failures gracefully
                 "report_view_model": _build_report_view_model_safe(
                     manifest=manifest,
@@ -1403,6 +1458,244 @@ def count_total_findings(state: WorkflowState) -> int:
     return total
 
 
+def _coerce_int(value: Any) -> Optional[int]:
+    """Best-effort int coercion."""
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _build_scoring_v2_for_payload(payload: Dict[str, Any], extension_id: str) -> Dict[str, Any]:
+    """
+    Build scoring_v2 from available scan payload fields (no LLM/report generation).
+    Used by /api/recent when legacy rows are missing scoring_v2.
+    """
+    try:
+        manifest = payload.get("manifest") or {}
+        metadata = payload.get("metadata") or {}
+        analysis_results = {
+            "permissions_analysis": payload.get("permissions_analysis") or {},
+            "javascript_analysis": payload.get("sast_results") or {},
+            "webstore_analysis": payload.get("webstore_analysis") or {},
+            "virustotal_analysis": payload.get("virustotal_analysis") or {},
+            "entropy_analysis": payload.get("entropy_analysis") or {},
+            "impact_analysis": payload.get("impact_analysis") or {},
+            "privacy_compliance": payload.get("privacy_compliance") or {},
+            "executive_summary": payload.get("summary") or {},
+        }
+
+        signal_pack_builder = SignalPackBuilder()
+        signal_pack = signal_pack_builder.build(
+            scan_id=extension_id,
+            analysis_results=analysis_results,
+            metadata=metadata,
+            manifest=manifest,
+            extension_id=extension_id,
+        )
+
+        user_count = metadata.get("user_count") or metadata.get("users") or signal_pack.webstore_stats.installs
+        scoring_engine = ScoringEngine(weights_version="v1")
+        scoring_result = scoring_engine.calculate_scores(
+            signal_pack=signal_pack,
+            manifest=manifest,
+            user_count=user_count if isinstance(user_count, int) else None,
+            permissions_analysis=analysis_results.get("permissions_analysis"),
+        )
+
+        scoring_v2_payload = scoring_result.model_dump_for_api()
+        scoring_v2_payload["weights_version"] = "v1"
+        gate_results = scoring_engine.get_gate_results() or []
+        scoring_v2_payload["gate_results"] = [
+            {
+                "gate_id": g.gate_id,
+                "decision": g.decision,
+                "triggered": g.triggered,
+                "confidence": g.confidence,
+                "reasons": g.reasons,
+            }
+            for g in gate_results
+        ]
+        return scoring_v2_payload
+    except Exception as exc:
+        logger.warning(
+            "[RISK_SIGNALS] Could not rebuild scoring_v2 for extension_id=%s: %s",
+            extension_id,
+            exc,
+        )
+        return {}
+
+
+def _extract_risk_and_signals(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Extract risk and signals mapping from scan results payload.
+    
+    Returns mapping:
+    {
+        "risk": overall_safety_score,
+        "signals": {
+            "security": security_score,
+            "privacy": privacy_score,
+            "gov": governance_score
+        },
+        "total_findings": deduplicated_count
+    }
+    """
+    # Prefer top-level scoring_v2, then summary.scoring_v2, then governance_bundle.scoring_v2
+    scoring_v2 = payload.get("scoring_v2")
+    if not isinstance(scoring_v2, dict) or not scoring_v2:
+        summary = payload.get("summary")
+        if isinstance(summary, str):
+            try:
+                summary = json.loads(summary)
+            except Exception:
+                summary = {}
+        if isinstance(summary, dict):
+            candidate = summary.get("scoring_v2")
+            if isinstance(candidate, dict) and candidate:
+                scoring_v2 = candidate
+    if (not isinstance(scoring_v2, dict) or not scoring_v2) and isinstance(payload.get("governance_bundle"), dict):
+        candidate = payload.get("governance_bundle", {}).get("scoring_v2")
+        if isinstance(candidate, dict) and candidate:
+            scoring_v2 = candidate
+
+    # If still missing, dynamically rebuild scoring_v2 from available analysis data.
+    if not isinstance(scoring_v2, dict) or not scoring_v2:
+        extension_id = str(payload.get("extension_id") or "unknown")
+        scoring_v2 = _build_scoring_v2_for_payload(payload, extension_id=extension_id)
+        if scoring_v2:
+            payload["scoring_v2"] = scoring_v2
+
+    # Overall safety score
+    overall_score = (
+        _coerce_int((scoring_v2 or {}).get("overall_score"))
+        or _coerce_int(payload.get("overall_security_score"))
+        or _coerce_int(payload.get("security_score"))
+        or 0
+    )
+
+    # Layer signal scores
+    security_score = _coerce_int((scoring_v2 or {}).get("security_score"))
+    if security_score is None and isinstance((scoring_v2 or {}).get("security_layer"), dict):
+        security_score = _coerce_int((scoring_v2 or {}).get("security_layer", {}).get("score"))
+    if security_score is None:
+        security_score = _coerce_int(payload.get("security_score")) or _coerce_int(payload.get("overall_security_score"))
+
+    privacy_score = _coerce_int((scoring_v2 or {}).get("privacy_score"))
+    if privacy_score is None and isinstance((scoring_v2 or {}).get("privacy_layer"), dict):
+        privacy_score = _coerce_int((scoring_v2 or {}).get("privacy_layer", {}).get("score"))
+    if privacy_score is None:
+        privacy_score = _coerce_int(payload.get("privacy_score"))
+
+    governance_score = _coerce_int((scoring_v2 or {}).get("governance_score"))
+    if governance_score is None and isinstance((scoring_v2 or {}).get("governance_layer"), dict):
+        governance_score = _coerce_int((scoring_v2 or {}).get("governance_layer", {}).get("score"))
+    if governance_score is None:
+        governance_score = _coerce_int(payload.get("governance_score"))
+
+    # Combined, deduplicated findings count across layers (prefer scoring_v2 factors + triggered gates)
+    total_findings = 0
+    if isinstance(scoring_v2, dict) and scoring_v2:
+        combined_keys = set()
+        for layer_key in ("security_layer", "privacy_layer", "governance_layer"):
+            layer_obj = scoring_v2.get(layer_key)
+            if not isinstance(layer_obj, dict):
+                continue
+            factors = layer_obj.get("factors", [])
+            if not isinstance(factors, list):
+                continue
+            for factor in factors:
+                if not isinstance(factor, dict):
+                    continue
+                sev = factor.get("severity")
+                contrib = factor.get("contribution")
+                try:
+                    sev_num = float(sev) if sev is not None else 0.0
+                except (TypeError, ValueError):
+                    sev_num = 0.0
+                try:
+                    contrib_num = float(contrib) if contrib is not None else 0.0
+                except (TypeError, ValueError):
+                    contrib_num = 0.0
+                if sev_num <= 0 and contrib_num <= 0:
+                    continue
+                factor_name = str(factor.get("name") or factor.get("id") or factor.get("key") or "unknown")
+                combined_keys.add(f"{layer_key}:{factor_name}")
+
+        gate_results = scoring_v2.get("gate_results", [])
+        if isinstance(gate_results, list):
+            for gate in gate_results:
+                if isinstance(gate, dict) and bool(gate.get("triggered")):
+                    gate_id = str(gate.get("gate_id") or "gate")
+                    combined_keys.add(f"gate:{gate_id}")
+
+        if combined_keys:
+            total_findings = len(combined_keys)
+
+    # Fallbacks for findings count
+    if total_findings == 0:
+        facts = payload.get("governance_bundle", {}).get("facts", {})
+        if isinstance(facts, dict):
+            security_findings = facts.get("security_findings", {})
+            if isinstance(security_findings, dict):
+                deduped_findings = security_findings.get("deduped_findings", [])
+                if isinstance(deduped_findings, list) and deduped_findings:
+                    total_findings = len(deduped_findings)
+                else:
+                    total_findings = _coerce_int(security_findings.get("total_findings")) or 0
+
+    if total_findings == 0:
+        signal_pack = payload.get("signal_pack", {})
+        if isinstance(signal_pack, dict):
+            sast_signal = signal_pack.get("sast", {})
+            if isinstance(sast_signal, dict):
+                deduped = sast_signal.get("deduped_findings", [])
+                if isinstance(deduped, list) and deduped:
+                    total_findings = len(deduped)
+
+    if total_findings == 0:
+        total_findings = _coerce_int(payload.get("total_findings")) or 0
+
+    # Last resort manual SAST dedupe
+    if total_findings == 0:
+        sast_results = payload.get("sast_results", {})
+        if isinstance(sast_results, dict):
+            sast_findings = sast_results.get("sast_findings", {})
+            if isinstance(sast_findings, dict):
+                seen = set()
+                for file_path, findings_list in sast_findings.items():
+                    if not isinstance(findings_list, list):
+                        continue
+                    for finding in findings_list:
+                        if not isinstance(finding, dict):
+                            continue
+                        check_id = finding.get("check_id") or finding.get("rule_id", "")
+                        line = (
+                            finding.get("start", {}).get("line")
+                            if isinstance(finding.get("start"), dict)
+                            else finding.get("line")
+                        )
+                        key = f"{check_id}:{file_path}:{line}"
+                        seen.add(key)
+                total_findings = len(seen)
+
+    signals: Dict[str, int] = {}
+    if security_score is not None:
+        signals["security"] = max(0, min(100, security_score))
+    if privacy_score is not None:
+        signals["privacy"] = max(0, min(100, privacy_score))
+    if governance_score is not None:
+        signals["gov"] = max(0, min(100, governance_score))
+
+    return {
+        "risk": max(0, min(100, int(overall_score))),
+        "signals": signals,
+        "total_findings": max(0, int(total_findings)),
+    }
+
+
 def calculate_risk_distribution(state: WorkflowState) -> Dict[str, int]:
     """Calculate distribution of risk levels."""
     distribution = {"high": 0, "medium": 0, "low": 0}
@@ -1457,9 +1750,15 @@ def calculate_risk_distribution(state: WorkflowState) -> Dict[str, int]:
     return distribution
 
 
-# DEPRECATED: determine_overall_risk() removed - replaced by ScoringEngine v2
-# The new scoring system (scoring/engine.py) provides risk_level via scoring_result.risk_level.value
-# This function is no longer used and has been removed to reduce codebase size.
+def determine_overall_risk(state: WorkflowState) -> str:
+    """Determine overall risk level."""
+    score = calculate_security_score(state)
+
+    if score < 30:
+        return "high"
+    if score < 70:
+        return "medium"
+    return "low"
 
 
 def calculate_total_risk_score(state: WorkflowState) -> int:
@@ -1802,6 +2101,8 @@ async def get_scan_results(extension_id: str, http_request: Request):
         # Upgrade legacy payload and ensure consumer_insights
         payload = _upgrade_legacy_payload(payload, extension_id)
         payload = _ensure_consumer_insights(payload)
+        # Add risk and signals mapping
+        payload["risk_and_signals"] = _extract_risk_and_signals(payload)
         scan_results[extension_id] = payload
         _log_get_scan_results_return_shape("memory", payload)
         return payload
@@ -1845,12 +2146,12 @@ async def get_scan_results(extension_id: str, http_request: Request):
             formatted_results["scoring_v2"] = results.get("scoring_v2")
         if results.get("governance_bundle"):
             formatted_results["governance_bundle"] = results.get("governance_bundle")
-        if results.get("virustotal_analysis"):
-            formatted_results["virustotal_analysis"] = results.get("virustotal_analysis")
 
         # Upgrade legacy payload and ensure consumer_insights
         payload = _upgrade_legacy_payload(formatted_results, extension_id)
         payload = _ensure_consumer_insights(payload)
+        # Add risk and signals mapping
+        payload["risk_and_signals"] = _extract_risk_and_signals(payload)
         scan_results[extension_id] = payload  # Cache in memory
         _log_get_scan_results_return_shape("db", payload)
         return payload
@@ -1867,6 +2168,8 @@ async def get_scan_results(extension_id: str, http_request: Request):
         # Upgrade legacy payload and ensure consumer_insights
         payload = _upgrade_legacy_payload(payload, extension_id)
         payload = _ensure_consumer_insights(payload)
+        # Add risk and signals mapping
+        payload["risk_and_signals"] = _extract_risk_and_signals(payload)
         scan_results[extension_id] = payload  # Cache in memory
         _log_get_scan_results_return_shape("file", payload)
         return payload
@@ -2184,15 +2487,40 @@ async def get_user_karma(http_request: Request):
 @app.get("/api/recent")
 async def get_recent_scans(limit: int = 10):
     """
-    Get recent scans with summary info.
+    Get recent scans with summary info including risk and signals mapping.
 
     Args:
         limit: Maximum number of results to return
 
     Returns:
-        List of recent scans
+        List of recent scans with risk_and_signals mapping
     """
     recent = db.get_recent_scans(limit=limit)
+
+    # Add risk_and_signals mapping to each scan.
+    # If legacy recent rows are missing layer scores, backfill from full scan result dynamically.
+    for scan in recent:
+        mapping = _extract_risk_and_signals(scan)
+        signals = mapping.get("signals", {})
+        missing_layers = any(k not in signals for k in ("security", "privacy", "gov"))
+
+        if missing_layers:
+            extension_id = scan.get("extension_id")
+            if extension_id:
+                try:
+                    full_scan = db.get_scan_result(extension_id)
+                except Exception:
+                    full_scan = None
+                if isinstance(full_scan, dict):
+                    backfilled = _extract_risk_and_signals(full_scan)
+                    if len(backfilled.get("signals", {})) > len(signals):
+                        mapping = backfilled
+                    # Expose scoring_v2 on recent rows when available to keep frontend consistent.
+                    if isinstance(full_scan.get("scoring_v2"), dict):
+                        scan["scoring_v2"] = full_scan.get("scoring_v2")
+
+        scan["risk_and_signals"] = mapping
+
     return {"recent": recent}
 
 
@@ -2579,7 +2907,7 @@ async def database_health_check(request: Request):
 async def get_extension_icon(extension_id: str):
     """
     Get extension icon from the extracted extension folder.
-    Tries common icon sizes (128, 64, 48, 32, 16) and returns the first found.
+    Uses icon_path from database if available, otherwise tries common icon sizes.
     
     Args:
         extension_id: Chrome extension ID
@@ -2587,13 +2915,66 @@ async def get_extension_icon(extension_id: str):
     Returns:
         PNG icon file
     """
+    logger.debug(f"[ICON] Request for extension_id={extension_id}")
     # Check if scan is completed first
     results = scan_results.get(extension_id)
     extracted_path = None
+    icon_path = None
     
     if results:
         extracted_path = results.get("extracted_path")
+        icon_path = results.get("icon_path")  # Use stored icon_path from database
     else:
+        # Try loading from database if not in memory
+        try:
+            with db.get_connection() as conn:
+                cursor = conn.cursor()
+                # Check if icon_path column exists (for backward compatibility)
+                cursor.execute("PRAGMA table_info(scan_results)")
+                columns = [row[1] for row in cursor.fetchall()]
+                has_icon_path = "icon_path" in columns
+                
+                if has_icon_path:
+                    cursor.execute(
+                        """
+                        SELECT extracted_path, icon_path
+                        FROM scan_results
+                        WHERE extension_id = ?
+                        LIMIT 1
+                        """,
+                        (extension_id,),
+                    )
+                    row = cursor.fetchone()
+                    if row:
+                        # Handle both dict-like (Row) and tuple results
+                        if hasattr(row, 'keys'):
+                            extracted_path = row.get("extracted_path")
+                            icon_path = row.get("icon_path")
+                        else:
+                            extracted_path = row[0] if len(row) > 0 else None
+                            icon_path = row[1] if len(row) > 1 else None
+                        if icon_path:
+                            logger.debug(f"Loaded icon_path from database: {icon_path}")
+                else:
+                    # Fallback: get extracted_path without icon_path
+                    cursor.execute(
+                        """
+                        SELECT extracted_path
+                        FROM scan_results
+                        WHERE extension_id = ?
+                        LIMIT 1
+                        """,
+                        (extension_id,),
+                    )
+                    row = cursor.fetchone()
+                    if row:
+                        if hasattr(row, 'keys'):
+                            extracted_path = row.get("extracted_path")
+                        else:
+                            extracted_path = row[0] if len(row) > 0 else None
+        except Exception as e:
+            logger.debug(f"Could not load from database: {e}")
+        
         # Scan might still be running - try to find extracted extension in storage
         # Check if extension is being scanned
         status = scan_status.get(extension_id)
@@ -2632,16 +3013,61 @@ async def get_extension_icon(extension_id: str):
         # Return 404 but don't log as error - this is expected during early scan stages
         raise HTTPException(status_code=404, detail="Extension icon not available yet")
     
-    # Convert to absolute path if it's relative (for Railway deployment)
+    # Convert to absolute path if it's relative
+    # extracted_path is relative to extension_storage_path, not RESULTS_DIR
     if not os.path.isabs(extracted_path):
-        extracted_path = os.path.join(str(RESULTS_DIR), os.path.basename(extracted_path))
+        settings = get_settings()
+        storage_path = Path(settings.extension_storage_path)
+        # If extracted_path is just a directory name, join with storage_path
+        if os.path.basename(extracted_path) == extracted_path:
+            extracted_path = os.path.join(str(storage_path), extracted_path)
+        else:
+            # Already has path components, resolve relative to storage_path
+            extracted_path = os.path.join(str(storage_path), extracted_path)
     
     # Verify the path exists
     if not os.path.exists(extracted_path):
         logger.warning(f"Extracted path does not exist: {extracted_path}")
-        raise HTTPException(status_code=404, detail="Extracted files not found")
+        # Try alternative: search in storage_path for matching directory
+        settings = get_settings()
+        storage_path = Path(settings.extension_storage_path)
+        if storage_path.exists():
+            # Look for directory matching the basename
+            basename = os.path.basename(extracted_path)
+            for item in storage_path.iterdir():
+                if item.is_dir() and (item.name == basename or item.name.startswith(basename)):
+                    extracted_path = str(item)
+                    logger.debug(f"Found extracted extension at: {extracted_path}")
+                    break
+            else:
+                raise HTTPException(status_code=404, detail="Extracted files not found")
+        else:
+            raise HTTPException(status_code=404, detail="Extracted files not found")
     
-    # Try common icon sizes in order of preference
+    logger.debug(f"[ICON] extracted_path={extracted_path}, icon_path={icon_path}")
+    
+    # First, try using icon_path from database if available
+    if icon_path:
+        full_icon_path = os.path.join(extracted_path, icon_path)
+        # Security check: ensure icon_path is within extracted_path
+        abs_icon_path = os.path.abspath(full_icon_path)
+        abs_extracted_path = os.path.abspath(extracted_path)
+        
+        logger.debug(f"[ICON] Trying stored icon_path: {full_icon_path}")
+        if abs_icon_path.startswith(abs_extracted_path) and os.path.exists(full_icon_path):
+            logger.info(f"[ICON] Found icon using stored icon_path: {full_icon_path}")
+            return FileResponse(
+                full_icon_path,
+                media_type="image/png",
+                headers={
+                    "Cache-Control": "public, max-age=86400",
+                    "Access-Control-Allow-Origin": "*"
+                }
+            )
+        else:
+            logger.warning(f"[ICON] Stored icon_path {icon_path} not found at {full_icon_path}, falling back to search")
+    
+    # Fallback: Try common icon sizes in order of preference
     icon_sizes = ["128", "64", "48", "32", "16", "96", "256"]
     icons_dir = os.path.join(extracted_path, "icons")
     
@@ -2662,11 +3088,11 @@ async def get_extension_icon(extension_id: str):
     
     # Try root directory
     for size in icon_sizes:
-        icon_path = os.path.join(extracted_path, f"icon{size}.png")
-        if os.path.exists(icon_path):
-            logger.debug(f"Found icon at: {icon_path}")
+        test_icon_path = os.path.join(extracted_path, f"icon{size}.png")
+        if os.path.exists(test_icon_path):
+            logger.debug(f"Found icon at: {test_icon_path}")
             return FileResponse(
-                icon_path, 
+                test_icon_path, 
                 media_type="image/png",
                 headers={
                     "Cache-Control": "public, max-age=86400",
@@ -2674,11 +3100,11 @@ async def get_extension_icon(extension_id: str):
                 }
             )
         
-        icon_path = os.path.join(extracted_path, f"{size}.png")
-        if os.path.exists(icon_path):
-            logger.debug(f"Found icon at: {icon_path}")
+        test_icon_path = os.path.join(extracted_path, f"{size}.png")
+        if os.path.exists(test_icon_path):
+            logger.debug(f"Found icon at: {test_icon_path}")
             return FileResponse(
-                icon_path, 
+                test_icon_path, 
                 media_type="image/png",
                 headers={
                     "Cache-Control": "public, max-age=86400",
@@ -2694,22 +3120,22 @@ async def get_extension_icon(extension_id: str):
                 manifest = json.load(f)
                 
             # Check icons object in manifest
-            icons = manifest.get("icons", {})
-            if icons:
+            manifest_icons = manifest.get("icons", {})
+            if manifest_icons:
                 # Get the largest icon
-                largest_size = max(icons.keys(), key=lambda x: int(x))
-                icon_rel_path = icons[largest_size]
-                icon_path = os.path.join(extracted_path, icon_rel_path)
+                largest_size = max(manifest_icons.keys(), key=lambda x: int(x))
+                icon_rel_path = manifest_icons[largest_size]
+                manifest_icon_path = os.path.join(extracted_path, icon_rel_path)
                 
                 # Security check
-                abs_icon_path = os.path.abspath(icon_path)
+                abs_icon_path = os.path.abspath(manifest_icon_path)
                 abs_extracted_path = os.path.abspath(extracted_path)
                 
                 if abs_icon_path.startswith(abs_extracted_path):
-                    if os.path.exists(icon_path):
-                        logger.debug(f"Found icon from manifest at: {icon_path}")
+                    if os.path.exists(manifest_icon_path):
+                        logger.debug(f"Found icon from manifest at: {manifest_icon_path}")
                         return FileResponse(
-                            icon_path, 
+                            manifest_icon_path, 
                             media_type="image/png",
                             headers={
                                 "Cache-Control": "public, max-age=86400",

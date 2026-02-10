@@ -21,6 +21,7 @@ Where:
 """
 
 import logging
+import json
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -458,6 +459,42 @@ class ScoringEngine:
             if signal_pack.virustotal.malicious_count > 0:
                 tos_severity += 0.4
                 tos_flags.append("broad_access_with_vt_detection")
+
+        # Travel-docs / visa portal ToS automation risk (deterministic)
+        # If an extension targets protected visa scheduling portals and can inject scripts
+        # or capture screens, treat as a severe governance/compliance concern.
+        try:
+            from extension_shield.scoring.gates import TRAVEL_DOCS_PROTECTED_DOMAINS, VISA_SLOT_ECOSYSTEM_DOMAINS
+
+            host_patterns = (signal_pack.permissions.host_permissions or []) + (signal_pack.permissions.api_permissions or [])
+            host_text = " ".join([str(x).lower() for x in host_patterns if isinstance(x, str)])
+            protected_hit = any(d in host_text for d in TRAVEL_DOCS_PROTECTED_DOMAINS)
+
+            manifest_text = (
+                json.dumps(manifest or {}, sort_keys=True, ensure_ascii=True).lower()
+                if isinstance(manifest, dict) else ""
+            )
+            protected_hit = protected_hit or any(d in manifest_text for d in TRAVEL_DOCS_PROTECTED_DOMAINS)
+
+            has_injection_capability = any(
+                p in (signal_pack.permissions.api_permissions or [])
+                for p in ["scripting", "webRequest", "webRequestBlocking", "declarativeNetRequest"]
+            ) or bool(manifest.get("content_scripts"))
+
+            has_capture_capability = any(
+                p in (signal_pack.permissions.api_permissions or [])
+                for p in ["tabCapture", "desktopCapture"]
+            )
+
+            ecosystem_hit = any(d in manifest_text for d in VISA_SLOT_ECOSYSTEM_DOMAINS)
+            if protected_hit and (has_injection_capability or has_capture_capability or ecosystem_hit):
+                tos_severity = max(tos_severity, 0.9)
+                tos_flags.append("travel_docs_tos_automation_risk")
+                if ecosystem_hit:
+                    tos_flags.append("travel_docs_third_party_processor_risk")
+        except Exception:
+            # Never break scoring due to auxiliary compliance heuristics
+            pass
         
         tos_severity = min(1.0, tos_severity)
         

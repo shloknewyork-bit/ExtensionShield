@@ -552,8 +552,63 @@ class PrivacyComplianceAnalyzer:
 
         checks = checks[:6]
 
+        # ---------------------------------------------------------------------
+        # Compliance check: protected travel-docs / visa portal Terms of Use risk
+        # ---------------------------------------------------------------------
+        try:
+            from extension_shield.scoring.gates import TRAVEL_DOCS_PROTECTED_DOMAINS, VISA_SLOT_ECOSYSTEM_DOMAINS
+
+            host_perms = self._extract_host_permissions(manifest)
+            host_text = " ".join([p.lower() for p in host_perms if isinstance(p, str)])
+            protected_hit = any(d in host_text for d in TRAVEL_DOCS_PROTECTED_DOMAINS)
+
+            # Ecosystem endpoints: best-effort via merged domains
+            ecosystem_hit = any(
+                any(d == dom or dom.endswith("." + d) for d in VISA_SLOT_ECOSYSTEM_DOMAINS)
+                for dom in (merged_domains or [])
+                if isinstance(dom, str)
+            )
+
+            can_automate = bool(capability_flags.get("can_inject_scripts") or capability_flags.get("can_modify_page_content"))
+            can_capture = bool(capability_flags.get("can_capture_screenshots"))
+
+            if protected_hit and (can_automate or can_capture or ecosystem_hit):
+                checks.insert(
+                    0,
+                    {
+                        "check": "US visa portal Terms of Use (no automation)",
+                        "status": "FAIL",
+                        "note": "Runs on usvisascheduling/ustraveldocs-style portals with automation/capture patterns; may violate site ToS and lead to account bans.",
+                    },
+                )
+        except Exception:
+            pass
+
+        # Re-cap after insertion
+        checks = checks[:6]
+
         # Compliance notes (capability-based, avoid PASS/FAIL claims)
         compliance: List[Dict[str, str]] = []
+        # If protected ToS risk is present, explicitly surface as FAIL for site terms.
+        try:
+            # Mirror logic above (keep simple, deterministic)
+            from extension_shield.scoring.gates import TRAVEL_DOCS_PROTECTED_DOMAINS
+
+            host_perms = self._extract_host_permissions(manifest)
+            host_text = " ".join([p.lower() for p in host_perms if isinstance(p, str)])
+            protected_hit = any(d in host_text for d in TRAVEL_DOCS_PROTECTED_DOMAINS)
+            if protected_hit and (capability_flags.get("can_inject_scripts") or capability_flags.get("can_capture_screenshots")):
+                compliance.insert(
+                    0,
+                    {
+                        "framework": "Site Terms (US visa portals)",
+                        "status": "FAIL",
+                        "note": "Automated access/scraping or document capture on visa portals can violate Terms of Use and trigger bans.",
+                    },
+                )
+        except Exception:
+            pass
+
         if host_scope_label == "ALL_WEBSITES" or sensitive_read or (merged_domains or network_evidence):
             compliance.append(
                 {
@@ -693,23 +748,116 @@ class PrivacyComplianceAnalyzer:
                     )
                 
                 logger.info("Privacy compliance snapshot generated successfully")
-                return result
+                # Deterministic post-processing: always inject travel-docs ToS checks
+                return self._inject_travel_docs_site_terms_checks(
+                    result=result,
+                    manifest=manifest or {},
+                    analysis_results=analysis_results or {},
+                )
             
             logger.warning("Privacy compliance LLM returned non-dict result; using fallback")
-            return self._fallback_result(
+            fallback = self._fallback_result(
                 analysis_results=analysis_results or {},
                 manifest=manifest or {},
                 extension_dir=extension_dir,
                 webstore_metadata=webstore_metadata,
+            )
+            return self._inject_travel_docs_site_terms_checks(
+                result=fallback,
+                manifest=manifest or {},
+                analysis_results=analysis_results or {},
             )
         except Exception as exc:
             # Avoid noisy stack traces in normal operation; we always have a deterministic fallback.
             logger.warning("Failed to generate privacy compliance snapshot: %s", exc)
-            return self._fallback_result(
+            fallback = self._fallback_result(
                 analysis_results=analysis_results or {},
                 manifest=manifest or {},
                 extension_dir=extension_dir,
                 webstore_metadata=webstore_metadata,
             )
+            return self._inject_travel_docs_site_terms_checks(
+                result=fallback,
+                manifest=manifest or {},
+                analysis_results=analysis_results or {},
+            )
+
+    @staticmethod
+    def _inject_travel_docs_site_terms_checks(
+        result: Optional[Dict[str, Any]],
+        manifest: Dict[str, Any],
+        analysis_results: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Deterministically inject US visa portal Terms-of-Use compliance checks
+        into an existing privacy_compliance dict (LLM or fallback).
+        """
+        if not isinstance(result, dict):
+            return result
+
+        try:
+            from extension_shield.scoring.gates import TRAVEL_DOCS_PROTECTED_DOMAINS, VISA_SLOT_ECOSYSTEM_DOMAINS
+
+            host_perms = PrivacyComplianceAnalyzer._extract_host_permissions(manifest or {})
+            host_text = " ".join([p.lower() for p in host_perms if isinstance(p, str)])
+            protected_hit = any(d in host_text for d in TRAVEL_DOCS_PROTECTED_DOMAINS)
+
+            # Best-effort: external domains from network payloads (if present)
+            external_domains_net: List[str] = []
+            try:
+                external_domains_net = PrivacyComplianceAnalyzer()._extract_external_domains_from_network_payloads(analysis_results or {})
+            except Exception:
+                external_domains_net = []
+
+            ecosystem_hit = any(
+                any(d == dom or dom.endswith("." + d) for d in VISA_SLOT_ECOSYSTEM_DOMAINS)
+                for dom in (external_domains_net or [])
+                if isinstance(dom, str)
+            )
+
+            # Capabilities derived from permissions_analysis if available
+            host_access_summary = PrivacyComplianceAnalyzer._classify_host_access_scope(manifest or {})
+            capability_flags = PrivacyComplianceAnalyzer()._compute_capability_flags(
+                manifest=manifest or {},
+                analysis_results=analysis_results or {},
+                host_access_summary=host_access_summary,
+                external_domains=external_domains_net,
+            )
+
+            can_automate = bool(capability_flags.get("can_inject_scripts") or capability_flags.get("can_modify_page_content"))
+            can_capture = bool(capability_flags.get("can_capture_screenshots"))
+
+            if not (protected_hit and (can_automate or can_capture or ecosystem_hit)):
+                return result
+
+            checks = result.get("governance_checks")
+            if not isinstance(checks, list):
+                checks = []
+
+            tos_row = {
+                "check": "US visa portal Terms of Use (no automation)",
+                "status": "FAIL",
+                "note": "Runs on usvisascheduling/ustraveldocs-style portals with automation/capture patterns; may violate site ToS and lead to account bans.",
+            }
+            # Prepend if not already present
+            if not any(isinstance(r, dict) and r.get("check") == tos_row["check"] for r in checks):
+                checks = [tos_row] + checks
+            result["governance_checks"] = checks[:6]
+
+            notes = result.get("compliance_notes")
+            if not isinstance(notes, list):
+                notes = []
+            note_row = {
+                "framework": "Site Terms (US visa portals)",
+                "status": "FAIL",
+                "note": "Automated access/scraping or document capture on visa portals can violate Terms of Use and trigger bans.",
+            }
+            if not any(isinstance(r, dict) and r.get("framework") == note_row["framework"] for r in notes):
+                notes = [note_row] + notes
+            result["compliance_notes"] = notes[:4]
+
+            return result
+        except Exception:
+            return result
 
 

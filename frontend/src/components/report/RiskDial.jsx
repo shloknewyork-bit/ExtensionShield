@@ -110,22 +110,21 @@ const RiskDial = ({
       const angle = startAngle + progress * angleSpan;
       
       // Color zones aligned with score-band thresholds:
-      // riskProgress 0–0.20 = GREEN (score 80-100, LOW RISK)
-      // riskProgress 0.20–0.40 = YELLOW (score 60-80, MEDIUM)
-      // riskProgress 0.40–0.60 = ORANGE (score 40-60, ELEVATED)
-      // riskProgress 0.60–1.00 = RED (score 0-40, HIGH RISK)
+      // Green: 85-100 (0-15% of risk dial)
+      // Yellow: 60-84 (15-40% of risk dial)
+      // Red: 0-59 (40-100% of risk dial)
       let color;
-      if (progress < 0.20) {
-        const t = progress / 0.20;
+      if (progress < 0.15) {
+        // Pure green zone (85-100 score)
+        const t = progress / 0.15;
         color = interpolateColor('#22C55E', '#84CC16', t);
       } else if (progress < 0.40) {
-        const t = (progress - 0.20) / 0.20;
+        // Yellow zone (60-84 score)
+        const t = (progress - 0.15) / 0.25;
         color = interpolateColor('#84CC16', '#EAB308', t);
-      } else if (progress < 0.60) {
-        const t = (progress - 0.40) / 0.20;
-        color = interpolateColor('#EAB308', '#F97316', t);
       } else {
-        const t = (progress - 0.60) / 0.40;
+        // Red zone (0-59 score)
+        const t = (progress - 0.40) / 0.60;
         color = interpolateColor('#F97316', '#EF4444', t);
       }
       
@@ -144,12 +143,12 @@ const RiskDial = ({
   const displayScore = Math.round(animatedScore);
   
   // Shared helper: derive band from score using backend-aligned thresholds
-  // score >= 80 => GOOD (Low risk)
-  // 60 <= score < 80 => WARN (Medium risk)
-  // score < 60 => BAD (High risk)
+  // Green: score >= 85 => GOOD (Low risk)
+  // Yellow: 60 <= score < 85 => WARN (Medium risk)
+  // Red: score < 60 => BAD (High risk)
   const getBandFromScore = (scoreValue) => {
     if (scoreValue == null) return 'NA';
-    if (scoreValue >= 80) return 'GOOD';
+    if (scoreValue >= 85) return 'GOOD';
     if (scoreValue >= 60) return 'WARN';
     return 'BAD';
   };

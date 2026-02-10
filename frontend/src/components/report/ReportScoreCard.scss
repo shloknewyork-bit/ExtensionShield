@@ -1,6 +1,6 @@
 .report-score-card {
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 2px solid rgba(255, 255, 255, 0.06);
   border-radius: 16px;
   padding: 20px;
   display: flex;
@@ -34,49 +34,42 @@
   }
 
   &.band-good {
-    border-color: rgba(16, 185, 129, 0.15);
+    border: 2px solid rgba(16, 185, 129, 0.4);
+    background: rgba(16, 185, 129, 0.03);
     &.is-clickable:hover { 
-      border-color: rgba(16, 185, 129, 0.3);
-      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.6);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
+      background: rgba(16, 185, 129, 0.05);
     }
   }
 
   &.band-warn {
-    border-color: rgba(245, 158, 11, 0.15);
+    border: 2px solid rgba(245, 158, 11, 0.4);
+    background: rgba(245, 158, 11, 0.03);
     &.is-clickable:hover { 
-      border-color: rgba(245, 158, 11, 0.3);
-      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.6);
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.2);
+      background: rgba(245, 158, 11, 0.05);
     }
   }
 
   &.band-bad {
-    border-color: rgba(239, 68, 68, 0.15);
+    border: 2px solid rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.03);
     &.is-clickable:hover { 
-      border-color: rgba(239, 68, 68, 0.3);
-      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.6);
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.2);
+      background: rgba(239, 68, 68, 0.05);
     }
   }
 }
 
-// Score at top
-.score-card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
+// Top right info button
+.score-card-top-right {
   position: absolute;
   top: 16px;
-  left: 0;
-  right: 0;
-  padding: 0 20px;
-}
-
-.score-value-display {
-  font-family: 'JetBrains Mono', 'SF Mono', monospace;
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.02em;
+  right: 16px;
+  z-index: 10;
 }
 
 .info-icon-btn {
@@ -92,7 +85,6 @@
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
-  margin-left: auto;
 
   &:hover {
     color: rgba(248, 250, 252, 0.8);
@@ -139,7 +131,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 20px;
   margin-bottom: 8px;
 }
 
@@ -213,10 +205,10 @@
 }
 
 .confidence-value {
-  font-size: 12px;
+  font-size: 16px;
   font-family: 'JetBrains Mono', monospace;
-  color: rgba(248, 250, 252, 0.5);
-  font-weight: 500;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .score-contributors {
@@ -278,7 +270,7 @@
   }
 
   .score-card-icon-wrapper {
-    margin-top: 36px;
+    margin-top: 16px;
   }
 }
 

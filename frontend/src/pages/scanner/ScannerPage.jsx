@@ -99,11 +99,33 @@ const SignalChip = ({ type, signal }) => {
   );
 };
 
-// Risk badge component
+// Risk badge component with colored border
 const RiskBadge = ({ level, score }) => {
   const colorClass = getRiskColorClass(level);
+  
+  // Get border color based on score (using new thresholds)
+  const getBorderColor = () => {
+    if (score === null || score === undefined) return 'rgba(107, 114, 128, 0.3)';
+    if (score >= 85) return '#10B981'; // Green
+    if (score >= 60) return '#F59E0B'; // Yellow
+    return '#EF4444'; // Red
+  };
+
+  const getTextColor = () => {
+    if (score === null || score === undefined) return '#6B7280';
+    if (score >= 85) return '#10B981'; // Green
+    if (score >= 60) return '#F59E0B'; // Yellow
+    return '#EF4444'; // Red
+  };
+
   return (
-    <div className={`risk-badge ${colorClass}`}>
+    <div 
+      className={`risk-badge ${colorClass}`}
+      style={{ 
+        borderColor: getBorderColor(),
+        color: getTextColor()
+      }}
+    >
       <span className="risk-level">{level || "—"}</span>
     </div>
   );
@@ -207,32 +229,25 @@ const ScannerPage = () => {
           return;
         }
 
-        // Show basic data immediately if metadata is available (progressive loading)
-        // Check if scans have metadata - if so, we can render immediately
-        const hasMetadata = history.some(scan => {
-          const metadata = scan.metadata;
-          return metadata && (typeof metadata === 'object' ? Object.keys(metadata).length > 0 : metadata);
-        });
-
-        if (hasMetadata) {
-          // Use metadata from response - skip full fetches to avoid N+1 queries
-          // This makes initial render much faster
-          const enrichedScans = await enrichScans(history, { skipFullFetch: true });
+        // Always try to use metadata first (skipFullFetch=true) for faster loading
+        // This avoids N+1 queries and makes the table render immediately
+        // The enrichment function now handles missing scoring_v2 gracefully
+        const enrichedScans = await enrichScans(history, { skipFullFetch: true });
+        
+        if (isMounted) {
+          console.log(`[ScannerPage] Enriched ${enrichedScans.length} of ${history.length} scans`);
           
-          if (isMounted) {
-            console.log(`[ScannerPage] Enriched ${enrichedScans.length} scans (skipFullFetch=true)`);
+          // Always set the scans, even if some failed to enrich
+          // This ensures the table displays if we have any valid scans
+          if (enrichedScans.length > 0) {
             setAllScans(enrichedScans);
-            setLoading(false);
+          } else {
+            // If all enrichments failed, try without skipFullFetch as fallback
+            console.warn("[ScannerPage] All scans failed enrichment with skipFullFetch, trying full fetch");
+            const fallbackScans = await enrichScans(history, { skipFullFetch: false });
+            setAllScans(fallbackScans.length > 0 ? fallbackScans : []);
           }
-        } else {
-          // Fallback: if no metadata, do full enrichment (slower but necessary)
-          const enrichedScans = await enrichScans(history);
-          
-          if (isMounted) {
-            console.log(`[ScannerPage] Enriched ${enrichedScans.length} scans (full fetch)`);
-            setAllScans(enrichedScans);
-            setLoading(false);
-          }
+          setLoading(false);
         }
       } catch (error) {
         console.error("Failed to load scans:", error);

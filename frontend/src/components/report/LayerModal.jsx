@@ -174,16 +174,23 @@ const LayerModal = ({
                 <div className="section-content">
                   <ul className="findings-list">
                     {/* Hard Gates First */}
-                    {gateResults.map((gate, idx) => (
-                      <li key={`gate-${idx}`} className={`finding-item severity-${gate.decision === 'BLOCK' ? 'high' : 'medium'}`}>
-                        <span className="finding-severity">{gate.decision === 'BLOCK' ? 'CRITICAL' : 'WARN'}</span>
-                        <span className="finding-text">{gate.gate_id}: {gate.reasons?.join(', ') || 'Triggered'}</span>
-                      </li>
-                    ))}
+                    {gateResults.map((gate, idx) => {
+                      const severity = gate.decision === 'BLOCK' ? 'high' : 'medium';
+                      return (
+                        <li key={`gate-${idx}`} className="finding-item">
+                          <span className={`finding-severity severity-${severity}`}>
+                            {gate.decision === 'BLOCK' ? 'CRITICAL' : 'WARN'}
+                          </span>
+                          <span className="finding-text">{gate.gate_id}: {gate.reasons?.join(', ') || 'Triggered'}</span>
+                        </li>
+                      );
+                    })}
                     {/* Then Key Findings */}
                     {keyFindings.map((finding, idx) => (
-                      <li key={`finding-${idx}`} className={`finding-item severity-${finding.severity}`}>
-                        <span className="finding-severity">{finding.severity.toUpperCase()}</span>
+                      <li key={`finding-${idx}`} className="finding-item">
+                        <span className={`finding-severity severity-${finding.severity}`}>
+                          {finding.severity.toUpperCase()}
+                        </span>
                         <span className="finding-text">{finding.title}</span>
                         {finding.evidenceIds && finding.evidenceIds.length > 0 && onViewEvidence && (
                           <button
@@ -200,8 +207,8 @@ const LayerModal = ({
                     ))}
                     {/* Then Layer Reasons */}
                     {layerReasons.map((reason, idx) => (
-                      <li key={`reason-${idx}`} className="finding-item severity-low">
-                        <span className="finding-severity">INFO</span>
+                      <li key={`reason-${idx}`} className="finding-item">
+                        <span className="finding-severity severity-low">INFO</span>
                         <span className="finding-text">{reason}</span>
                       </li>
                     ))}

@@ -1002,6 +1002,16 @@ def build_report_view_model(
             "compliance_notes": [],
         }
     )
+    # Deterministic injection: ensure site-terms compliance checks are present even
+    # when privacy_compliance was precomputed/stored in analysis_results.
+    privacy_compliance = (
+        PrivacyComplianceAnalyzer._inject_travel_docs_site_terms_checks(
+            result=privacy_compliance,
+            manifest=manifest or {},
+            analysis_results=analysis_results or {},
+        )
+        or privacy_compliance
+    )
 
     # -------------------------------------------------------------------------
     # Normalize & compose report_view_model (stable shape)

@@ -40,16 +40,17 @@ const RiskGauge = ({
   }, [score, showAnimation]);
 
   // Calculate colors based on score
+  // Thresholds: Green (85-100), Yellow (60-84), Red (0-59)
   const getScoreColor = (value) => {
-    if (value >= 70) return { main: '#10B981', glow: 'rgba(16, 185, 129, 0.3)' }; // Green
-    if (value >= 50) return { main: '#F59E0B', glow: 'rgba(245, 158, 11, 0.3)' }; // Yellow
+    if (value >= 85) return { main: '#10B981', glow: 'rgba(16, 185, 129, 0.3)' }; // Green
+    if (value >= 60) return { main: '#F59E0B', glow: 'rgba(245, 158, 11, 0.3)' }; // Yellow
     if (value >= 30) return { main: '#F97316', glow: 'rgba(249, 115, 22, 0.3)' }; // Orange
     return { main: '#EF4444', glow: 'rgba(239, 68, 68, 0.3)' }; // Red
   };
 
   const getRiskLabel = (value) => {
-    if (value >= 70) return 'Low Risk';
-    if (value >= 50) return 'Medium Risk';
+    if (value >= 85) return 'Low Risk';
+    if (value >= 60) return 'Medium Risk';
     if (value >= 30) return 'High Risk';
     return 'Critical Risk';
   };

@@ -101,12 +101,20 @@ class Database:
                     summary TEXT,
                     extracted_path TEXT,
                     extracted_files TEXT,
+                    icon_path TEXT,
                     error TEXT,
                     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
                 )
             """
             )
+            
+            # Add icon_path column if it doesn't exist (for existing databases)
+            try:
+                cursor.execute("ALTER TABLE scan_results ADD COLUMN icon_path TEXT")
+            except Exception:
+                # Column already exists, ignore
+                pass
 
             # Statistics table for aggregated metrics
             cursor.execute(
@@ -210,8 +218,8 @@ class Database:
                         high_risk_count, medium_risk_count, low_risk_count,
                         metadata, manifest, permissions_analysis, sast_results,
                         webstore_analysis, summary, extracted_path, extracted_files,
-                        error, updated_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        icon_path, error, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     (
                         extension_id,
@@ -234,6 +242,7 @@ class Database:
                         json.dumps(summary_data),
                         result.get("extracted_path"),
                         json.dumps(result.get("extracted_files", [])),
+                        result.get("icon_path"),  # Relative path to icon (e.g., "icons/128.png")
                         result.get("error"),
                         datetime.now().isoformat(),
                     ),
@@ -760,6 +769,7 @@ class SupabaseDatabase:
                 "summary": summary_data,  # Enhanced with modern fields
                 "extracted_path": result.get("extracted_path"),
                 "extracted_files": extracted_files,
+                "icon_path": result.get("icon_path"),  # Relative path to icon (e.g., "icons/128.png")
                 "error": result.get("error"),
                 # updated_at is auto-updated by trigger, but set it anyway for initial insert
                 "updated_at": datetime.now(timezone.utc).isoformat(),
