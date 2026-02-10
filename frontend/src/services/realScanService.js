@@ -695,22 +695,6 @@ class RealScanService {
       throw error;
     }
   }
-
-  // Get citation details (optional)
-  async getCitation(citationId) {
-    try {
-      const response = await fetch(
-        `${this.baseURL}/api/citations/${citationId}`
-      );
-      if (response.ok) {
-        return await response.json();
-      }
-      return null;
-    } catch (error) {
-      console.error("Failed to get citation:", error);
-      return null;
-    }
-  }
 }
 
 export default new RealScanService();
