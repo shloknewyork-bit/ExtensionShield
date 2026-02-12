@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import realScanService from "../services/realScanService";
 import databaseService from "../services/databaseService";
 import { normalizeExtensionId } from "../utils/extensionId";
+import { useAuth } from "./AuthContext";
 
 const ScanContext = createContext(null);
 
@@ -16,6 +17,7 @@ export const useScan = () => {
 
 export const ScanProvider = ({ children }) => {
   const navigate = useNavigate();
+  const { isAuthenticated, openSignInModal } = useAuth();
 
   // Mount guard — prevents setState on unmounted component during long async flows
   const mountedRef = useRef(true);
@@ -136,6 +138,17 @@ export const ScanProvider = ({ children }) => {
       return;
     }
 
+    // Require authentication before scanning (production, or in dev when VITE_REQUIRE_AUTH_FOR_SCAN=true)
+    const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+    const requireAuthForScan = import.meta.env.VITE_REQUIRE_AUTH_FOR_SCAN === 'true';
+    if ((!isDevelopment || requireAuthForScan) && !isAuthenticated) {
+      sessionStorage.setItem("auth:pendingScanUrl", urlToScan);
+      sessionStorage.setItem("auth:returnTo", "/scan");
+      setError(null); // No error message - modal is the prompt
+      openSignInModal();
+      return;
+    }
+
     // Clear input state so /scan page starts clean after scan completes
     setUrl("");
     setIsScanning(true);
@@ -239,10 +252,19 @@ export const ScanProvider = ({ children }) => {
       setIsScanning(false);
       // Stay on progress page to show error
     }
-  }, [url, extractExtensionId, navigate, waitForScanCompletion, loadScanHistory, loadDashboardStats]);
+  }, [url, extractExtensionId, navigate, waitForScanCompletion, loadScanHistory, loadDashboardStats, isAuthenticated, openSignInModal]);
 
   // Handle file upload
   const handleFileUpload = useCallback(async (file) => {
+    const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+    const requireAuthForScan = import.meta.env.VITE_REQUIRE_AUTH_FOR_SCAN === 'true';
+    if ((!isDevelopment || requireAuthForScan) && !isAuthenticated) {
+      sessionStorage.setItem("auth:returnTo", "/scan");
+      setError(null); // No error message - modal is the prompt
+      openSignInModal();
+      return;
+    }
+
     setUrl("");
     setIsScanning(true);
     setError(null);
@@ -252,7 +274,6 @@ export const ScanProvider = ({ children }) => {
 
     try {
       // Daily deep-scan limit check (uploads are always deep scans) - skip in development
-      const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
       if (!isDevelopment) {
         try {
           const limit = await realScanService.getDeepScanLimitStatus();
@@ -311,7 +332,7 @@ export const ScanProvider = ({ children }) => {
       setScanStage(null);
       setIsScanning(false);
     }
-  }, [navigate, waitForScanCompletion, loadScanHistory, loadDashboardStats]);
+  }, [navigate, waitForScanCompletion, loadScanHistory, loadDashboardStats, isAuthenticated, openSignInModal]);
 
   // Load scan from history (single API: realScanService.getRealScanResults)
   const loadScanFromHistory = useCallback(async (extId) => {

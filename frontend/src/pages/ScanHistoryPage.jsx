@@ -185,8 +185,9 @@ const ScanHistoryPage = () => {
           ]);
         } else if (SHOW_TABLE_WITHOUT_SIGN_IN) {
           // Unauthenticated: use /api/recent (global recent scans; searches Postgres via ?search=)
+          // Limit to 10 rows for public view - sign in required to see full history
           history = await Promise.race([
-            databaseService.getRecentScans(25, debouncedSearch),
+            databaseService.getRecentScans(10, debouncedSearch),
             timeoutPromise
           ]);
         } else {
@@ -363,13 +364,8 @@ const ScanHistoryPage = () => {
 
   const totalPages = Math.ceil(filteredScans.length / rowsPerPage);
 
-  // Actions: require sign-in before viewing report (then redirect to report after auth)
+  // View existing scan report - no auth required (only scanning new extensions requires login)
   const handleViewReport = (extId) => {
-    if (!isAuthenticated) {
-      sessionStorage.setItem("auth:returnTo", `/scan/results/${extId}`);
-      openSignInModal();
-      return;
-    }
     navigate(`/scan/results/${extId}`);
   };
 
@@ -430,6 +426,11 @@ const ScanHistoryPage = () => {
         <div className="history-header">
           <h1>Scan History</h1>
           <p>Browse and search all scanned extensions</p>
+          {!isAuthenticated && (
+            <p className="auth-hint" style={{ marginTop: '0.5rem', fontSize: '0.875rem', opacity: 0.8 }}>
+              Showing 10 most recent scans. <button onClick={openSignInModal} style={{ background: 'none', border: 'none', color: 'var(--accent-color, #3b82f6)', cursor: 'pointer', textDecoration: 'underline', padding: 0, fontSize: 'inherit' }}>Sign in</button> to scan new extensions (limit: 2 scans/day).
+            </p>
+          )}
         </div>
 
         {/* Toolbar */}

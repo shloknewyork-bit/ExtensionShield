@@ -19,8 +19,9 @@ help:
 	@echo "  make precommit       - Run pre-commit hooks on all files"
 	@echo ""
 	@echo "Run Applications (Local Development):"
-	@echo "  make api             - Start FastAPI server for frontend (port 8007)"
-	@echo "  make frontend        - Start React frontend dev server (port 5173)"
+	@echo "  make api             - Start FastAPI server (port 8007); use with make frontend for UI"
+	@echo "  make frontend        - Start React frontend dev server (port 5173) - use this to see latest UI changes"
+	@echo "  make build-and-serve - Build frontend into static/ then start API (app on http://localhost:8007)"
 	@echo "  make migrate         - Run Supabase migrations (safe, prod only)"
 	@echo "  make start           - Run migrations (if Supabase) then start API"
 	@echo "  make validate-postgres - Validate local dev pulls from Supabase Postgres"
@@ -119,6 +120,21 @@ frontend:
 	@echo "Starting React frontend development server..."
 	@echo "Access at: http://localhost:5173"
 	cd frontend && npm run dev
+
+# Build frontend and copy to static/ so API can serve it on port 8007 (production-like local)
+build-and-serve: static
+	@echo "Starting API with built frontend at http://localhost:8007"
+	@echo "API docs at: http://localhost:8007/docs"
+	uv run extension-shield serve --reload
+
+# Build frontend into project root static/ (so API serves it when you run make api)
+static:
+	@echo "Building frontend..."
+	cd frontend && npm run build
+	@echo "Copying frontend/dist to static/..."
+	@rm -rf static
+	@cp -r frontend/dist static
+	@echo "Done. Run 'make api' to serve at http://localhost:8007"
 
 # Analyze extension via CLI from URL
 analyze:

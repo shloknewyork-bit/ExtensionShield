@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
-import authService from "../services/authService";
+import authService, { EMAIL_CONFIRM_REQUIRED_MESSAGE } from "../services/authService";
 import { supabase } from "../services/supabaseClient";
 import realScanService from "../services/realScanService";
 import databaseService from "../services/databaseService";
@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [authError, setAuthError] = useState(null);
+  const [authSuccessMessage, setAuthSuccessMessage] = useState(null);
   const hasProcessedOAuthCodeRef = useRef(false);
 
   const toUiUser = useCallback((sbUser) => {
@@ -75,6 +76,7 @@ export const AuthProvider = ({ children }) => {
             logger.log("User signed in successfully");
             setIsSignInModalOpen(false);
             setAuthError(null);
+            setAuthSuccessMessage(null);
             // Redirect to returnTo when user signed in from modal (e.g. View report flow)
             // Skip when we're on OAuth callback page (it handles redirect itself)
             if (typeof window !== "undefined" && window.location.pathname !== "/auth/callback") {
@@ -99,6 +101,7 @@ export const AuthProvider = ({ children }) => {
           // Clear error on sign out
           if (event === 'SIGNED_OUT') {
             setAuthError(null);
+            setAuthSuccessMessage(null);
             realScanService.setAccessToken(null);
             databaseService.setAccessToken(null);
           }
@@ -337,21 +340,23 @@ export const AuthProvider = ({ children }) => {
 
   const signUpWithEmail = useCallback(async (email, password, name) => {
     setAuthError(null);
+    setAuthSuccessMessage(null);
     setIsLoading(true);
     try {
-      const sbUser = await authService.signUpWithEmail(email, password, name);
-      // If session exists (email confirmation disabled), set it
+      const result = await authService.signUpWithEmail(email, password, name);
       const { data: sessionData } = await supabase.auth.getSession();
       if (sessionData?.session) {
         setSession(sessionData.session);
         setUser(toUiUser(sessionData.session.user));
         setIsSignInModalOpen(false);
-      } else {
-        // Email confirmation required - user needs to check email
-        setUser(toUiUser(sbUser));
-        // Don't close modal, show success message instead
+        return result.user;
       }
-      return sbUser;
+      if (result.needsEmailConfirmation) {
+        setAuthSuccessMessage(EMAIL_CONFIRM_REQUIRED_MESSAGE);
+        return result.user;
+      }
+      setUser(toUiUser(result.user));
+      return result.user;
     } catch (error) {
       setAuthError(error.message);
       throw error;
@@ -375,16 +380,19 @@ export const AuthProvider = ({ children }) => {
 
   const openSignInModal = useCallback(() => {
     setAuthError(null);
+    setAuthSuccessMessage(null);
     setIsSignInModalOpen(true);
   }, []);
 
   const closeSignInModal = useCallback(() => {
     setAuthError(null);
+    setAuthSuccessMessage(null);
     setIsSignInModalOpen(false);
   }, []);
 
   const clearError = useCallback(() => {
     setAuthError(null);
+    setAuthSuccessMessage(null);
   }, []);
 
   // Manual refresh function to reset auth state if stuck
@@ -417,6 +425,7 @@ export const AuthProvider = ({ children }) => {
     accessToken: session?.access_token || null,
     getAccessToken: () => session?.access_token || null,
     authError,
+    authSuccessMessage,
     isSignInModalOpen,
     signInWithGoogle,
     signInWithGitHub,

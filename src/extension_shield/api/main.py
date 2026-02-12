@@ -24,7 +24,7 @@ from datetime import datetime, timezone, timedelta
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Response, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
 import shutil
 
@@ -2136,6 +2136,23 @@ def calculate_total_risk_score(state: WorkflowState) -> int:
 # API Endpoints
 
 
+def _no_frontend_html() -> str:
+    """HTML shown when frontend is not built (e.g. only API running on 8007)."""
+    return """<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>ExtensionShield API</title></head>
+<body style="font-family: system-ui, sans-serif; max-width: 520px; margin: 60px auto; padding: 20px;">
+  <h1>ExtensionShield API is running</h1>
+  <p>You're on the <strong>API server</strong> (port 8007). The web app is not built here.</p>
+  <ul>
+    <li><strong>To use the app with latest changes:</strong> Run <code>make frontend</code> in another terminal, then open <a href="http://localhost:5173">http://localhost:5173</a>.</li>
+    <li><strong>To serve the app from this port:</strong> Run <code>make build-and-serve</code> once (builds frontend and copies to static), then restart the API.</li>
+  </ul>
+  <p><a href="/docs">API docs</a> &middot; <a href="/health">Health</a></p>
+</body>
+</html>"""
+
+
 @app.get("/")
 async def root():
     """Root endpoint - serves frontend or API info."""
@@ -2143,8 +2160,8 @@ async def root():
     index_file = STATIC_DIR / "index.html"
     if STATIC_DIR.exists() and index_file.exists():
         return FileResponse(index_file)
-    # Otherwise return API info (development mode)
-    return {"name": "Project Atlas API", "version": "1.0.0", "status": "running"}
+    # Otherwise return helpful HTML (development mode)
+    return HTMLResponse(_no_frontend_html())
 
 
 @app.get("/robots.txt")
@@ -2255,8 +2272,20 @@ async def trigger_scan(scan_request: ScanRequest, background_tasks: BackgroundTa
     # Get user ID for rate limiting and consumption tracking
     user_id = _get_user_id(request)
     
-    # Enforce daily deep-scan limit (placeholder) - skip in development
+    # Enforce authentication for deep scans in production
+    # This prevents abuse of VirusTotal API quota by anonymous users
     settings = get_settings()
+    authenticated_user_id = getattr(getattr(request, "state", None), "user_id", None)
+    if settings.is_prod() and not authenticated_user_id:
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "error_code": "AUTH_REQUIRED",
+                "message": "Authentication required to scan new extensions. Sign in to continue. You can view existing reports on the /scan page without signing in.",
+            },
+        )
+    
+    # Enforce daily deep-scan limit - skip in development
     if settings.is_prod():
         limit_status = _deep_scan_limit_status(user_id)
         if limit_status["remaining"] <= 0:
@@ -2348,8 +2377,20 @@ async def upload_and_scan(
     import uuid
     extension_id = str(uuid.uuid4())
 
-    # Enforce daily deep-scan limit (uploads are always deep scans) - skip in development
+    # Enforce authentication for file uploads in production
+    # File uploads are always deep scans and consume VirusTotal API quota
     settings = get_settings()
+    authenticated_user_id = getattr(getattr(request, "state", None), "user_id", None)
+    if settings.is_prod() and not authenticated_user_id:
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "error_code": "AUTH_REQUIRED",
+                "message": "Authentication required to scan extensions. Sign in to continue. You can view existing reports on the /scan page without signing in.",
+            },
+        )
+
+    # Enforce daily deep-scan limit (uploads are always deep scans) - skip in development
     user_id = _get_user_id(request)
     if settings.is_prod():
         limit_status = _deep_scan_limit_status(user_id)
@@ -3719,13 +3760,8 @@ async def serve_spa(full_path: str):
     if STATIC_DIR.exists() and index_file.exists():
         return FileResponse(index_file)
 
-    # If no static files, return API info (development mode)
-    return {
-        "name": "Project Atlas API",
-        "version": "1.0.0",
-        "docs": "/docs",
-        "note": "Frontend not built. Run 'npm run build' in frontend/ directory.",
-    }
+    # If no static files, return helpful HTML (development mode)
+    return HTMLResponse(_no_frontend_html())
 
 
 if __name__ == "__main__":

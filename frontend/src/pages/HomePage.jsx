@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useScan } from "../context/ScanContext";
+import { useAuth } from "../context/AuthContext";
 import SEOHead from "../components/SEOHead";
 import TypewriterNumber from "../components/TypewriterNumber";
 import databaseService from "../services/databaseService";
@@ -26,7 +27,8 @@ const SCAN_STATUS_MESSAGES = [
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { startScan, setUrl } = useScan();
+  const { startScan, setUrl, error: scanError } = useScan();
+  const { isAuthenticated, openSignInModal } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
   const [scanInput, setScanInput] = useState("");
   const [scanProgress, setScanProgress] = useState(0);
@@ -282,6 +284,16 @@ const HomePage = () => {
   const handleScan = () => {
     const input = scanInput.trim();
     if (input) {
+      // Require auth in production, or in dev when VITE_REQUIRE_AUTH_FOR_SCAN=true
+      const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+      const requireAuthForScan = import.meta.env.VITE_REQUIRE_AUTH_FOR_SCAN === 'true';
+      if ((!isDevelopment || requireAuthForScan) && !isAuthenticated) {
+        // Store the URL so we can resume after login
+        sessionStorage.setItem("auth:pendingScanUrl", input);
+        sessionStorage.setItem("auth:returnTo", "/scan");
+        openSignInModal();
+        return;
+      }
       // Clear context URL so /scan page starts clean, then trigger scan directly.
       // startScan navigates to /scan/progress/:id → user clicks "View Results" → /scan/results/:id
       setScanInput("");
@@ -514,6 +526,16 @@ const HomePage = () => {
                 </svg>
               </button>
             </div>
+            {/* Auth hint when not logged in */}
+            {!isAuthenticated && scanInput.trim() && (
+              <p className="auth-hint">
+                Sign in required to scan. View existing reports on <a href="/scan" onClick={(e) => { e.preventDefault(); navigate('/scan'); }}>/scan</a>
+              </p>
+            )}
+            {/* Show scan error message if any */}
+            {scanError && (
+              <p className="scan-error-hint">{scanError}</p>
+            )}
           </div>
           <a
             href="https://app.tango.us/app/workflow/Scan-Google-Translate-Extension-with-ExtensionShield-c1e43d157b434aedbaff4176df94d55d"

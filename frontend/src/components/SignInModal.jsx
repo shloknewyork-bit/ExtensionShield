@@ -12,6 +12,7 @@ const SignInModal = () => {
     signUpWithEmail,
     isLoading,
     authError,
+    authSuccessMessage,
     clearError,
   } = useAuth();
 
@@ -124,7 +125,7 @@ const SignInModal = () => {
           </p>
         </div>
 
-        {/* OAuth Buttons */}
+        {/* OAuth */}
         <div className="oauth-buttons">
           <button
             className="oauth-btn google"
@@ -151,26 +152,11 @@ const SignInModal = () => {
             </svg>
             <span>Continue with Google</span>
           </button>
-
-          <button
-            className="oauth-btn manual"
-            onClick={() => {
-              // Scroll to email form or focus email input
-              document.getElementById('email')?.focus();
-            }}
-            disabled={isLoading}
-          >
-            <svg className="oauth-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="5" width="18" height="14" rx="2" />
-              <polyline points="3 7 12 13 21 7" />
-            </svg>
-            <span>Continue with Email</span>
-          </button>
         </div>
 
         {/* Divider */}
         <div className="divider">
-          <span>or continue with email</span>
+          <span>Or sign in with email</span>
         </div>
 
         {/* Email Form */}
@@ -218,6 +204,15 @@ const SignInModal = () => {
             />
           </div>
 
+          {authSuccessMessage && (
+            <div className="success-message" role="status">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+              <span>{authSuccessMessage}</span>
+            </div>
+          )}
           {displayError && (
             <div className="error-message">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

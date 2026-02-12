@@ -731,6 +731,35 @@
   font-weight: 500;
 }
 
+/* Auth hint for unauthenticated users */
+.auth-hint {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--atlas-text-muted);
+  text-align: center;
+  
+  a {
+    color: var(--atlas-accent);
+    text-decoration: underline;
+    cursor: pointer;
+    
+    &:hover {
+      color: #16a34a;
+    }
+  }
+}
+
+/* Scan error hint */
+.scan-error-hint {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  color: #f87171;
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(248, 113, 113, 0.1);
+  border-radius: 8px;
+}
+
 /* Watch demo link - Tango step-by-step (copy URL → paste here) */
 .hero-demo-link {
   display: inline-flex;

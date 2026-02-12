@@ -94,9 +94,9 @@ const signInWithGitHub = async () => {
 };
 
 const signInWithEmail = async (email, password) => {
+  checkSupabaseConfig();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
-    // Provide more helpful error messages
     if (error.message.includes("Email not confirmed")) {
       throw new Error("Please check your email and click the confirmation link before signing in.");
     }
@@ -105,20 +105,28 @@ const signInWithEmail = async (email, password) => {
   return data.user;
 };
 
+/** Message shown when sign-up succeeds but email confirmation is required */
+export const EMAIL_CONFIRM_REQUIRED_MESSAGE =
+  "Please check your email to confirm your account before signing in.";
+
 const signUpWithEmail = async (email, password, name) => {
+  checkSupabaseConfig();
+  const redirectTo =
+    typeof window !== "undefined" ? `${window.location.origin}${window.location.pathname || ""}` : undefined;
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: name ? { data: { full_name: name } } : undefined,
+    options: {
+      ...(name ? { data: { full_name: name } } : {}),
+      ...(redirectTo ? { emailRedirectTo: redirectTo } : {}),
+    },
   });
   if (error) throw new Error(error.message || "Sign up failed");
-  
-  // If email confirmation is required, user will need to check their email
+
   if (data.user && !data.session) {
-    throw new Error("Please check your email to confirm your account before signing in.");
+    return { user: data.user, needsEmailConfirmation: true };
   }
-  
-  return data.user;
+  return { user: data.user, needsEmailConfirmation: false };
 };
 
 const signOut = async () => {

@@ -462,13 +462,8 @@ const ScannerPage = () => {
     return sorted.slice(0, TEASER_LIMIT);
   }, [allScans, sortConfig]);
 
-  // Actions: require sign-in before viewing report (then redirect to report after auth)
+  // View existing scan report - no auth required (only scanning new extensions requires login)
   const handleViewReport = (extId) => {
-    if (!isAuthenticated) {
-      sessionStorage.setItem("auth:returnTo", `/scan/results/${extId}`);
-      openSignInModal();
-      return;
-    }
     navigate(`/scan/results/${extId}`);
   };
 
