@@ -1,0 +1,34 @@
+/* ============================================================================
+   RainfallDroplets – reusable falling droplets background
+   Use on any page that needs the rainfall animation.
+   ============================================================================ */
+
+.rainfall-droplets {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  --rainfall-droplet-color: var(--atlas-accent, #22c55e);
+}
+
+.rainfall-droplets__droplet {
+  position: absolute;
+  top: -8%;
+  margin-left: 0;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--rainfall-droplet-color);
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+  animation: rainfall-droplet-fall linear infinite;
+}
+
+@keyframes rainfall-droplet-fall {
+  0% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(-50%) translateY(120vh);
+    opacity: 0.2;
+  }
+}
