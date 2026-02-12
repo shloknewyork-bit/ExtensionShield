@@ -133,7 +133,6 @@ export const userMenuItems = [
  */
 export const footerConfig = {
   disclaimer: "Comprehensive extension governance through security, privacy, and compliance analysis. We aggregate multiple dimensions into a single actionable score. So you can trust the results you find.",
-  brandClarification: "ExtensionShield is independent and not affiliated with Extension Auditor.",
   links: [
     {
       label: "How We Score",
