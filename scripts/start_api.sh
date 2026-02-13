@@ -45,5 +45,5 @@ else
 fi
 
 echo "✅ Starting uvicorn server on port ${PORT:-8007}..."
-exec uvicorn extension_shield.api.main:app --host 0.0.0.0 --port "${PORT:-8007}"
+exec uvicorn extension_shield.api.main:app --host 0.0.0.0 --port "${PORT:-8007}" --forwarded-allow-ips="*"
 
