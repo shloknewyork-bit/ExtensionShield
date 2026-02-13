@@ -122,6 +122,10 @@ class Settings:
     admin_api_key: Optional[str]
     telemetry_admin_key: Optional[str]
 
+    # Zip extract limits (zip-bomb protection)
+    zip_extract_max_files: int
+    zip_extract_max_uncompressed_bytes: int
+
     @property
     def paths(self) -> LocalPaths:
         storage_root = Path(self.extension_storage_path)
@@ -202,6 +206,18 @@ def get_settings() -> Settings:
     admin_api_key = os.environ.get("ADMIN_API_KEY")
     telemetry_admin_key = os.environ.get("TELEMETRY_ADMIN_KEY")
 
+    # Zip-bomb protection: max file count and max total uncompressed size
+    _zip_max_files = os.environ.get("ZIP_EXTRACT_MAX_FILES", "10000")
+    _zip_max_bytes = os.environ.get("ZIP_EXTRACT_MAX_UNCOMPRESSED_BYTES", "524288000")  # 500 MiB
+    try:
+        zip_extract_max_files = int(_zip_max_files)
+    except ValueError:
+        zip_extract_max_files = 10000
+    try:
+        zip_extract_max_uncompressed_bytes = int(_zip_max_bytes)
+    except ValueError:
+        zip_extract_max_uncompressed_bytes = 524288000
+
     storage_backend = _parse_storage_backend(os.environ.get("STORAGE_BACKEND"))
 
     explicit_db_backend = _parse_db_backend(os.environ.get("DB_BACKEND"))
@@ -239,6 +255,8 @@ def get_settings() -> Settings:
         supabase_jwt_aud=supabase_jwt_aud,
         admin_api_key=admin_api_key,
         telemetry_admin_key=telemetry_admin_key,
+        zip_extract_max_files=zip_extract_max_files,
+        zip_extract_max_uncompressed_bytes=zip_extract_max_uncompressed_bytes,
     )
     settings.validate()
     return settings
