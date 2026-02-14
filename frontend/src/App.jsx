@@ -1,4 +1,5 @@
 import React, { Suspense } from "react";
+import { createPortal } from "react-dom";
 import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ScanProvider } from "./context/ScanContext";
@@ -488,56 +489,59 @@ function AppHeader() {
         </button>
       </div>
 
-      <div
-        ref={mobileMenuRef}
-        className={`mobile-menu ${mobileMenuOpen ? "mobile-menu-open" : ""}`}
-        aria-hidden={!mobileMenuOpen}
-      >
-        <nav className="mobile-menu-nav" aria-label="Mobile">
-          {allNavLinks.map((link, idx) => {
-            const key = link.path || link.href || idx;
-            if (link.external && link.href) {
+      {createPortal(
+        <div
+          ref={mobileMenuRef}
+          className={`mobile-menu ${mobileMenuOpen ? "mobile-menu-open" : ""}`}
+          aria-hidden={!mobileMenuOpen}
+        >
+          <nav className="mobile-menu-nav" aria-label="Mobile">
+            {allNavLinks.map((link, idx) => {
+              const key = link.path || link.href || idx;
+              if (link.external && link.href) {
+                return (
+                  <a
+                    key={key}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mobile-menu-link"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </a>
+                );
+              }
               return (
-                <a
+                <NavLink
                   key={key}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mobile-menu-link"
+                  to={link.path}
+                  className={() => "mobile-menu-link"}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.label}
-                </a>
+                </NavLink>
               );
-            }
-            return (
-              <NavLink
-                key={key}
-                to={link.path}
-                className="mobile-menu-link"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.label}
-              </NavLink>
-            );
-          })}
-        </nav>
-        <div className="mobile-menu-actions">
-          {isLoading ? (
-            <div className="auth-loading">
-              <span className="loading-dot" />
-              <span className="loading-dot" />
-              <span className="loading-dot" />
-            </div>
-          ) : isAuthenticated && user ? (
-            <UserMenu />
-          ) : (
-            <button type="button" className="action-signin mobile-signin" onClick={() => { openSignInModal(); setMobileMenuOpen(false); }}>
-              Sign In
-            </button>
-          )}
-        </div>
-      </div>
+            })}
+          </nav>
+          <div className="mobile-menu-actions">
+            {isLoading ? (
+              <div className="auth-loading">
+                <span className="loading-dot" />
+                <span className="loading-dot" />
+                <span className="loading-dot" />
+              </div>
+            ) : isAuthenticated && user ? (
+              <UserMenu />
+            ) : (
+              <button type="button" className="action-signin mobile-signin" onClick={() => { openSignInModal(); setMobileMenuOpen(false); }}>
+                Sign In
+              </button>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
     </header>
   );
 }
