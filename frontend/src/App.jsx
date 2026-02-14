@@ -407,12 +407,11 @@ function AppHeader() {
   const mobileMenuRef = React.useRef(null);
 
   React.useEffect(() => {
-    if (!isHomePage) return;
     const handleScroll = () => setScrolled(window.scrollY > HEADER_SCROLL_THRESHOLD);
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isHomePage]);
+  }, []);
 
   React.useEffect(() => {
     setMobileMenuOpen(false);
@@ -434,7 +433,7 @@ function AppHeader() {
     };
   }, [mobileMenuOpen]);
 
-  const headerSolid = !isHomePage || scrolled;
+  const headerSolid = scrolled;
   const headerClass = headerSolid ? "solid" : "transparent";
 
   const containerVariants = {
