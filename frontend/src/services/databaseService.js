@@ -6,6 +6,7 @@
  */
 
 import { getScanResultsUrl } from "../utils/constants";
+import { fetchJson, buildFetchError } from "./requestHelpers";
 
 class DatabaseService {
   constructor() {
@@ -30,11 +31,11 @@ class DatabaseService {
    */
   async getStatistics() {
     try {
-      const response = await fetch(`${this.API_BASE_URL}/statistics`);
+      const { response, body } = await fetchJson(`${this.API_BASE_URL}/statistics`);
       if (!response.ok) {
-        throw new Error("Failed to fetch statistics");
+        throw buildFetchError(response, body, "Failed to fetch statistics");
       }
-      return await response.json();
+      return body;
     } catch (error) {
       // console.error("Error fetching statistics:", error); // prod: no console
       return {
@@ -43,7 +44,7 @@ class DatabaseService {
         total_files_analyzed: 0,
         total_vulnerabilities: 0,
         avg_security_score: 0,
-        risk_distribution: { high: 0, medium: 0, low: 0 }
+        risk_distribution: { high: 0, medium: 0, low: 0 },
       };
     }
   }
@@ -53,17 +54,21 @@ class DatabaseService {
    */
   async getScanHistory(limit = 50, accessToken = undefined) {
     try {
-      const response = await fetch(`${this.API_BASE_URL}/history?limit=${limit}`, {
-        headers: {
-          ...this._authHeaders(accessToken),
+      const { response, body } = await fetchJson(
+        `${this.API_BASE_URL}/history?limit=${limit}`,
+        {
+          headers: {
+            ...this._authHeaders(accessToken),
+          },
         }
-      });
+      );
       if (!response.ok) {
         if (response.status === 401) return [];
-        throw new Error("Failed to fetch scan history");
+        throw buildFetchError(response, body, "Failed to fetch scan history");
       }
-      const data = await response.json();
-      return data.history || [];
+      const historyPayload = body || {};
+      if (Array.isArray(historyPayload)) return historyPayload;
+      return historyPayload.history || [];
     } catch (error) {
       // console.error("Error fetching scan history:", error); // prod: no console
       return [];
@@ -83,18 +88,13 @@ class DatabaseService {
       }
       // console.log(`[databaseService] Fetching recent scans from: ${url}`); // prod: no console
       
-      const response = await fetch(url);
-      
+      const { response, body } = await fetchJson(url);
       if (!response.ok) {
-        const errorText = await response.text();
-        // console.error(`[databaseService] API error (${response.status}):`, errorText); // prod: no console
-        throw new Error(`Failed to fetch recent scans: ${response.status} ${errorText}`);
+        throw buildFetchError(response, body, `Failed to fetch recent scans`);
       }
-      
-      const data = await response.json();
-      // Support both { recent: [...] } and direct array (e.g. some proxies)
-      if (Array.isArray(data)) return data;
-      if (data?.recent && Array.isArray(data.recent)) return data.recent;
+
+      if (Array.isArray(body)) return body;
+      if (body?.recent && Array.isArray(body.recent)) return body.recent;
       return [];
     } catch (error) {
       // console.error("[databaseService] Error fetching recent scans:", error); // prod: no console
@@ -114,7 +114,7 @@ class DatabaseService {
       const url = getScanResultsUrl(extensionId);
       if (!url) return null;
 
-      const response = await fetch(url, {
+      const { response, body } = await fetchJson(url, {
         headers: {
           ...this._authHeaders(),
         },
@@ -124,12 +124,11 @@ class DatabaseService {
         if (response.status === 404) {
           return null;
         }
-        throw new Error("Failed to fetch scan result");
+        throw buildFetchError(response, body, "Failed to fetch scan result");
       }
       
-      const data = await response.json();
-      // console.log("TOP_KEYS", Object.keys(data)); // prod: no console
-      return data;
+      // console.log("TOP_KEYS", Object.keys(body || {})); // prod: no console
+      return body;
     } catch (error) {
       // console.error("Error fetching scan result:", error); // prod: no console
       return null;

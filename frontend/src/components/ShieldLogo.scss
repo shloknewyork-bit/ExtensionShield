@@ -36,17 +36,15 @@
   transform-origin: center;
 }
 
-/* Pulse animation - subtle like Railway */
+/* Pulse animation - subtle like Railway (no filter: Safari renders filtered SVG as white) */
 @keyframes shieldPulse {
   0%, 100% {
     opacity: 1;
     transform: scale(1);
-    filter: brightness(1);
   }
   50% {
     opacity: 0.95;
     transform: scale(1.02);
-    filter: brightness(1.1);
   }
 }
 
@@ -74,10 +72,9 @@
   }
 }
 
-/* Hover effect - slight scale up */
+/* Hover effect - slight scale up (no filter for Safari compatibility) */
 .shield-logo:hover .shield-main {
   transform: scale(1.05);
-  filter: brightness(1.15);
   transition: all 0.2s ease;
 }
 

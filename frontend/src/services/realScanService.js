@@ -1,4 +1,5 @@
 import { getScanResultsUrl } from "../utils/constants";
+import { fetchJson, buildFetchError } from "./requestHelpers";
 
 class RealScanService {
   constructor() {
@@ -54,7 +55,7 @@ class RealScanService {
   }
 
   async getDeepScanLimitStatus() {
-    const response = await fetch(`${this.baseURL}/api/limits/deep-scan`, {
+    const { response, body } = await fetchJson(`${this.baseURL}/api/limits/deep-scan`, {
       method: "GET",
       headers: {
         ...this.getRequestHeaders(),
@@ -62,10 +63,10 @@ class RealScanService {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch deep-scan limit status");
+      throw buildFetchError(response, body, "Failed to fetch deep-scan limit status");
     }
 
-    return await response.json();
+    return body;
   }
 
   async hasCachedResults(extensionId) {
@@ -85,7 +86,7 @@ class RealScanService {
   // Trigger a scan for an extension URL
   async triggerScan(url) {
     try {
-      const response = await fetch(`${this.baseURL}/api/scan/trigger`, {
+      const { response, body } = await fetchJson(`${this.baseURL}/api/scan/trigger`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -95,21 +96,10 @@ class RealScanService {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        return result;
-      } else {
-        const data = await response.json().catch(() => ({}));
-        const detail = data?.detail;
-        const message =
-          (typeof detail === "string" && detail) ||
-          (typeof detail === "object" && (detail.message || detail.error || detail.detail)) ||
-          data?.message ||
-          "Failed to trigger scan";
-        const err = new Error(message);
-        err.status = response.status;
-        err.detail = detail;
-        throw err;
+        return body;
       }
+
+      throw buildFetchError(response, body, "Failed to trigger scan");
     } catch (error) {
       // console.error("Failed to trigger scan:", error); // prod: no console
       throw error;
@@ -122,7 +112,7 @@ class RealScanService {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch(`${this.baseURL}/api/scan/upload`, {
+      const { response, body } = await fetchJson(`${this.baseURL}/api/scan/upload`, {
         method: "POST",
         headers: {
           ...this.getRequestHeaders(),
@@ -131,20 +121,10 @@ class RealScanService {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        return result;
-      } else {
-        const error = await response.json();
-        const detail = error?.detail;
-        const message =
-          (typeof detail === "string" && detail) ||
-          (typeof detail === "object" && (detail.message || detail.error || detail.detail)) ||
-          "Failed to upload file";
-        const err = new Error(message);
-        err.status = response.status;
-        err.detail = detail;
-        throw err;
+        return body;
       }
+
+      throw buildFetchError(response, body, "Failed to upload file");
     } catch (error) {
       // console.error("Failed to upload file:", error); // prod: no console
       throw error;
@@ -169,48 +149,22 @@ class RealScanService {
     const url = getScanResultsUrl(extensionId);
     if (!url) return null;
     try {
-      // console.log("RESULTS_ENDPOINT", url); // prod: no console
-      
-      const response = await fetch(url, {
+      const { response, body } = await fetchJson(url, {
         headers: {
           ...this.getRequestHeaders(),
         },
       });
 
       if (response.ok) {
-        const data = await response.json();
-        // console.log("TOP_KEYS", Object.keys(data)); // prod: no console
-        
-        // Return payload as-is - backend already upgrades legacy payloads
-        // DO NOT call formatRealResults() - it creates legacy keys (securityScore, riskLevel, sastResults)
-        return data;
+        return body;
       }
 
-      // 404 is expected while a scan is still running or results haven't been persisted yet.
       if (response.status === 404) {
         return null;
       }
 
-      const text = await response.text();
-      let data = {};
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        // Ignore parse errors
-      }
-      const detail = data?.detail;
-      const message =
-        (typeof detail === "string" && detail) ||
-        (typeof detail === "object" && (detail.message || detail.error || detail.detail)) ||
-        data?.message ||
-        "Failed to fetch scan results";
-      const err = new Error(message);
-      err.status = response.status;
-      err.detail = detail;
-      throw err;
+      throw buildFetchError(response, body, "Failed to fetch scan results");
     } catch (error) {
-      // Avoid noisy logs for expected "no results yet" behavior
-      // if (error?.status !== 404 && error?.message !== "No scan results found.") { console.error("Failed to get real scan results:", error); } // prod: no console
       throw error;
     }
   }
@@ -229,57 +183,62 @@ class RealScanService {
   async _checkScanStatusInner(extensionId) {
     const url = `${this.baseURL}/api/scan/status/${extensionId}`;
     try {
-      // console.group(`[DEBUG checkScanStatus] ${extensionId}`); // prod: no console
-      // console.log("URL:", url);
-      
-      const response = await fetch(url);
-      // console.log("HTTP Status:", response.status);
-      
-      let responseBody = null;
-      try {
-        const text = await response.text();
-        responseBody = text.substring(0, 500);
-        // console.log("Response body (first 500 chars):", responseBody); // prod: no console
-        const data = JSON.parse(text);
-        
-        if (response.ok) {
-          // Check if the status response contains an error with code 401
-          if (data.error && (data.error_code === 401 || data.error?.includes("API key") || data.error?.includes("Invalid API key"))) {
-            // console.log("Detected 401 error in response"); // prod: no console
-            // console.groupEnd();
-            return { scanned: false, status: "failed", error: "Connection is down try back in a while", error_code: 401 };
-          }
-          // console.groupEnd();
-          return data;
+      const { response, body } = await fetchJson(url);
+      const data = body || {};
+
+      if (response.ok) {
+        if (
+          data.error &&
+          (data.error_code === 401 ||
+            data.error?.includes("API key") ||
+            data.error?.includes("Invalid API key"))
+        ) {
+          return {
+            scanned: false,
+            status: "failed",
+            error: "Connection is down try back in a while",
+            error_code: 401,
+          };
         }
-        // Check for 401 status code
-        if (response.status === 401) {
-          // console.log("HTTP 401 detected"); // prod: no console
-          // console.groupEnd();
-          return { scanned: false, status: "failed", error: "Connection is down try back in a while", error_code: 401 };
-        }
-        // console.groupEnd();
-        return { scanned: false };
-      } catch (parseError) {
-        // console.error("Failed to parse response:", parseError); // prod: no console
-        // console.groupEnd();
-        return { scanned: false };
+        return data;
       }
+
+      if (response.status === 401) {
+        return {
+          scanned: false,
+          status: "failed",
+          error: "Connection is down try back in a while",
+          error_code: 401,
+        };
+      }
+
+      return { scanned: false };
     } catch (error) {
-      // console.error("Failed to check scan status:", error); // prod: no console
-      // console.log("Error message:", error.message); // prod: no console
-      // Determine if it's a network error (server down)
-      if (error.message.includes("fetch") || error.message.includes("network")) {
-        // console.groupEnd(); // prod: no console
-        throw new Error("Backend server unavailable. Please make sure the API server is running (make api).");
+      if (
+        error?.message?.includes("fetch") ||
+        error?.message?.includes("network")
+      ) {
+        throw new Error(
+          "Backend server unavailable. Please make sure the API server is running (make api)."
+        );
       }
-      // Check for 401 errors
-      if (error.status === 401 || error.message?.includes("401") || error.message?.includes("API key")) {
-        // console.groupEnd(); // prod: no console
-        return { scanned: false, status: "failed", error: "Connection is down try back in a while", error_code: 401 };
+      if (
+        error?.status === 401 ||
+        error?.message?.includes("401") ||
+        error?.message?.includes("API key")
+      ) {
+        return {
+          scanned: false,
+          status: "failed",
+          error: "Connection is down try back in a while",
+          error_code: 401,
+        };
       }
-      // console.groupEnd(); // prod: no console
-      return { scanned: false, status: "error", error: error.message };
+      return {
+        scanned: false,
+        status: "error",
+        error: error?.message,
+      };
     }
   }
 

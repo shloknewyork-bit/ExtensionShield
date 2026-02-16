@@ -43,7 +43,12 @@ from extension_shield.api.supabase_auth import get_current_user_id as _get_curre
 from extension_shield.core.config import get_settings
 from extension_shield.api.csp_middleware import CSPMiddleware
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
-from extension_shield.core.report_view_model import build_report_view_model, build_consumer_insights
+from extension_shield.api.payload_helpers import (
+    build_report_view_model_safe,
+    ensure_consumer_insights,
+    log_scan_results_return_shape,
+    upgrade_legacy_payload,
+)
 from extension_shield.governance.tool_adapters import SignalPackBuilder
 from extension_shield.scoring.engine import ScoringEngine
 
@@ -57,295 +62,6 @@ from extension_shield.utils.json_encoder import (
     sanitize_for_json,
 )
 
-
-def _build_report_view_model_safe(
-    manifest: Dict[str, Any],
-    analysis_results: Dict[str, Any],
-    metadata: Optional[Dict[str, Any]],
-    extension_id: str,
-    scan_id: str,
-) -> Dict[str, Any]:
-    """Safely build report view model, returning empty dict on any error."""
-    try:
-        return build_report_view_model(
-            manifest=manifest,
-            analysis_results=analysis_results,
-            metadata=metadata,
-            extension_id=extension_id,
-            scan_id=scan_id,
-        )
-    except Exception as exc:
-        # LLM failures should not fail the entire scan - use fallbacks
-        logger.warning("Failed to build report_view_model, using empty dict: %s", exc)
-        return {}
-
-
-def _upgrade_legacy_payload(payload: Dict[str, Any], extension_id: str) -> Dict[str, Any]:
-    """
-    Upgrade a legacy payload to include scoring_v2 and report_view_model.
-    
-    Args:
-        payload: The legacy payload (may be missing scoring_v2 and report_view_model)
-        extension_id: Extension ID for building SignalPack
-        
-    Returns:
-        The (possibly upgraded) payload. The input dict may be mutated in-place.
-    """
-    has_scoring_v2_before = bool(payload.get("scoring_v2") or payload.get("governance_bundle", {}).get("scoring_v2"))
-    has_report_view_model_before = bool(payload.get("report_view_model"))
-    has_consumer_insights_before = bool(payload.get("report_view_model", {}).get("consumer_insights"))
-    upgraded = False
-    
-    # If scoring_v2, report_view_model, and consumer_insights already exist, we *usually*
-    # don't need an upgrade. However, if the scoring engine version changed, we should
-    # recompute scoring/report so cached scans reflect the latest deterministic gates
-    # (e.g., new compliance checks).
-    force_recompute = False
-    try:
-        existing_scoring = payload.get("scoring_v2") or payload.get("governance_bundle", {}).get("scoring_v2") or {}
-        existing_version = (existing_scoring or {}).get("scoring_version")
-        if isinstance(existing_version, str) and existing_version and existing_version != ScoringEngine.VERSION:
-            force_recompute = True
-    except Exception:
-        force_recompute = False
-
-    if has_scoring_v2_before and has_report_view_model_before and has_consumer_insights_before and not force_recompute:
-        logger.info("[UPGRADE] extension_id=%s, results_payload_upgraded=false, has_scoring_v2=%s→%s, has_report_view_model=%s→%s, has_consumer_insights=%s→%s",
-                    extension_id, has_scoring_v2_before, has_scoring_v2_before, has_report_view_model_before, has_report_view_model_before,
-                    has_consumer_insights_before, has_consumer_insights_before)
-        return payload
-    
-    logger.info("[UPGRADE] Upgrading legacy payload for extension_id=%s (has_scoring_v2=%s, has_report_view_model=%s)",
-                extension_id, has_scoring_v2_before, has_report_view_model_before)
-    
-    try:
-        # Extract available data
-        manifest = payload.get("manifest") or {}
-        metadata = payload.get("metadata") or {}
-        
-        # Build analysis_results dict from legacy fields
-        analysis_results = {
-            "permissions_analysis": payload.get("permissions_analysis") or {},
-            "javascript_analysis": payload.get("sast_results") or {},
-            "webstore_analysis": payload.get("webstore_analysis") or {},
-            "virustotal_analysis": payload.get("virustotal_analysis") or {},
-            "entropy_analysis": payload.get("entropy_analysis") or {},
-            "impact_analysis": payload.get("impact_analysis") or {},
-            "privacy_compliance": payload.get("privacy_compliance") or {},
-            "executive_summary": payload.get("summary") or {},
-        }
-        
-        # Build SignalPack from legacy data
-        signal_pack_builder = SignalPackBuilder()
-        signal_pack = signal_pack_builder.build(
-            scan_id=extension_id,
-            analysis_results=analysis_results,
-            metadata=metadata,
-            manifest=manifest,
-            extension_id=extension_id,
-        )
-        
-        # Compute scoring_v2 if missing or if we need to force a recompute
-        if (not has_scoring_v2_before) or force_recompute:
-            user_count = metadata.get("user_count") or metadata.get("users") or signal_pack.webstore_stats.installs
-            scoring_engine = ScoringEngine(weights_version="v1")
-            scoring_result = scoring_engine.calculate_scores(
-                signal_pack=signal_pack,
-                manifest=manifest,
-                user_count=user_count if isinstance(user_count, int) else None,
-                permissions_analysis=analysis_results.get("permissions_analysis"),
-            )
-
-            scoring_v2_payload = scoring_result.model_dump_for_api()
-            scoring_v2_payload["weights_version"] = "v1"
-            # Include gate results (used by frontend modals). Keep stable minimal shape.
-            gate_results = scoring_engine.get_gate_results() or []
-            scoring_v2_payload["gate_results"] = [
-                {
-                    "gate_id": g.gate_id,
-                    "decision": g.decision,
-                    "triggered": g.triggered,
-                    "confidence": g.confidence,
-                    "reasons": g.reasons,
-                }
-                for g in gate_results
-            ]
-
-            payload["scoring_v2"] = scoring_v2_payload
-            logger.info("[UPGRADE] Built scoring_v2 for extension_id=%s (force=%s)", extension_id, force_recompute)
-            upgraded = True
-        
-        # Build report_view_model if missing OR when we recompute scoring (avoid mismatched UI)
-        if (not has_report_view_model_before) or force_recompute:
-            report_view_model = build_report_view_model(
-                manifest=manifest,
-                analysis_results=analysis_results,
-                metadata=metadata,
-                extension_id=extension_id,
-                scan_id=extension_id,
-            )
-            payload["report_view_model"] = report_view_model
-            logger.info("[UPGRADE] Built report_view_model for extension_id=%s (force=%s)", extension_id, force_recompute)
-            upgraded = True
-        
-        # Ensure consumer_insights exists (double-check)
-        _ensure_consumer_insights(payload)
-        
-        final_has_scoring_v2 = bool(payload.get("scoring_v2"))
-        final_has_report_view_model = bool(payload.get("report_view_model"))
-        final_has_consumer_insights = bool(payload.get("report_view_model", {}).get("consumer_insights"))
-        logger.info("[UPGRADE] extension_id=%s, results_payload_upgraded=%s, has_scoring_v2=%s→%s, has_report_view_model=%s→%s, has_consumer_insights=%s→%s",
-                    extension_id, upgraded, has_scoring_v2_before, final_has_scoring_v2, has_report_view_model_before, final_has_report_view_model,
-                    has_consumer_insights_before, final_has_consumer_insights)
-        return payload
-        
-    except Exception as exc:
-        logger.error("[UPGRADE] Failed to upgrade legacy payload for extension_id=%s: %s", extension_id, exc)
-        # Best-effort: still ensure consumer_insights is attached if possible
-        try:
-            _ensure_consumer_insights(payload)
-        except Exception:
-            # Swallow secondary errors – primary failure is already logged
-            pass
-        final_has_scoring_v2 = bool(payload.get("scoring_v2") or payload.get("governance_bundle", {}).get("scoring_v2"))
-        final_has_report_view_model = bool(payload.get("report_view_model"))
-        final_has_consumer_insights = bool(payload.get("report_view_model", {}).get("consumer_insights"))
-        logger.info("[UPGRADE] extension_id=%s, results_payload_upgraded=false (error), has_scoring_v2=%s→%s, has_report_view_model=%s→%s, has_consumer_insights=%s→%s",
-                    extension_id, has_scoring_v2_before, final_has_scoring_v2, has_report_view_model_before, final_has_report_view_model,
-                    has_consumer_insights_before, final_has_consumer_insights)
-        return payload
-
-
-def _ensure_consumer_insights(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Ensure payload.report_view_model.consumer_insights exists.
-    If missing, compute it from available data in the payload.
-    
-    Returns:
-        The payload dict (for chaining). The input dict may be mutated in-place.
-    """
-    # Ensure report_view_model exists
-    if "report_view_model" not in payload:
-        payload["report_view_model"] = {}
-    
-    rvm = payload["report_view_model"]
-    
-    # If consumer_insights already exists, we're done
-    if rvm.get("consumer_insights") is not None:
-        logger.info("consumer_insights_attached=true (already present)")
-        return payload
-    
-    # Extract parameters for build_consumer_insights
-    # Try multiple possible locations for each field
-    
-    # scoring_v2: from scoring_v2 or governance_bundle.scoring_v2
-    scoring_v2 = payload.get("scoring_v2")
-    if not scoring_v2:
-        governance_bundle = payload.get("governance_bundle", {})
-        if isinstance(governance_bundle, dict):
-            scoring_v2 = governance_bundle.get("scoring_v2")
-    
-    # capability_flags: from report_view_model.evidence.capability_flags or top-level
-    capability_flags = None
-    if isinstance(rvm.get("evidence"), dict):
-        capability_flags = rvm["evidence"].get("capability_flags")
-    if not capability_flags:
-        capability_flags = payload.get("capability_flags")
-    
-    # host_access_summary: from report_view_model.evidence.host_access_summary or top-level
-    host_access_summary = None
-    if isinstance(rvm.get("evidence"), dict):
-        host_access_summary = rvm["evidence"].get("host_access_summary")
-    if not host_access_summary:
-        host_access_summary = payload.get("host_access_summary")
-    
-    # permissions_analysis: from top-level or report_view_model.evidence.permissions_summary
-    permissions_analysis = payload.get("permissions_analysis")
-    if not permissions_analysis and isinstance(rvm.get("evidence"), dict):
-        permissions_analysis = rvm["evidence"].get("permissions_summary")
-    
-    # webstore_metadata: from metadata or report_view_model.evidence.webstore_metadata
-    webstore_metadata = payload.get("metadata")
-    if not webstore_metadata and isinstance(rvm.get("evidence"), dict):
-        webstore_metadata = rvm["evidence"].get("webstore_metadata")
-    
-    # network_evidence: from top-level or report_view_model.evidence.network_evidence
-    network_evidence = payload.get("network_evidence")
-    if not network_evidence and isinstance(rvm.get("evidence"), dict):
-        network_evidence = rvm["evidence"].get("network_evidence")
-    
-    # external_domains: from top-level or report_view_model.evidence.external_domains
-    external_domains = payload.get("external_domains")
-    if not external_domains and isinstance(rvm.get("evidence"), dict):
-        external_domains = rvm["evidence"].get("external_domains")
-    
-    # Compute consumer_insights
-    try:
-        consumer_insights = build_consumer_insights(
-            scoring_v2=scoring_v2,
-            capability_flags=capability_flags,
-            host_access_summary=host_access_summary,
-            permissions_analysis=permissions_analysis or {},
-            webstore_metadata=webstore_metadata or {},
-            network_evidence=network_evidence,
-            external_domains=external_domains,
-        )
-        rvm["consumer_insights"] = consumer_insights
-        logger.info("consumer_insights_attached=true (computed)")
-    except Exception as exc:
-        logger.warning("Failed to compute consumer_insights: %s", exc)
-        logger.info("consumer_insights_attached=false")
-
-    # Also ensure consumer_summary exists (verdict/reasons/access/action format)
-    if rvm.get("consumer_summary") is None:
-        try:
-            from extension_shield.core.report_view_model import build_consumer_summary
-            rvm["consumer_summary"] = build_consumer_summary(
-                report_view_model=rvm,
-                scoring_v2=scoring_v2,
-            )
-            logger.info("consumer_summary_attached=true (computed)")
-        except Exception as exc:
-            logger.warning("Failed to compute consumer_summary: %s", exc)
-
-    return payload
-
-
-def _log_get_scan_results_return_shape(path: str, payload: Dict[str, Any]) -> None:
-    """
-    Unified debug log for the final payload returned by get_scan_results().
-    """
-    if not isinstance(payload, dict):
-        logger.info(
-            "[DEBUG get_scan_results return_shape] path=%s payload_type=%s (non-dict)",
-            path,
-            type(payload).__name__,
-        )
-        return
-
-    payload_keys = sorted(list(payload.keys()))
-    has_report_view_model = "report_view_model" in payload
-    report_view_model = payload.get("report_view_model")
-    has_consumer_insights = bool(
-        isinstance(report_view_model, dict)
-        and report_view_model.get("consumer_insights") is not None
-    )
-    has_scoring_v2 = "scoring_v2" in payload
-
-    rvm_type = type(report_view_model).__name__ if report_view_model is not None else None
-    rvm_keys = sorted(list(report_view_model.keys())) if isinstance(report_view_model, dict) else None
-
-    logger.info(
-        "[DEBUG get_scan_results return_shape] path=%s keys=%s has_report_view_model=%s "
-        "has_consumer_insights=%s has_scoring_v2=%s report_view_model_type=%s report_view_model_keys=%s",
-        path,
-        payload_keys,
-        has_report_view_model,
-        has_consumer_insights,
-        has_scoring_v2,
-        rvm_type,
-        rvm_keys,
-    )
 
 # Pydantic models for request/response
 class ScanRequest(BaseModel):
@@ -1279,7 +995,7 @@ async def run_analysis_workflow(url: str, extension_id: str):
                 "icon_base64": icon_base64,  # Persisted icon bytes for environments with ephemeral storage
                 "icon_media_type": icon_media_type,
                 # UI-first payload (production) - handle LLM failures gracefully
-                "report_view_model": _build_report_view_model_safe(
+                "report_view_model": build_report_view_model_safe(
                     manifest=manifest,
                     analysis_results={**analysis_results, "executive_summary": final_state.get("executive_summary") or {}},
                     metadata=metadata,
@@ -2671,12 +2387,12 @@ async def get_scan_results(identifier: str, http_request: Request):
         logger.info("[DEBUG get_scan_results] Using memory cache path")
         payload = scan_results[extension_id]
         # Upgrade legacy payload and ensure consumer_insights
-        payload = _upgrade_legacy_payload(payload, extension_id)
-        payload = _ensure_consumer_insights(payload)
+        payload = upgrade_legacy_payload(payload, extension_id)
+        payload = ensure_consumer_insights(payload)
         # Add risk and signals mapping
         payload["risk_and_signals"] = _extract_risk_and_signals(payload)
         scan_results[extension_id] = payload
-        _log_get_scan_results_return_shape("memory", payload)
+        log_scan_results_return_shape("memory", payload)
         return payload
 
     # Try loading from database (accepts extension_id or slug)
@@ -2723,12 +2439,12 @@ async def get_scan_results(identifier: str, http_request: Request):
         formatted_results["governance_bundle"] = results.get("governance_bundle") or summary.get("governance_bundle")
 
         # Upgrade legacy payload and ensure consumer_insights
-        payload = _upgrade_legacy_payload(formatted_results, extension_id)
-        payload = _ensure_consumer_insights(payload)
+        payload = upgrade_legacy_payload(formatted_results, extension_id)
+        payload = ensure_consumer_insights(payload)
         # Add risk and signals mapping
         payload["risk_and_signals"] = _extract_risk_and_signals(payload)
         scan_results[extension_id] = payload  # Cache in memory
-        _log_get_scan_results_return_shape("db", payload)
+        log_scan_results_return_shape("db", payload)
         return payload
     else:
         logger.warning("[DEBUG get_scan_results] Database row does NOT exist for identifier=%s", identifier)
@@ -2744,12 +2460,12 @@ async def get_scan_results(identifier: str, http_request: Request):
             with open(result_file, "r", encoding="utf-8") as f:
                 payload = json.load(f)
             # Upgrade legacy payload and ensure consumer_insights
-            payload = _upgrade_legacy_payload(payload, extension_id)
-            payload = _ensure_consumer_insights(payload)
+            payload = upgrade_legacy_payload(payload, extension_id)
+            payload = ensure_consumer_insights(payload)
             # Add risk and signals mapping
             payload["risk_and_signals"] = _extract_risk_and_signals(payload)
             scan_results[extension_id] = payload  # Cache in memory
-            _log_get_scan_results_return_shape("file", payload)
+            log_scan_results_return_shape("file", payload)
             return payload
         except json.JSONDecodeError as e:
             logger.error("[DEBUG get_scan_results] JSON file is corrupted for %s: %s", extension_id, str(e))

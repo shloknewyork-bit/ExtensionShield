@@ -180,15 +180,12 @@ body {
   transition: transform 0.2s ease;
 }
 
+/* Solid color for cross-browser consistency (Safari can render gradient+background-clip as white) */
 .logo-text {
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--atlas-text-primary);
   letter-spacing: -0.01em;
-  background: linear-gradient(135deg, var(--atlas-text-primary) 0%, var(--atlas-text-secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   transition: all 0.2s ease;
 }
 

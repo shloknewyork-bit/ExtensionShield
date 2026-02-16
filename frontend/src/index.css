@@ -243,8 +243,9 @@
   --atlas-border: rgba(17, 24, 39, 0.14);
 }
 
-.light html {
+html.light {
   background: #ffffff !important;
+  color-scheme: light;
 }
 
 .light body {
@@ -372,6 +373,11 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--atlas-bg-primary, #0d1424);
+  color-scheme: dark;
+  min-height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
 }
 
 body {
@@ -381,7 +387,10 @@ body {
   font-size: 16px;
   line-height: var(--leading-normal);
   font-weight: var(--weight-body);
+  min-height: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
 }
 
 #root {
