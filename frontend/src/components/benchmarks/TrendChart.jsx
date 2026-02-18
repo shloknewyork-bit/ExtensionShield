@@ -14,18 +14,18 @@ const TrendChart = ({ data, dataKey, title, color = "#22c55e", height = 350, the
     if (active && payload && payload.length) {
       return (
         <div className={`trend-chart-tooltip ${isLight ? "trend-chart-tooltip--light" : ""}`} style={{
-          background: isLight ? 'rgba(250, 248, 244, 0.98)' : 'rgba(13, 20, 36, 0.95)',
-          border: isLight ? '1px solid rgba(38, 35, 31, 0.12)' : '1px solid rgba(34, 197, 94, 0.3)',
+          background: 'var(--theme-bg-overlay)',
+          border: '1px solid var(--theme-border-accent)',
           borderRadius: '8px',
           padding: '12px',
-          color: isLight ? 'rgb(38, 35, 31)' : '#f8fafc'
+          color: 'var(--theme-text-primary)'
         }}>
           <p style={{ margin: 0, fontWeight: 600 }}>{payload[0].payload.date}</p>
           <p style={{ margin: '4px 0 0 0', color: color }}>
             {dataKey}: {payload[0].value}
           </p>
           {payload[0].payload.source && (
-            <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: isLight ? 'rgb(65, 62, 56)' : '#94a3b8' }}>
+            <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: 'var(--theme-text-secondary)' }}>
               Source: {payload[0].payload.source}
             </p>
           )}
@@ -46,14 +46,14 @@ const TrendChart = ({ data, dataKey, title, color = "#22c55e", height = 350, the
       </h4>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={formattedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.1)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--theme-border-subtle)" />
           <XAxis 
             dataKey="date" 
-            stroke="#64748b"
+            stroke="var(--theme-text-subtle)"
             style={{ fontSize: '0.75rem' }}
           />
           <YAxis 
-            stroke="#64748b"
+            stroke="var(--theme-text-subtle)"
             style={{ fontSize: '0.75rem' }}
           />
           <Tooltip content={<CustomTooltip />} />

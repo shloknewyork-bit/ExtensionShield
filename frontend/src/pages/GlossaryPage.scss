@@ -1,6 +1,6 @@
 .glossary-page {
   min-height: 100vh;
-  background: var(--atlas-bg-primary, #0d1424);
+  background: var(--atlas-bg-primary);
   position: relative;
   padding: 2rem 1rem;
   
@@ -157,7 +157,7 @@
       display: inline-block;
       padding: 0.75rem 2rem;
       background: #22c55e;
-      color: #0d1424;
+      color: hsl(var(--color-primary-foreground));
       text-decoration: none;
       border-radius: 8px;
       font-weight: 600;

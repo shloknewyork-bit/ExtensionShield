@@ -354,13 +354,19 @@ const RocketGame = ({
       // Background — light: transparent so frame CSS (gradient + dots) shows; dark: draw gradient
       if (!isLight) {
         const bgCache = bgCacheRef.current;
-        if (!bgCache.gradient || bgCache.height !== h) {
+        const themeChanged = bgCache.isLight === true;
+        if (!bgCache.gradient || bgCache.height !== h || themeChanged) {
+          const root = document.documentElement;
+          const getVar = (name) => getComputedStyle(root).getPropertyValue(name).trim() || "#1c1a17";
+          const primary = getVar("--theme-bg-primary");
+          const tertiary = getVar("--theme-bg-tertiary");
           const grad = ctx.createLinearGradient(0, 0, 0, h);
-          grad.addColorStop(0, "#0d1424");
-          grad.addColorStop(0.5, "#1a1f2e");
-          grad.addColorStop(1, "#0f1419");
+          grad.addColorStop(0, primary);
+          grad.addColorStop(0.5, tertiary);
+          grad.addColorStop(1, primary);
           bgCache.gradient = grad;
           bgCache.height = h;
+          bgCache.isLight = false;
         }
         ctx.fillStyle = bgCache.gradient;
         ctx.fillRect(0, 0, w, h);

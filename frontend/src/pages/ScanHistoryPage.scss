@@ -121,7 +121,7 @@
 
   p {
     font-size: 0.9375rem;
-    color: #64748b;
+    color: var(--theme-text-muted);
     max-width: 500px;
     line-height: 1.5;
     font-weight: 400;
@@ -627,7 +627,7 @@
   &.risk-unknown {
     background: rgba(148, 163, 184, 0.1);
     border-color: rgba(148, 163, 184, 0.15);
-    color: #94a3b8;
+    color: var(--theme-text-secondary);
   }
 }
 
@@ -723,7 +723,7 @@
   &.signal-unknown {
     background: rgba(148, 163, 184, 0.05);
     border-color: rgba(148, 163, 184, 0.1);
-    color: #64748b;
+    color: var(--theme-text-muted);
   }
 
   &:hover {

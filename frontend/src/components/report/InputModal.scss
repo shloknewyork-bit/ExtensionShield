@@ -1,7 +1,7 @@
 .input-modal-content {
   background: #0f172a;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
@@ -20,7 +20,7 @@
   .title-text {
     font-size: 20px;
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
   }
 
   .title-status {

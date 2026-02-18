@@ -728,7 +728,7 @@
     pre {
       margin: 0.5rem 0 0;
       padding: 1rem;
-      background: #0d1424;
+      background: var(--theme-bg-primary);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       max-height: 300px;

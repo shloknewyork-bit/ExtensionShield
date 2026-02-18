@@ -632,7 +632,7 @@
   &.signal-unknown {
     background: rgba(148, 163, 184, 0.12);
     border-color: rgba(148, 163, 184, 0.28);
-    color: #64748b;
+    color: var(--theme-text-muted);
   }
 
   &:hover {

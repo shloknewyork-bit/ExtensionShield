@@ -7,7 +7,7 @@
   height: 40px;
   padding: 0;
   border: 1px solid var(--atlas-border);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--theme-hover-bg);
   border-radius: 10px;
   cursor: pointer;
   color: var(--atlas-text-secondary);
@@ -15,8 +15,8 @@
 
   &:hover {
     color: var(--atlas-text-primary);
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(148, 163, 184, 0.25);
+    background: var(--theme-hover-bg);
+    border-color: var(--theme-border-strong);
   }
 
   &:focus-visible {

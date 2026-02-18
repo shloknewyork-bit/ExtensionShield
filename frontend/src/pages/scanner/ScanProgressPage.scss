@@ -8,7 +8,7 @@
   min-height: 100vh;
   overflow: hidden;
   background: transparent;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
 }
 
 /* Full Viewport Game Container */
@@ -374,7 +374,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
 }
 
 @media (max-width: 768px) {
@@ -904,7 +904,7 @@
   background: rgba(17, 24, 39, 0.8);
   border: 1px solid rgba(148, 163, 184, 0.15);
   border-radius: 16px;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
 }
 
 .no-scan-icon {
@@ -915,12 +915,12 @@
 
 .no-scan-state h2 {
   font-size: 1.5rem;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   margin-bottom: 0.75rem;
 }
 
 .no-scan-state p {
-  color: #94a3b8;
+  color: var(--theme-text-secondary);
   margin-bottom: 1.5rem;
   max-width: 500px;
   margin-left: auto;

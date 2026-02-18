@@ -8,11 +8,11 @@ $modal-border: rgba(148, 163, 184, 0.15);
 $accent-green: #22c55e;
 $accent-green-glow: rgba(34, 197, 94, 0.4);
 $accent-green-subtle: rgba(34, 197, 94, 0.15);
-$text-primary: #f8fafc;
-$text-secondary: #94a3b8;
-$text-muted: #64748b;
+$text-primary: var(--theme-text-primary);
+$text-secondary: var(--theme-text-secondary);
+$text-muted: var(--theme-text-muted);
 $danger-red: #ef4444;
-$warning-yellow: #fbbf24;
+$warning-yellow: #b45309;
 $success-green: #22c55e;
 
 // Overlay – matches homepage theme (atlas-bg-primary)
@@ -30,7 +30,7 @@ $success-green: #22c55e;
   padding-right: max(1.5rem, env(safe-area-inset-right));
   min-height: 100dvh;
   box-sizing: border-box;
-  background: color-mix(in srgb, var(--atlas-bg-primary, #0d1424) 88%, black);
+  background: color-mix(in srgb, var(--atlas-bg-primary) 88%, black);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   overflow-y: auto;
@@ -40,7 +40,7 @@ $success-green: #22c55e;
 
 @supports not (color-mix(in srgb, red, blue)) {
   .demo-modal-overlay {
-    background: rgba(13, 20, 36, 0.9);
+    background: rgba(28, 26, 23, 0.95);
   }
 }
 
@@ -290,7 +290,7 @@ $success-green: #22c55e;
   margin: 0;
   padding: 0;
   font-size: 16px;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--theme-text-primary);
   line-height: 1.5;
   text-align: center;
 }

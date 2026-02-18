@@ -115,7 +115,7 @@ const EnterprisePage = () => {
 
         <div className="enterprise-grid">
           <div className="enterprise-card">
-            <h3>What you’ll get</h3>
+            <h2>What you’ll get</h2>
             <ul className="enterprise-features">
               <li>Monitoring & auto-rescan on updates</li>
               <li>Alerting when risk changes</li>
@@ -128,29 +128,44 @@ const EnterprisePage = () => {
           </div>
 
           <form className="enterprise-form" onSubmit={onSubmit}>
-            <h3>Tell us about your org</h3>
+            <h2>Tell us about your org</h2>
 
             <div className="form-grid">
               <div className="field">
-                <label>Name</label>
-                <input value={form.name} onChange={onChange("name")} autoComplete="name" />
+                <label htmlFor="enterprise-name">Name</label>
+                <input
+                  id="enterprise-name"
+                  value={form.name}
+                  onChange={onChange("name")}
+                  autoComplete="name"
+                  aria-required="true"
+                />
               </div>
               <div className="field">
-                <label>Work email</label>
+                <label htmlFor="enterprise-email">Work email</label>
                 <input
+                  id="enterprise-email"
                   value={form.email}
                   onChange={onChange("email")}
                   autoComplete="email"
                   inputMode="email"
+                  aria-required="true"
                 />
               </div>
               <div className="field full">
-                <label>Company</label>
-                <input value={form.company} onChange={onChange("company")} autoComplete="organization" />
+                <label htmlFor="enterprise-company">Company</label>
+                <input
+                  id="enterprise-company"
+                  value={form.company}
+                  onChange={onChange("company")}
+                  autoComplete="organization"
+                  aria-required="true"
+                />
               </div>
               <div className="field full">
-                <label>Notes (optional)</label>
+                <label htmlFor="enterprise-notes">Notes (optional)</label>
                 <textarea
+                  id="enterprise-notes"
                   value={form.notes}
                   onChange={onChange("notes")}
                   rows={4}
@@ -169,6 +184,7 @@ const EnterprisePage = () => {
               className="enterprise-submit"
               disabled={!isValid || submitState === "loading"}
               title={!isValid ? "Please fill name, work email, and company" : ""}
+              aria-busy={submitState === "loading"}
             >
               {submitState === "loading" ? "Submitting..." : "Request Enterprise Pilot"}
             </button>

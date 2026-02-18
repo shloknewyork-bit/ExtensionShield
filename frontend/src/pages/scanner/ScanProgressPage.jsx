@@ -44,15 +44,15 @@ class RocketGameErrorBoundary extends React.Component {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#0d1424',
-          color: '#f8fafc',
+          background: 'var(--theme-bg-primary)',
+          color: 'var(--theme-text-primary)',
           flexDirection: 'column',
           gap: '1rem',
           zIndex: 1000
         }}>
           <div style={{ fontSize: '3rem' }}>⚠️</div>
           <h2 style={{ fontSize: '1.5rem', margin: 0 }}>Game Failed to Load</h2>
-          <p style={{ color: '#94a3b8', margin: 0 }}>
+          <p style={{ color: 'var(--theme-text-secondary)', margin: 0 }}>
             The game encountered an error, but scan polling continues.
           </p>
         </div>

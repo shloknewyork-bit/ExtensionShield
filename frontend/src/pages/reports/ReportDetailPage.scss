@@ -112,7 +112,7 @@
 }
 
 .error-container h2 {
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   margin-bottom: 0.5rem;
 }
 
@@ -184,7 +184,7 @@
 .hero-title {
   font-size: 1.75rem;
   font-weight: 600;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   margin: 0 0 1rem;
   letter-spacing: -0.02em;
   line-height: 1.3;
@@ -365,7 +365,7 @@
   h3 {
     font-size: 1rem;
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
     margin: 0;
   }
 }
@@ -379,7 +379,7 @@
   display: flex;
   
   &:hover {
-    color: #f8fafc;
+    color: var(--theme-text-primary);
   }
 }
 
@@ -415,7 +415,7 @@
 
 .info-popup-value {
   font-size: 0.9rem;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   font-weight: 500;
 }
 
@@ -587,7 +587,7 @@
 .trust-number {
   font-size: 3rem;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   line-height: 1;
 }
 
@@ -664,7 +664,7 @@
 .stat-number {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   line-height: 1;
 }
 
@@ -701,7 +701,7 @@
   h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
     margin: 0 0 0.25rem;
   }
 }
@@ -864,7 +864,7 @@
 }
 
 .chip-label {
-  color: #f8fafc;
+  color: var(--theme-text-primary);
 }
 
 .chip-risk {
@@ -906,7 +906,7 @@
 .cap-name {
   display: block;
   font-weight: 500;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   font-size: 0.9rem;
 }
 
@@ -1074,7 +1074,7 @@
   h3 {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
     margin: 0 0 0.5rem;
   }
 
@@ -1096,7 +1096,7 @@
   h3 {
     font-size: 1rem;
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
     margin: 0 0 1.25rem;
   }
 }
@@ -1127,7 +1127,7 @@
 .risk-bar-count {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
 }
 
 .risk-bar {
@@ -1159,7 +1159,7 @@
   h3 {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
     margin: 0 0 1.5rem;
   }
 }
@@ -1205,7 +1205,7 @@
 
 .check-name {
   font-weight: 500;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   font-size: 0.9rem;
 }
 
@@ -1225,7 +1225,7 @@
   h3 {
     font-size: 1rem;
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
     margin: 0 0 1.25rem;
   }
 }
@@ -1292,7 +1292,7 @@
 .dev-value {
   font-size: 1rem;
   font-weight: 500;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   margin-top: 0.25rem;
 }
 
@@ -1324,7 +1324,7 @@
   h3 {
     font-size: 1rem;
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
     margin: 0;
   }
 }
@@ -1364,7 +1364,7 @@
 .file-name {
   display: block;
   font-weight: 500;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   font-size: 0.9rem;
 }
 
@@ -1403,7 +1403,7 @@
   h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
     margin: 0 0 0.25rem;
   }
 }
@@ -1469,7 +1469,7 @@
   h4 {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
     margin: 0 0 0.25rem;
   }
 
@@ -1546,7 +1546,7 @@
   strong {
     font-size: 0.95rem;
     font-weight: 500;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
   }
 
   span {
@@ -1735,7 +1735,7 @@
   gap: 0.75rem;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   margin: 0 0 1.5rem;
   
   svg {
@@ -1759,7 +1759,7 @@
   h4 {
     font-size: 1rem;
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
     margin: 0 0 0.5rem;
   }
   
@@ -1906,7 +1906,7 @@
     }
     
     &.delta-same {
-      color: #94a3b8;
+      color: var(--theme-text-secondary);
     }
   }
   
@@ -2053,7 +2053,7 @@
   h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
     margin-bottom: 0.5rem;
   }
 
@@ -2165,7 +2165,7 @@
       font-family: var(--font-mono);
       font-size: 0.75rem;
       line-height: 1.5;
-      color: #94a3b8;
+      color: var(--theme-text-secondary);
       max-height: 300px;
       overflow: auto;
       text-align: left;

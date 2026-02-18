@@ -488,7 +488,7 @@
   }
   &--warning {
     background: rgba(245, 158, 11, 0.15);
-    color: #fbbf24;
+    color: #b45309;
   }
   &--danger {
     background: rgba(239, 68, 68, 0.15);
@@ -777,7 +777,7 @@
     background: linear-gradient(90deg, #22c55e, #4ade80);
   }
   &.warning {
-    background: linear-gradient(90deg, var(--risk-warn), #fbbf24);
+    background: linear-gradient(90deg, var(--risk-warn), #b45309);
   }
   &.danger {
     background: linear-gradient(90deg, var(--risk-bad), #f87171);

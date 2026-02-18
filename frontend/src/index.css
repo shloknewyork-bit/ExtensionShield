@@ -2,77 +2,77 @@
 
 :root {
   /* ============================================================================
-     EXTENSIONSHIELD - Dark theme (applied only when user toggles to dark)
-     Site default is light mode; these variables apply when .light is not on <html>.
-     Navy-blue backgrounds with emerald accents - WCAG AA compliant.
+     EXTENSIONSHIELD - Dark theme (when .light is not on <html>)
+     Single warm dark shade derived from light palette (pitch/coal) – WCAG AA.
+     Modular: light mode in .light {} is unchanged.
      ============================================================================ */
 
   /* Dialog overlay (modal backdrop) – dark default */
-  --dialog-overlay-bg: rgba(0, 0, 0, 0.8);
+  --dialog-overlay-bg: rgba(0, 0, 0, 0.75);
 
-  /* Background Colors - Softer Navy Dark Theme */
-  --color-background: 222 47% 8%;
-  --color-surface: 222 47% 10%;
-  --color-surface-elevated: 222 47% 12%;
-  --color-surface-hover: 222 47% 15%;
-  --color-card: 222 47% 10%;
-  --color-card-foreground: 210 40% 98%;
-  --color-popover: 222 47% 12%;
-  --color-popover-foreground: 210 40% 98%;
+  /* Background – warm dark (same hue family as light pitch/coal) */
+  --color-background: 34 12% 10%;
+  --color-surface: 34 12% 13%;
+  --color-surface-elevated: 34 10% 16%;
+  --color-surface-hover: 34 10% 18%;
+  --color-card: 34 12% 13%;
+  --color-card-foreground: 40 15% 96%;
+  --color-popover: 34 10% 16%;
+  --color-popover-foreground: 40 15% 96%;
 
-  /* Foreground */
-  --color-foreground: 210 40% 98%;
-  --color-foreground-muted: 215 20% 65%;
-  --color-foreground-subtle: 215 16% 52%;
+  /* Foreground – warm off-white and grays */
+  --color-foreground: 40 15% 96%;
+  --color-foreground-muted: 35 12% 72%;
+  --color-foreground-subtle: 35 10% 58%;
 
   /* Primary / Accent - ExtensionShield brand (emerald) */
   --color-primary: 142 71% 45%;
   --color-primary-hover: 142 71% 40%;
-  --color-primary-foreground: 222 47% 5%;
+  --color-primary-foreground: 34 12% 10%;
 
   /* Secondary - Purple */
   --color-secondary: 256 65% 65%;
   --color-secondary-hover: 256 65% 58%;
-  --color-secondary-foreground: 210 40% 98%;
+  --color-secondary-foreground: 40 15% 96%;
 
   /* Accent - Emerald */
   --color-accent: 142 71% 45%;
   --color-accent-hover: 142 71% 40%;
-  --color-accent-foreground: 222 47% 5%;
+  --color-accent-foreground: 34 12% 10%;
 
   /* Status */
-  --color-muted: 215 16% 47%;
-  --color-muted-foreground: 215 20% 65%;
+  --color-muted: 35 10% 55%;
+  --color-muted-foreground: 35 12% 72%;
 
   --color-destructive: 0 84% 60%;
   --color-destructive-hover: 0 84% 55%;
-  --color-destructive-foreground: 210 40% 98%;
+  --color-destructive-foreground: 40 15% 96%;
 
   --color-success: 142 71% 45%;
   --color-success-hover: 142 71% 40%;
-  --color-success-foreground: 210 40% 98%;
+  --color-success-foreground: 40 15% 96%;
 
   --color-warning: 38 92% 50%;
   --color-warning-hover: 38 92% 45%;
-  --color-warning-foreground: 222 47% 5%;
+  --color-warning-foreground: 34 12% 10%;
 
-  /* Info / focus - Blue for info states */
+  /* Info / focus */
   --color-info: 217 91% 60%;
   --color-info-hover: 217 91% 50%;
   --color-info-foreground: 0 0% 100%;
   --color-info-bg: rgba(59, 130, 246, 0.12);
   --color-info-border: rgba(59, 130, 246, 0.4);
 
-  /* Borders & Inputs */
-  --color-border: 215 20% 15%;
-  --color-border-subtle: 215 20% 12%;
-  --color-border-strong: 215 20% 20%;
+  /* Borders & Inputs – warm gray */
+  --color-border: 35 12% 22%;
+  --color-border-subtle: 35 10% 18%;
+  --color-border-strong: 35 12% 28%;
 
-  --color-input: 222 47% 8%;
+  --color-input: 34 12% 14%;
   --color-input-focus: 142 71% 45%;
   --color-ring: 142 71% 45%;
 
-  /* Risk palette - shared by report/chart components (shadcn-style) */
+  /* Risk palette - shared by report/chart components */
   --risk-good: #10B981;
   --risk-warn: #F59E0B;
   --risk-bad: #EF4444;
@@ -87,53 +87,52 @@
   --risk-neutral-border: rgba(107, 114, 128, 0.4);
 
   /* ============================================================================
-     THEME SYSTEM VARIABLES (used by SCSS mixins)
-     These provide a unified API for theme-aware components
+     THEME SYSTEM VARIABLES – dark mode (warm shade from light palette)
      ============================================================================ */
-  --theme-bg-primary: #0d1424;
-  --theme-bg-secondary: #111827;
-  --theme-bg-tertiary: #1f2937;
-  --theme-bg-card: rgba(17, 24, 39, 0.8);
-  --theme-bg-surface: rgba(17, 24, 39, 0.6);
-  --theme-bg-surface-hover: rgba(17, 24, 39, 0.8);
-  --theme-bg-glass: rgba(17, 24, 39, 0.6);
-  --theme-bg-glass-strong: rgba(17, 24, 39, 0.8);
-  --theme-bg-overlay: rgba(13, 20, 36, 0.95);
+  --theme-bg-primary: #1c1a17;
+  --theme-bg-secondary: #252320;
+  --theme-bg-tertiary: #2e2b28;
+  --theme-bg-card: #252320;
+  --theme-bg-surface: rgba(37, 35, 32, 0.92);
+  --theme-bg-surface-hover: #2e2b28;
+  --theme-bg-glass: rgba(37, 35, 32, 0.88);
+  --theme-bg-glass-strong: #2e2b28;
+  --theme-bg-overlay: rgba(28, 26, 23, 0.97);
   
-  --theme-text-primary: #f8fafc;
-  --theme-text-secondary: #94a3b8;
-  --theme-text-muted: #94a3b8;
-  --theme-text-subtle: #64748b;
+  --theme-text-primary: #f5f3f0;
+  --theme-text-secondary: #b8b3ab;
+  --theme-text-muted: #9a958d;
+  --theme-text-subtle: #7a756d;
   
   --theme-accent: #22c55e;
   --theme-accent-hover: #16a34a;
-  --theme-accent-subtle: rgba(34, 197, 94, 0.15);
-  --theme-accent-glow: rgba(34, 197, 94, 0.4);
+  --theme-accent-subtle: rgba(34, 197, 94, 0.14);
+  --theme-accent-glow: rgba(34, 197, 94, 0.25);
   
-  --theme-border: rgba(148, 163, 184, 0.18);
-  --theme-border-subtle: rgba(148, 163, 184, 0.12);
-  --theme-border-strong: rgba(148, 163, 184, 0.25);
-  --theme-border-accent: rgba(34, 197, 94, 0.3);
-  --theme-border-hover: rgba(148, 163, 184, 0.22);
+  --theme-border: rgba(180, 172, 157, 0.22);
+  --theme-border-subtle: rgba(180, 172, 157, 0.14);
+  --theme-border-strong: rgba(180, 172, 157, 0.32);
+  --theme-border-accent: rgba(34, 197, 94, 0.35);
+  --theme-border-hover: rgba(180, 172, 157, 0.28);
   
-  --theme-shadow-card: 0 4px 20px rgba(0, 0, 0, 0.2);
-  --theme-shadow-card-hover: 0 8px 30px rgba(0, 0, 0, 0.28);
-  --theme-shadow-dropdown: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --theme-shadow-glow: 0 0 20px rgba(34, 197, 94, 0.2);
+  --theme-shadow-card: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --theme-shadow-card-hover: 0 8px 28px rgba(0, 0, 0, 0.3);
+  --theme-shadow-dropdown: 0 8px 32px rgba(0, 0, 0, 0.35);
+  --theme-shadow-glow: 0 0 0 1px rgba(34, 197, 94, 0.2);
   
-  --theme-hover-bg: rgba(255, 255, 255, 0.05);
-  --theme-hover-border: rgba(148, 163, 184, 0.22);
-  --theme-active-bg: rgba(34, 197, 94, 0.1);
+  --theme-hover-bg: rgba(255, 255, 255, 0.06);
+  --theme-hover-border: rgba(180, 172, 157, 0.28);
+  --theme-active-bg: rgba(34, 197, 94, 0.12);
   
-  --theme-input-bg: rgba(17, 24, 39, 0.4);
-  --theme-input-border: rgba(148, 163, 184, 0.15);
+  --theme-input-bg: rgba(37, 35, 32, 0.9);
+  --theme-input-border: rgba(180, 172, 157, 0.2);
   --theme-input-focus-border: rgba(34, 197, 94, 0.5);
   
-  --theme-scrollbar-track: #111827;
-  --theme-scrollbar-thumb: rgba(148, 163, 184, 0.22);
-  --theme-scrollbar-thumb-hover: rgba(148, 163, 184, 0.3);
+  --theme-scrollbar-track: #252320;
+  --theme-scrollbar-thumb: rgba(180, 172, 157, 0.28);
+  --theme-scrollbar-thumb-hover: rgba(180, 172, 157, 0.4);
   
-  --theme-code-bg: rgba(0, 0, 0, 0.3);
+  --theme-code-bg: rgba(0, 0, 0, 0.25);
 
   /* Radii */
   --radius-sm: 0.5rem;
@@ -148,71 +147,65 @@
   --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', Consolas, monospace;
 
-  /* Canonical weights – do not change on hover/focus */
   --weight-body: 400;
   --weight-ui: 500;
   --weight-heading: 600;
   --weight-strong: 700;
 
-  /* Line heights */
   --leading-tight: 1.4;
   --leading-normal: 1.6;
   --leading-relaxed: 1.7;
 
-  /* Report / Scan results – aligned with SCSS scale (base 16px, sm 14px, etc.) */
+  /* Report / Scan results */
   --report-font: var(--font-sans);
-  --report-text-base: 1rem;       /* 16px body */
-  --report-text-sm: 0.875rem;     /* 14px secondary */
-  --report-text-xs: 0.875rem;     /* 14px captions */
-  --report-text-lg: 1.125rem;     /* 18px headings */
-  --report-text-xl: 1.25rem;      /* 20px titles */
-  --report-text-2xl: 1.5rem;      /* 24px */
-  --report-text-3xl: 1.875rem;    /* 30px */
-  --report-text-4xl: 2.25rem;     /* 36px */
+  --report-text-base: 1rem;
+  --report-text-sm: 0.875rem;
+  --report-text-xs: 0.875rem;
+  --report-text-lg: 1.125rem;
+  --report-text-xl: 1.25rem;
+  --report-text-2xl: 1.5rem;
+  --report-text-3xl: 1.875rem;
+  --report-text-4xl: 2.25rem;
   --report-line-tight: var(--leading-tight);
   --report-line-normal: var(--leading-normal);
   --report-line-relaxed: var(--leading-relaxed);
 
-  /* ============================================================================
-     Legacy Atlas tokens (used by HomePage/marketing surfaces)
-     Original dark theme values - WCAG AA compliant.
-     ============================================================================ */
-  --atlas-bg-primary: #0d1424;
-  --atlas-bg-secondary: #111827;
-  --atlas-bg-tertiary: #1f2937;
-  --atlas-bg-card: rgba(17, 24, 39, 0.8);
-  --atlas-surface-card: rgba(17, 24, 39, 0.8);
-  --atlas-surface-hover: rgba(17, 24, 39, 0.95);
-  --atlas-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  /* Atlas tokens – dark (same warm shade) */
+  --atlas-bg-primary: #1c1a17;
+  --atlas-bg-secondary: #252320;
+  --atlas-bg-tertiary: #2e2b28;
+  --atlas-bg-card: #252320;
+  --atlas-surface-card: #252320;
+  --atlas-surface-hover: #2e2b28;
+  --atlas-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   --atlas-accent: #22c55e;
   --atlas-accent-hover: #16a34a;
-  --atlas-accent-glow: rgba(34, 197, 94, 0.4);
-  --atlas-accent-subtle: rgba(34, 197, 94, 0.15);
+  --atlas-accent-glow: rgba(34, 197, 94, 0.25);
+  --atlas-accent-subtle: rgba(34, 197, 94, 0.14);
   --atlas-purple: #8b5cf6;
   --atlas-purple-glow: rgba(139, 92, 246, 0.4);
   --atlas-orange: #f97316;
   --atlas-orange-glow: rgba(249, 115, 22, 0.4);
   --atlas-danger: var(--risk-bad);
-  --atlas-text-primary: #f8fafc;
-  --atlas-text-secondary: #94a3b8;
-  --atlas-text-muted: #94a3b8;
-  --atlas-border: rgba(148, 163, 184, 0.18);
-  --atlas-border-accent: rgba(34, 197, 94, 0.3);
+  --atlas-text-primary: #f5f3f0;
+  --atlas-text-secondary: #b8b3ab;
+  --atlas-text-muted: #9a958d;
+  --atlas-border: rgba(180, 172, 157, 0.22);
+  --atlas-border-accent: rgba(34, 197, 94, 0.35);
 }
 
-/* ============================================================================
-   OPTIONAL: Lighter dark background (same hue, less heavy)
-   Use data-theme="dark-lighter" on <html> to enable. WCAG AA preserved.
-   ============================================================================ */
+/* Optional: lighter dark variant (same warm hue) – use data-theme="dark-lighter" on <html> if needed */
 [data-theme="dark-lighter"] {
-  --atlas-bg-primary: #131b2e;
-  --atlas-bg-secondary: #161f33;
-  --color-background: 222 42% 12%;
-  --color-surface: 222 42% 14%;
-  --color-surface-elevated: 222 42% 16%;
-  --color-surface-hover: 222 42% 18%;
-  --color-card: 222 42% 14%;
-  --color-input: 222 42% 12%;
+  --atlas-bg-primary: #252320;
+  --atlas-bg-secondary: #2e2b28;
+  --theme-bg-primary: #252320;
+  --theme-bg-secondary: #2e2b28;
+  --color-background: 34 12% 13%;
+  --color-surface: 34 10% 16%;
+  --color-surface-elevated: 34 10% 18%;
+  --color-surface-hover: 34 10% 20%;
+  --color-card: 34 10% 16%;
+  --color-input: 34 12% 14%;
 }
 
 /* ============================================================================
@@ -310,7 +303,8 @@
   --color__chalk: rgb(251 249 245);
   --color__pitch: rgb(36 34 30);
   --color__coal: rgb(47 44 37);
-  --color__ash: rgb(73 70 63);
+  /* WCAG AA: muted text on white needs ≥4.5:1; rgb(58 55 50) meets this (avoids 4.11:1 with rgb(73 70 63)) */
+  --color__ash: rgb(58 55 50);
   --color__ash-stone: rgb(114 109 111);
   --color__stone: rgb(180 172 157);
   --color__clay: rgb(217 210 196);
@@ -721,7 +715,7 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--atlas-bg-primary, #0d1424);
+  background: var(--atlas-bg-primary);
   color-scheme: dark;
   min-height: 100%;
   min-height: 100vh;
@@ -756,18 +750,18 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--atlas-bg-secondary);
+  background: var(--theme-scrollbar-track);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.22);
+  background: var(--theme-scrollbar-thumb);
   border-radius: 5px;
-  border: 2px solid var(--atlas-bg-secondary);
+  border: 2px solid var(--theme-scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.3);
+  background: var(--theme-scrollbar-thumb-hover);
 }
 
 /* ============================================================================
@@ -775,47 +769,47 @@ body {
    ============================================================================ */
 
 .glass {
-  background: rgba(17, 24, 39, 0.6);
+  background: var(--theme-bg-glass);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border: 1px solid var(--theme-border);
 }
 
 .glass-strong {
-  background: rgba(17, 24, 39, 0.8);
+  background: var(--theme-bg-glass-strong);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  border: 1px solid var(--theme-border);
 }
 
 /* ============================================================================
    SURFACE UTILITIES - Standardized card/panel surfaces (background, border, shadow, blur, hover)
    ============================================================================ */
 .surface-card {
-  background: rgba(17, 24, 39, 0.6);
-  border: 1px solid var(--atlas-border);
+  background: var(--theme-bg-surface);
+  border: 1px solid var(--theme-border);
   border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--theme-shadow-card);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 .surface-card:hover {
-  border-color: rgba(148, 163, 184, 0.22);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.28);
+  border-color: var(--theme-border-hover);
+  box-shadow: var(--theme-shadow-card-hover);
 }
 
 .surface-panel {
-  background: rgba(17, 24, 39, 0.4);
-  border: 1px solid var(--atlas-border);
+  background: var(--theme-bg-card);
+  border: 1px solid var(--theme-border);
   border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--theme-shadow-card);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .surface-panel:hover {
-  border-color: rgba(148, 163, 184, 0.18);
+  border-color: var(--theme-border-hover);
 }
 
 /* ============================================================================

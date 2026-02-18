@@ -33,7 +33,7 @@
   font-family: var(--report-font, inherit);
   background: linear-gradient(165deg, #0f172a 0%, #0c1222 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   max-width: 580px;
   max-height: 88vh;
   overflow-y: auto;
@@ -76,7 +76,7 @@
   .lm-title {
     font-size: var(--report-text-xl, 1.25rem);
     font-weight: 600;
-    color: #f8fafc;
+    color: var(--theme-text-primary);
     letter-spacing: -0.02em;
   }
   .lm-score-area {

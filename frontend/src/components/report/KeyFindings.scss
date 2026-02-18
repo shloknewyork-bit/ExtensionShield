@@ -17,7 +17,7 @@
   gap: 0.625rem;
   font-size: 14px;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   margin: 0;
   
   .title-icon {
@@ -146,7 +146,7 @@
 .finding-title {
   font-size: 14px;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--theme-text-primary);
   margin: 0 0 0.5rem 0;
   line-height: 1.4;
   letter-spacing: -0.01em;
