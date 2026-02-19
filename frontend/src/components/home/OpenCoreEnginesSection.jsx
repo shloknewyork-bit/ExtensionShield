@@ -80,15 +80,10 @@ const OpenCoreEnginesSection = () => {
             transition={{ duration: reduced ? 0.2 : 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <h2 id="open-core-heading" className="open-core-title">
-              Open-core extension scanning.
-              <br />
-              Scores you can audit.
-            </h2>
-            <p className="open-core-subtitle">
               Built on open source + ExtensionShield rulepacks.
               <br />
-              Every result links to evidence
-            </p>
+              Every result links to evidence.
+            </h2>
             <div className="open-core-chips">
               <div className="open-core-chips-row">
                 {TRUST_CHIPS.slice(0, 3).map((chip) => (

@@ -1,9 +1,18 @@
 /**
  * Navigation: top nav, mega menu, footer.
  * Logo links to "/", so a separate Home item is omitted.
+ * Categories: Product, Research, Enterprise, Resources.
  */
+export const NAV_CATEGORIES = {
+  PRODUCT: "Product",
+  RESEARCH: "Research",
+  ENTERPRISE: "Enterprise",
+  RESOURCES: "Resources",
+};
+
 export const topNavItems = [
   {
+    category: NAV_CATEGORIES.PRODUCT,
     label: "Scan",
     path: "/scan",
     matchPaths: ["/scan"],
@@ -23,9 +32,10 @@ export const topNavItems = [
     ]
   },
   {
+    category: NAV_CATEGORIES.RESEARCH,
     label: "Research",
     path: "/research",
-    matchPaths: ["/research"],
+    matchPaths: ["/research", "/compare"],
     dropdownItems: [
       {
         icon: "📋",
@@ -44,10 +54,17 @@ export const topNavItems = [
         label: "Benchmarks",
         description: "Industry trends & scoring",
         path: "/research/benchmarks"
+      },
+      {
+        icon: "compare",
+        label: "Compare Scanners",
+        description: "ExtensionShield vs alternatives",
+        path: "/compare"
       }
     ]
   },
   {
+    category: NAV_CATEGORIES.ENTERPRISE,
     label: "Enterprise",
     path: "/enterprise",
     matchPaths: ["/enterprise"],
@@ -70,12 +87,13 @@ export const topNavItems = [
 
 /**
  * Mega Menu Configuration
- * Resources dropdown - Open Source, Community, About
+ * Resources dropdown - Open Source, Community, About, Blog, Contribute
  */
 export const megaMenuConfig = {
+  category: NAV_CATEGORIES.RESOURCES,
   trigger: {
     label: "Resources",
-    matchPaths: ["/open-source", "/community", "/about"]
+    matchPaths: ["/open-source", "/community", "/about", "/blog", "/contribute"]
   },
   items: [
     {
@@ -91,6 +109,18 @@ export const megaMenuConfig = {
       path: "/community"
     },
     {
+      icon: "📝",
+      label: "Blog",
+      description: "Security guides & updates",
+      path: "/blog"
+    },
+    {
+      icon: "🤝",
+      label: "Contribute",
+      description: "How to contribute",
+      path: "/contribute"
+    },
+    {
       icon: "👤",
       label: "About",
       description: "Founder's story",
@@ -98,6 +128,34 @@ export const megaMenuConfig = {
     }
   ]
 };
+
+/**
+ * Build sections for mobile menu: each section has a category label and links.
+ */
+export function getMobileNavSections() {
+  const sections = [];
+  topNavItems.forEach((item) => {
+    const links = item.dropdownItems
+      ? item.dropdownItems.map((d) => ({
+          label: d.label,
+          path: d.path,
+          external: d.external,
+          href: d.href,
+        }))
+      : [{ label: item.label, path: item.path }];
+    sections.push({ category: item.category, links });
+  });
+  sections.push({
+    category: megaMenuConfig.category,
+    links: megaMenuConfig.items.map((i) => ({
+      label: i.label,
+      path: i.path,
+      external: i.external,
+      href: i.href,
+    })),
+  });
+  return sections;
+}
 
 /**
  * User Menu Items (authenticated users)
@@ -122,35 +180,57 @@ export const userMenuItems = [
 
 /**
  * Footer Configuration
+ * Two-column layout: left = brand + disclaimer, right = link groups.
  */
 export const footerConfig = {
   disclaimer: "Comprehensive extension governance through security, privacy, and compliance analysis. We aggregate multiple dimensions into a single actionable score. So you can trust the results you find.",
+  tagline: "Extension security you can trust.",
+  /** @deprecated use linkGroups for two-column footer */
   links: [
+    { label: "Scan", path: "/scan" },
+    { label: "Is extension safe?", path: "/is-this-chrome-extension-safe" },
+    { label: "How We Score", path: "/research/methodology" },
+    { label: "Case Studies", path: "/research/case-studies" },
+    { label: "Compare Scanners", path: "/compare" },
+    { label: "Enterprise", path: "/enterprise" },
+    { label: "Blog", path: "/blog" },
+    { label: "Privacy Policy", path: "/privacy-policy" },
+    { label: "Contribute", path: "/contribute" },
+    { label: "GitHub", href: "https://github.com/Stanzin7/ExtensionScanner", external: true }
+  ],
+  /** Right column: grouped links for two-col footer */
+  linkGroups: [
     {
-      label: "How We Score",
-      path: "/research/methodology"
+      heading: "Product",
+      links: [
+        { label: "Scan", path: "/scan" },
+        { label: "Is extension safe?", path: "/is-this-chrome-extension-safe" },
+        { label: "Scan History", path: "/scan/history" }
+      ]
     },
-    // Compare Scanners - commented out for now, will come back to it
-    // {
-    //   label: "Compare Scanners",
-    //   path: "/compare"
-    // },
     {
-      label: "Blog",
-      path: "/blog"
+      heading: "Research",
+      links: [
+        { label: "How We Score", path: "/research/methodology" },
+        { label: "Case Studies", path: "/research/case-studies" },
+        { label: "Compare Scanners", path: "/compare" },
+        { label: "Benchmarks", path: "/research/benchmarks" }
+      ]
     },
     {
-      label: "Privacy Policy",
-      path: "/privacy-policy"
+      heading: "Company",
+      links: [
+        { label: "Enterprise", path: "/enterprise" },
+        { label: "Blog", path: "/blog" },
+        { label: "Contribute", path: "/contribute" }
+      ]
     },
     {
-      label: "Contribute",
-      path: "/contribute"
-    },
-    {
-      label: "GitHub",
-      href: "https://github.com/Stanzin7/ExtensionScanner",
-      external: true
+      heading: "Legal & Community",
+      links: [
+        { label: "Privacy Policy", path: "/privacy-policy" },
+        { label: "GitHub", href: "https://github.com/Stanzin7/ExtensionScanner", external: true }
+      ]
     }
   ]
 };
@@ -159,6 +239,8 @@ export default {
   topNavItems,
   megaMenuConfig,
   userMenuItems,
-  footerConfig
+  footerConfig,
+  getMobileNavSections,
+  NAV_CATEGORIES,
 };
 

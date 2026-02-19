@@ -6,7 +6,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { useTheme, ThemeProvider } from "./context/ThemeContext";
 import { ScanProvider } from "./context/ScanContext";
 import routes from "./routes/routes";
-import { topNavItems, megaMenuConfig, userMenuItems } from "./nav/navigation";
+import { topNavItems, megaMenuConfig, userMenuItems, getMobileNavSections } from "./nav/navigation";
 import SignInModal from "./components/SignInModal";
 import ShieldLogo from "./components/ShieldLogo";
 import Footer from "./components/Footer";
@@ -218,6 +218,16 @@ function NavItemDropdown({ item, location }) {
         </svg>
       );
     }
+    if (icon === "compare") {
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+          <path d="M10 7v3l2-2 2 2V7" />
+          <path d="M14 17v-3l-2 2-2-2v3" />
+        </svg>
+      );
+    }
     return icon;
   };
 
@@ -272,6 +282,9 @@ function NavItemDropdown({ item, location }) {
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
+          {item.category && (
+            <div className="nav-dropdown-category" aria-hidden="true">{item.category}</div>
+          )}
           {item.dropdownItems.map((dropdownItem, idx) => {
             const Element = dropdownItem.external ? "a" : NavLink;
             const linkProps = dropdownItem.external 
@@ -376,6 +389,9 @@ function MainMegamenu() {
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
+          {megaMenuConfig.category && (
+            <div className="megamenu-category" aria-hidden="true">{megaMenuConfig.category}</div>
+          )}
           <div className="megamenu-items-list">
             {megaMenuConfig.items.map((item, idx) => {
               const Element = item.external ? "a" : NavLink;
@@ -480,14 +496,7 @@ function AppHeader() {
     },
   };
 
-  const allNavLinks = [
-    ...topNavItems.flatMap((item) =>
-      item.dropdownItems
-        ? item.dropdownItems.map((d) => ({ label: d.label, path: d.path, external: d.external, href: d.href }))
-        : [{ label: item.label, path: item.path }]
-    ),
-    ...megaMenuConfig.items.map((item) => ({ label: item.label, path: item.path, external: item.external, href: item.href })),
-  ];
+  const mobileSections = getMobileNavSections();
 
   return (
     <header className={`atlas-header ${headerClass}`}>
@@ -554,33 +563,40 @@ function AppHeader() {
           aria-hidden={!mobileMenuOpen}
         >
           <nav className="mobile-menu-nav" aria-label="Mobile">
-            {allNavLinks.map((link, idx) => {
-              const key = link.path || link.href || idx;
-              if (link.external && link.href) {
-                return (
-                  <a
-                    key={key}
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mobile-menu-link"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {link.label}
-                  </a>
-                );
-              }
-              return (
-                <NavLink
-                  key={key}
-                  to={link.path}
-                  className={() => "mobile-menu-link"}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </NavLink>
-              );
-            })}
+            {mobileSections.map((section, sectionIdx) => (
+              <div key={sectionIdx} className="mobile-menu-section">
+                <span className="mobile-menu-section-title">{section.category}</span>
+                <div className="mobile-menu-section-links">
+                  {section.links.map((link, idx) => {
+                    const key = link.path || link.href || `${sectionIdx}-${idx}`;
+                    if (link.external && link.href) {
+                      return (
+                        <a
+                          key={key}
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mobile-menu-link"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {link.label}
+                        </a>
+                      );
+                    }
+                    return (
+                      <NavLink
+                        key={key}
+                        to={link.path}
+                        className={({ isActive }) => `mobile-menu-link${isActive ? " active" : ""}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {link.label}
+                      </NavLink>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
           <div className="mobile-menu-actions">
             {isLoading ? (
