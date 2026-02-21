@@ -2114,6 +2114,21 @@ Sitemap: https://extensionshield.com/sitemap.xml
     return Response(content=robots_content, media_type="text/plain")
 
 
+@app.get("/sitemap.xml")
+async def sitemap_xml():
+    """
+    Serve sitemap.xml for SEO crawlers. Built at frontend build time into static/.
+    Explicit route ensures 200 with application/xml; avoid relying on catch-all.
+    """
+    sitemap_path = STATIC_DIR / "sitemap.xml"
+    if not sitemap_path.is_file():
+        raise HTTPException(status_code=404, detail="Sitemap not found")
+    return Response(
+        content=sitemap_path.read_text(encoding="utf-8"),
+        media_type="application/xml",
+    )
+
+
 @app.get("/api")
 @app.get("/api/")
 async def api_root():
