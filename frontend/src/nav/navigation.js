@@ -25,7 +25,7 @@ export const topNavItems = [
       },
       {
         icon: "📦",
-        label: "Upload CRX/ZIP (Pro)",
+        label: "Upload CRX/ZIP",
         description: "Private pre-release audit",
         path: "/scan/upload",
         badge: "PRO"
@@ -197,7 +197,7 @@ export const footerConfig = {
       heading: "Product",
       links: [
         { label: "Scan", path: "/scan" },
-        { label: "Upload CRX/ZIP (Pro)", path: "/scan/upload" },
+        { label: "Upload CRX/ZIP", path: "/scan/upload" },
         { label: "Is extension safe?", path: "/is-this-chrome-extension-safe" },
         { label: "Scan History", path: "/scan/history" }
       ]
