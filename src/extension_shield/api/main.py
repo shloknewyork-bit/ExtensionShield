@@ -2129,7 +2129,11 @@ Disallow: /reports
 Sitemap: https://extensionshield.com/sitemap.xml
 """
     
-    return Response(content=robots_content, media_type="text/plain")
+    return Response(
+        content=robots_content,
+        media_type="text/plain",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
 
 
 @app.get("/sitemap.xml")
