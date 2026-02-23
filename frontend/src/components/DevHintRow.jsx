@@ -1,5 +1,5 @@
 /**
- * DevHintRow – Centered hint below hero, above stats: "</> Building an extension? [Upload CRX/ZIP (Pro)] for a private build scan."
+ * DevHintRow – Centered hint below hero, above stats: "</> Building an extension? [Upload CRX/ZIP] for a private build scan."
  * Same pill click logic as UploadCtaPill (sign-in / upgrade / navigate to /scan/upload).
  */
 import React, { useCallback } from "react";
@@ -56,10 +56,10 @@ export default function DevHintRow() {
         className="dev-hint-row__pill"
         onClick={handlePillClick}
         onKeyDown={handleKeyDown}
-        aria-label="Upload CRX/ZIP (Pro) for a private build scan"
+        aria-label="Upload CRX/ZIP for a private build scan"
         title="Upload CRX or ZIP for a private build scan (Pro)"
       >
-        Upload CRX/ZIP (Pro)
+        Upload CRX/ZIP
       </button>{" "}
       for a private build scan.
     </p>
