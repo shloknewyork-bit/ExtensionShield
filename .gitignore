@@ -204,6 +204,7 @@ extensions_storage/
 contracts/
 docs/
 .railway-deploy
+landing-page-copy.json
 
 # Frontend build artifacts
 static/
