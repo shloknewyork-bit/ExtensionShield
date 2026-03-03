@@ -1980,40 +1980,52 @@ class SupabaseDatabase:
 
 def _create_db():
     """
-    Choose storage backend:
-    - Postgres (Supabase): Primary when SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are set
-    - SQLite: Dev fallback when Supabase is not configured
+    Choose storage backend based on EXTSHIELD_MODE and DB_BACKEND.
+
+    OSS mode (default):
+      - Uses SQLite unless Supabase is explicitly configured.
+    Cloud mode:
+      - Uses Supabase when configured; falls back to SQLite.
     """
     import logging
-    logger = logging.getLogger(__name__)
-    
+    _logger = logging.getLogger(__name__)
+
+    from extension_shield.utils.mode import get_feature_flags
+
+    flags = get_feature_flags()
     settings = get_settings()
+
+    # In OSS mode, default to SQLite unless explicitly set to supabase
+    if flags.mode == "oss" and settings.db_backend != "supabase":
+        _db = Database()
+        _logger.info("DB backend: sqlite (OSS mode)")
+        print(f"✓ DB backend: sqlite  |  mode={flags.mode}")
+        return _db
 
     if settings.db_backend == "supabase":
         try:
-            db = SupabaseDatabase()
-            logger.info("✓ DB backend selected: supabase")
-            print("✓ DB backend selected: supabase")
-            return db
+            _db = SupabaseDatabase()
+            _logger.info("DB backend: supabase")
+            print(f"✓ DB backend: supabase  |  mode={flags.mode}")
+            return _db
         except Exception as e:
-            logger.warning(
-                f"Supabase enabled but failed to initialize. Falling back to SQLite. Error: {e}"
+            _logger.warning(
+                "Supabase enabled but failed to initialize. Falling back to SQLite. Error: %s", e
             )
             print(
-                f"⚠️  Supabase enabled but failed to initialize. Falling back to SQLite. Error: {e}"
+                f"⚠️  Supabase init failed, falling back to SQLite. Error: {e}"
             )
-            db = Database()
-            logger.info("✓ DB backend selected: sqlite (fallback)")
-            print("✓ DB backend selected: sqlite (fallback)")
-            return db
+            _db = Database()
+            _logger.info("DB backend: sqlite (fallback)")
+            print(f"✓ DB backend: sqlite (fallback)  |  mode={flags.mode}")
+            return _db
 
     if settings.db_backend == "sqlite":
-        db = Database()
-        logger.info("✓ DB backend selected: sqlite")
-        print("✓ DB backend selected: sqlite")
-        return db
+        _db = Database()
+        _logger.info("DB backend: sqlite")
+        print(f"✓ DB backend: sqlite  |  mode={flags.mode}")
+        return _db
 
-    # Postgres not supported by current implementation (see core.config validation).
     raise ValueError(f"Unsupported DB backend: {settings.db_backend}")
 
 

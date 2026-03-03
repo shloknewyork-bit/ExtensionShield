@@ -1,82 +1,103 @@
 <h1 align="center">ExtensionShield</h1>
 
 <p align="center">
-  <strong>Enterprise Chrome Extension Security & Governance Platform</strong>
+  <strong>Chrome Extension Security Scanner & Governance Platform</strong>
 </p>
 
-**Security Policy**: See [SECURITY.md](SECURITY.md)
+<p align="center">
+  Open-core: the scanner, CLI, and local analysis are MIT-licensed and fully functional.<br/>
+  Cloud features (auth, history, team monitoring, community queue) are available via
+  <a href="https://extensionshield.com">ExtensionShield Cloud</a>.
+</p>
+
+**Security Policy**: See [SECURITY.md](SECURITY.md) &nbsp;|&nbsp; **Open-Core Boundaries**: See [docs/OPEN_CORE_BOUNDARIES.md](docs/OPEN_CORE_BOUNDARIES.md)
 
 ---
 
-## Quick Start
+## Quick Start (OSS Mode)
 
-### Docker (Recommended)
-
-```bash
-# 1. Clone the repository (replace <your-org> with your GitHub org or username)
-git clone https://github.com/<your-org>/ExtensionShield.git
-cd ExtensionShield
-
-# 2. Configure environment
-cp env.production.template .env
-# Edit .env and add your OPENAI_API_KEY (required)
-
-# 3. Build and run
-docker compose up --build
-
-# 4. Access the application
-# → http://localhost:8007
-```
+No Supabase keys, no cloud accounts needed. Just an LLM API key for AI summaries.
 
 ### Local Development
 
 ```bash
-# Install dependencies
+# 1. Clone and install
+git clone https://github.com/<your-org>/ExtensionShield.git
+cd ExtensionShield
 make install                    # Python (uv sync)
-cd frontend && npm install      # Frontend
+cd frontend && npm install      # Frontend dependencies
 
-# Configure frontend environment (for authentication)
-cd frontend
-# Create .env file with your Supabase credentials:
-# VITE_SUPABASE_URL=https://your-project.supabase.co
-# VITE_SUPABASE_ANON_KEY=your-anon-key
-# Get these from: https://app.supabase.com/project/_/settings/api
+# 2. Configure environment
+cp .env.example .env
+# Edit .env: add OPENAI_API_KEY (required for AI summaries)
+# EXTSHIELD_MODE=oss is the default — no other keys needed
 
-# Start servers (two terminals)
+cp frontend/.env.example frontend/.env
+# No changes needed for OSS mode
+
+# 3. Start servers (two terminals)
 make api                        # Terminal 1: API at http://localhost:8007
 make frontend                   # Terminal 2: UI at http://localhost:5173
 ```
 
-**Port 8007 vs 5173**: With only `make api`, port 8007 serves the API; the browser will show a short message and a link to the app. **Use http://localhost:5173** (after `make frontend`) to use the app with hot-reload and see the latest frontend changes. To serve the full app from port 8007 (production-like), run `make build-and-serve` once to build the frontend into `static/`, then the API will serve it.
+### Docker
 
-**Note**: If you see `placeholder.supabase.co` errors when trying to log in, you need to configure the frontend environment variables. See [Frontend Configuration](#frontend-configuration) below.
+```bash
+cp .env.example .env
+# Edit .env: add your OPENAI_API_KEY
+docker compose up --build
+# → http://localhost:8007
+```
+
+### CLI
+
+```bash
+make analyze URL=https://chromewebstore.google.com/detail/example/abcdef
+```
 
 ---
 
-## Frontend Configuration
+## What Works in OSS Mode
 
-For authentication to work, you need to configure Supabase environment variables in the frontend:
+| Feature | OSS | Cloud |
+|---------|-----|-------|
+| Scan Chrome Web Store extensions | Yes | Yes |
+| Upload & scan CRX/ZIP files | Yes | Yes |
+| Security scoring + risk analysis | Yes | Yes |
+| SAST, permissions, entropy analysis | Yes | Yes |
+| VirusTotal integration | Yes | Yes |
+| AI-powered summaries | Yes | Yes |
+| CLI analysis | Yes | Yes |
+| SQLite local storage | Yes | Yes |
+| View scan reports in browser | Yes | Yes |
+| Supabase persistence | — | Yes |
+| User authentication | — | Yes |
+| Scan history per user | — | Yes |
+| User karma / reputation | — | Yes |
+| Community review queue | — | Yes |
+| Telemetry admin dashboard | — | Yes |
+| Enterprise pilot forms | — | Yes |
 
-1. **Get your Supabase credentials**:
-   - Go to https://app.supabase.com
-   - Select your project from the dashboard
-   - Click **Settings** (gear icon) in the left sidebar
-   - Click **API** under Project Settings
-   - Copy the **Project URL** (e.g., `https://xxxxx.supabase.co`) → this is your `VITE_SUPABASE_URL`
-   - Copy the **anon** or **public** key from the "Project API keys" section → this is your `VITE_SUPABASE_ANON_KEY`
+---
 
-2. **Create a `.env` file in the `frontend/` directory**:
-   ```bash
-   cd frontend
-   cat > .env << EOF
-   VITE_SUPABASE_URL=https://your-project-id.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-key-here
-   EOF
-   ```
+## Enabling Cloud Mode
 
-3. **Restart the frontend dev server** for changes to take effect.
+To enable all features, set these in `.env`:
 
-**Important**: The `VITE_` prefix is required for Vite to expose these variables to the frontend code.
+```bash
+EXTSHIELD_MODE=cloud
+DB_BACKEND=supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+And in `frontend/.env`:
+
+```bash
+VITE_AUTH_ENABLED=true
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
 
 ---
 
@@ -84,12 +105,14 @@ For authentication to work, you need to configure Supabase environment variables
 
 ```bash
 make help           # Show all commands
-make api            # Start API server
-make frontend       # Start React dev server
+make dev            # Show OSS dev setup instructions
+make api            # Start API server (port 8007)
+make frontend       # Start React dev server (port 5173)
 make analyze URL=   # Analyze extension from URL
 make test           # Run tests
-make format         # Format code
-make lint           # Lint code
+make format         # Format code (Black)
+make lint           # Lint code (Pylint)
+make secrets-check  # Check for accidental committed secrets
 ```
 
 ---
@@ -99,21 +122,23 @@ make lint           # Lint code
 | Document | Description |
 |----------|-------------|
 | [docs/README.md](docs/README.md) | Documentation index |
-| [docs/SECURITY.md](docs/SECURITY.md) | Security: reporting vulnerabilities and secrets |
-| [docs/AUTH_SESSION_TIMEOUT.md](docs/AUTH_SESSION_TIMEOUT.md) | Configure 30-minute (or other) sign-out in Supabase |
-| [docs/SOFTWARE_DOCUMENTATION.md](docs/SOFTWARE_DOCUMENTATION.md) | Stack, structure, workflows, configuration |
+| [docs/OPEN_CORE_BOUNDARIES.md](docs/OPEN_CORE_BOUNDARIES.md) | What's OSS vs Cloud |
+| [SECURITY.md](SECURITY.md) | Reporting vulnerabilities, secrets policy |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution guidelines |
+| [docs/TRADEMARK.md](docs/TRADEMARK.md) | Brand usage guidelines |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | High-level architecture |
-| [scripts/run_supabase_migrations.py](scripts/run_supabase_migrations.py) | Apply Supabase SQL migrations with tracking |
-| http://localhost:8007/docs | Interactive API documentation (when running) |
+
+---
+
+## License
+
+**Core** (scanner, CLI, local analysis): MIT License — see [LICENSE](LICENSE) for details.
+
+**Cloud features** (auth, Supabase persistence, telemetry admin, community queue, enterprise forms):
+proprietary, available via [ExtensionShield Cloud](https://extensionshield.com).
 
 ---
 
 ## Acknowledgments
 
-**Note**: ExtensionShield is an audit/compliance-focused scanner, and we intentionally chose not to reinvent the security foundation from scratch. Instead, we started from the excellent ThreatXtension **[ThreatXtension](https://github.com/barvhaim/ThreatXtension)** project and built on top of it—reworking the frontend, extending the engine, and adding compliance- and evidence-oriented layers.
-This is a work in progress—thanks for your patience! For questions or issues, open a GitHub issue or contact **support@extensionshield.com**.
-
-
-## License
-
-MIT License — see [LICENSE](LICENSE) for details.
+ExtensionShield builds on the excellent [ThreatXtension](https://github.com/barvhaim/ThreatXtension) project, extending it with compliance, evidence-oriented layers, and governance.

@@ -5,6 +5,7 @@ import realScanService from "../services/realScanService";
 import databaseService from "../services/databaseService";
 import { validateReturnTo } from "../utils/authUtils";
 import logger from "../utils/logger";
+import { AUTH_ENABLED } from "../utils/featureFlags";
 
 const AuthContext = createContext(null);
 
@@ -16,7 +17,37 @@ export const useAuth = () => {
   return context;
 };
 
+const noop = () => {};
+const asyncNoop = async () => {};
+
+const ossAuthValue = {
+  user: null,
+  session: null,
+  isLoading: false,
+  isAuthenticated: false,
+  accessToken: null,
+  getAccessToken: () => null,
+  authError: null,
+  authSuccessMessage: null,
+  isSignInModalOpen: false,
+  signInWithGoogle: asyncNoop,
+  signInWithGitHub: asyncNoop,
+  signInWithMagicLink: asyncNoop,
+  signInWithEmail: asyncNoop,
+  signUpWithEmail: asyncNoop,
+  signOut: asyncNoop,
+  openSignInModal: noop,
+  closeSignInModal: noop,
+  clearError: noop,
+  refreshAuth: asyncNoop,
+  authEnabled: false,
+};
+
 export const AuthProvider = ({ children }) => {
+  if (!AUTH_ENABLED) {
+    return <AuthContext.Provider value={ossAuthValue}>{children}</AuthContext.Provider>;
+  }
+
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -465,6 +496,7 @@ export const AuthProvider = ({ children }) => {
     closeSignInModal,
     clearError,
     refreshAuth,
+    authEnabled: true,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

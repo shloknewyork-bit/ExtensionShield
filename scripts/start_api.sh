@@ -37,7 +37,7 @@ if [ -n "${DB_BACKEND:-}" ] && [ "${DB_BACKEND:-}" != "supabase" ]; then
   echo "⏭️  Skipping Supabase migrations: DB_BACKEND=${DB_BACKEND}"
 elif [ -n "${SUPABASE_URL:-}" ] && [ -n "${SUPABASE_SERVICE_ROLE_KEY:-}" ]; then
   echo "🔄 Running Supabase migrations..."
-  python scripts/run_supabase_migrations.py || {
+  python scripts/cloud_only/run_supabase_migrations.py || {
     echo "❌ Migration failed, but continuing startup..."
   }
 else

@@ -42,6 +42,7 @@ from extension_shield.workflow.state import WorkflowState, WorkflowStatus
 from extension_shield.api.database import db, SupabaseDatabase, _is_extension_id
 from extension_shield.api.supabase_auth import get_current_user_id as _get_current_user_id
 from extension_shield.core.config import get_settings
+from extension_shield.utils.mode import require_cloud, get_feature_flags
 from extension_shield.api.csp_middleware import CSPMiddleware
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from extension_shield.api.payload_helpers import (
@@ -1752,6 +1753,7 @@ def _send_enterprise_pilot_emails(item: Dict[str, Any]) -> None:
 @app.post("/api/enterprise/pilot-request")
 async def create_enterprise_pilot_request(request: EnterprisePilotRequest, http_request: Request):
     """Capture an Enterprise pilot request; optionally send confirmation email via Resend."""
+    require_cloud("enterprise_forms")
     user_id = _get_user_id(http_request)
     now = datetime.now(timezone.utc).isoformat()
     item = {
@@ -1773,6 +1775,7 @@ async def create_enterprise_pilot_request(request: EnterprisePilotRequest, http_
 @_rate_limit("5/minute")
 async def create_careers_apply(request: CareersApplyRequest, http_request: Request):
     """Accept careers application; send to team email via Resend (and optional confirmation to applicant)."""
+    require_cloud("enterprise_forms")
     now = datetime.now(timezone.utc).isoformat()
     item = {
         "received_at": now,
@@ -1826,6 +1829,7 @@ async def submit_feedback(feedback: FeedbackRequest, http_request: Request):
 @app.get("/api/community/review-queue")
 async def get_community_review_queue():
     """List review queue items with extension names and vote counts. Sorted: open, in_review, then by newest."""
+    require_cloud("community_queue")
     if not isinstance(db, SupabaseDatabase):
         return []
     return db.get_review_queue()
@@ -1834,6 +1838,7 @@ async def get_community_review_queue():
 @app.post("/api/community/review-queue/claim")
 async def claim_community_review_item(body: ReviewQueueClaimRequest, http_request: Request):
     """Claim a queue item (set status=in_review, optional assigned_to_user_id)."""
+    require_cloud("community_queue")
     if not isinstance(db, SupabaseDatabase):
         raise HTTPException(status_code=501, detail="Review queue is not available")
     user_id = _get_user_id(http_request)
@@ -1846,6 +1851,7 @@ async def claim_community_review_item(body: ReviewQueueClaimRequest, http_reques
 @app.post("/api/community/review-queue/vote")
 async def vote_community_review_item(body: ReviewQueueVoteRequest, http_request: Request):
     """Upsert a vote (up/down) and optional note. Requires authenticated user."""
+    require_cloud("community_queue")
     if not isinstance(db, SupabaseDatabase):
         raise HTTPException(status_code=501, detail="Review queue is not available")
     if body.vote not in ("up", "down"):
@@ -2561,6 +2567,7 @@ async def telemetry_summary(days: int = 14):
     """
     Aggregate telemetry summary (open endpoint for now; intended for admin later).
     """
+    require_cloud("telemetry")
     try:
         return db.get_page_view_summary(days=days)
     except AttributeError:
@@ -2578,6 +2585,7 @@ async def get_history(http_request: Request, limit: int = 50):
     Returns:
         List of scan history items
     """
+    require_cloud("history")
     user_id = getattr(getattr(http_request, "state", None), "user_id", None)
     if not user_id:
         # When using Supabase (staging or prod), require auth. SQLite fallback allows global history for dev testing.
@@ -2601,6 +2609,7 @@ async def get_private_history(http_request: Request, limit: int = 50):
     Returns:
         List of private scan history items (source='upload')
     """
+    require_cloud("history")
     user_id = getattr(getattr(http_request, "state", None), "user_id", None)
     if not user_id:
         raise HTTPException(status_code=401, detail="Sign in to view private history")
@@ -2617,6 +2626,7 @@ async def get_user_karma(http_request: Request):
     Returns:
         User karma points, total scans, and timestamps
     """
+    require_cloud("auth")
     user_id = getattr(getattr(http_request, "state", None), "user_id", None)
     if not user_id:
         raise HTTPException(status_code=401, detail="Sign in to view karma")
@@ -2705,6 +2715,7 @@ async def diagnostic_scans(request: Request):
     Returns information about scans in memory, database, and their status.
     Useful for debugging why scans aren't appearing in the UI.
     """
+    require_cloud("telemetry")
     _require_admin_key(request)
     try:
         diagnostic_info = {
@@ -2811,6 +2822,7 @@ async def delete_scan(extension_id: str, request: Request):
     Returns:
         Deletion confirmation
     """
+    require_cloud("telemetry")
     _require_admin_key(request)
     success = db.delete_scan_result(extension_id)
 
@@ -2832,6 +2844,7 @@ async def clear_all_scans(request: Request):
     Returns:
         Confirmation message
     """
+    require_cloud("telemetry")
     _require_admin_key(request)
     success = db.clear_all_results()
 
@@ -2847,10 +2860,12 @@ async def clear_all_scans(request: Request):
 async def health_check():
     """Health check endpoint for container orchestration. Minimal payload: no paths or internal config."""
     uptime_seconds = int((datetime.now(timezone.utc) - _health_start_time).total_seconds())
+    flags = get_feature_flags()
     return {
         "status": "healthy",
         "version": "1.0.0",
         "uptime_seconds": uptime_seconds,
+        "mode": flags.mode,
     }
 
 

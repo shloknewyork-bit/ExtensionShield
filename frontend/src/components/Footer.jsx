@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { footerConfig } from "../nav/navigation";
 import ShieldLogo from "./ShieldLogo";
+import { AUTH_ENABLED } from "../utils/featureFlags";
 import "./Footer.scss";
 
 const Footer = () => {
@@ -59,6 +60,17 @@ const Footer = () => {
             </div>
           </div>
         </div>
+
+        {!AUTH_ENABLED && (
+          <div className="app-footer__cloud-cta">
+            <p>
+              Want saved history, team monitoring, and community reviews?{" "}
+              <a href="https://extensionshield.com" target="_blank" rel="noopener noreferrer">
+                Try ExtensionShield Cloud
+              </a>
+            </p>
+          </div>
+        )}
 
         {/* Bottom bar: optional accent line */}
         <div className="app-footer__bottom" aria-hidden="true">

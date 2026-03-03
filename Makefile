@@ -1,4 +1,4 @@
-.PHONY: help format lint test api frontend clean install analyze docker-build docker-up docker-down docker-logs migrate start validate-postgres clear-scans lint-migrations supabase-diff supabase-push supabase-start supabase-stop supabase-reset supabase-migration-up
+.PHONY: help format lint test api frontend clean install analyze docker-build docker-up docker-down docker-logs migrate start validate-postgres clear-scans lint-migrations supabase-diff supabase-push supabase-start supabase-stop supabase-reset supabase-migration-up secrets-check
 
 # Default target - show help
 help:
@@ -17,6 +17,7 @@ help:
 	@echo "  make lint-migrations - Lint Supabase migration files"
 	@echo "  make test            - Run pytest test suite"
 	@echo "  make precommit       - Run pre-commit hooks on all files"
+	@echo "  make secrets-check    - Check for accidental committed secrets (see SECURITY.md)"
 	@echo ""
 	@echo "Run Applications (Local Development):"
 	@echo "  make api             - Start FastAPI server (port 8007); use with make frontend for UI"
@@ -61,10 +62,10 @@ lint:
 	uv run pylint src/
 	@echo "✓ Linting complete"
 
-# Lint Supabase migrations
+# Lint Supabase migrations (cloud-only)
 lint-migrations:
 	@echo "Linting Supabase migrations..."
-	python scripts/lint_migrations.py
+	python scripts/cloud_only/lint_migrations.py
 	@echo "✓ Migration lint complete"
 
 # Run tests
@@ -79,6 +80,36 @@ precommit:
 	pre-commit run --all-files
 	@echo "✓ Pre-commit checks complete"
 
+# Check for accidental committed secrets. Use before push. See SECURITY.md.
+secrets-check:
+	@echo "Checking for accidental secrets..."
+	@test ! -f .env || (echo "ERROR: .env exists — ensure it is in .gitignore and never committed" && exit 1)
+	@if command -v gitleaks >/dev/null 2>&1; then \
+		echo "Running gitleaks..."; \
+		gitleaks detect --no-git --source . ; \
+	else \
+		echo "gitleaks not found — running basic pattern check..."; \
+		echo "(Install gitleaks for thorough scanning: https://github.com/gitleaks/gitleaks)"; \
+		if grep -rn --include='*.py' --include='*.js' --include='*.jsx' --include='*.ts' --include='*.tsx' --include='*.yml' --include='*.yaml' --include='*.toml' --include='*.md' \
+			-E '(sk-[a-zA-Z0-9]{20,}|eyJhbG[a-zA-Z0-9]{30,}|sbp_[a-zA-Z0-9]{20,}|gsk_[a-zA-Z0-9]{20,}|re_[a-zA-Z0-9]{20,})' \
+			--exclude-dir=node_modules --exclude-dir=.venv --exclude-dir=__pycache__ --exclude-dir=.git . 2>/dev/null | grep -v '\.env\.example' | grep -v 'placeholder' | grep -v 'your-' | head -20; then \
+			echo "WARNING: Potential secrets found above. Review before pushing."; \
+			exit 1; \
+		else \
+			echo "No obvious secret patterns found."; \
+		fi; \
+	fi
+	@echo "secrets-check done."
+
+# Start both API and frontend for OSS development (requires two terminals)
+dev:
+	@echo "=== ExtensionShield OSS Development ==="
+	@echo "Run these in two separate terminals:"
+	@echo "  Terminal 1: make api       → http://localhost:8007"
+	@echo "  Terminal 2: make frontend  → http://localhost:5173"
+	@echo ""
+	@echo "No Supabase keys required. EXTSHIELD_MODE=oss (default)."
+
 # Start FastAPI server
 api:
 	@echo "Starting FastAPI server with auto-reload..."
@@ -86,24 +117,24 @@ api:
 	@echo "API docs at: http://localhost:8007/docs"
 	uv run extension-shield serve --reload
 
-# Validate local dev is pulling from Supabase Postgres (requires DB_BACKEND=supabase + Supabase env)
+# Validate local dev is pulling from Supabase Postgres (cloud-only)
 validate-postgres:
 	@echo "Validating Supabase Postgres connection and scan_results..."
-	uv run python scripts/validate_postgres_local.py
+	EXTSHIELD_MODE=cloud uv run python scripts/cloud_only/validate_postgres_local.py
 
-# Delete all scan results from DB. For Supabase: make clear-scans DB_BACKEND=supabase (requires .env)
+# Delete all scan results from DB (cloud-only). For Supabase: make clear-scans DB_BACKEND=supabase
 clear-scans:
 	@echo "Clearing all scan results from database..."
-	DB_BACKEND=$${DB_BACKEND:-supabase} PYTHONPATH=src uv run python scripts/clear_all_scans.py
+	EXTSHIELD_MODE=cloud DB_BACKEND=$${DB_BACKEND:-supabase} PYTHONPATH=src uv run python scripts/cloud_only/clear_all_scans.py
 	@echo "Done."
 
-# Run Supabase migrations (prod only, safe to run multiple times)
+# Run Supabase migrations (cloud-only, safe to run multiple times)
 migrate:
 	@if [ -n "$(DB_BACKEND)" ] && [ "$(DB_BACKEND)" != "supabase" ]; then \
 		echo "Skipping Supabase migrations: DB_BACKEND=$(DB_BACKEND)"; \
 	elif [ -n "$$SUPABASE_URL" ] && [ -n "$$SUPABASE_SERVICE_ROLE_KEY" ]; then \
 		echo "Running Supabase migrations..."; \
-		python scripts/run_supabase_migrations.py; \
+		EXTSHIELD_MODE=cloud python scripts/cloud_only/run_supabase_migrations.py; \
 	else \
 		echo "Skipping Supabase migrations: Supabase env not set"; \
 	fi
@@ -221,11 +252,12 @@ deploy-check:
 	@echo "Checking Railway environment variables..."
 	@./scripts/check_railway_env.sh
 
-# Deploy to Railway (requires Railway CLI and RAILWAY_TOKEN)
+# Deploy to Railway (cloud-only; requires Railway CLI and RAILWAY_TOKEN)
 deploy:
 	@echo "Deploying to Railway..."
 	@command -v railway >/dev/null 2>&1 || { echo "Installing Railway CLI..."; npm install -g @railway/cli; }
-	railway up
+	@test -f railway.toml || cp deploy/railway.toml railway.toml
+	EXTSHIELD_MODE=cloud railway up
 	@echo "✓ Deployment complete"
 
 # Link to existing Railway project

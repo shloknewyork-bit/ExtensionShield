@@ -1,7 +1,7 @@
 import hashlib
 from pathlib import Path
 
-from scripts.run_supabase_migrations import (
+from scripts.cloud_only.run_supabase_migrations import (
     compute_checksum,
     discover_migration_files,
     plan_migrations,

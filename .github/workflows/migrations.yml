@@ -19,5 +19,5 @@ jobs:
           python-version: "3.11"
 
       - name: Lint migrations
-        run: python scripts/lint_migrations.py
+        run: python scripts/cloud_only/lint_migrations.py
 

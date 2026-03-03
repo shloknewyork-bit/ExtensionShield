@@ -1,0 +1,99 @@
+# ExtensionShield CI - runs on all PRs and pushes to main
+#
+# Tests the OSS experience: no Supabase keys, EXTSHIELD_MODE=oss (default).
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+
+    env:
+      EXTSHIELD_MODE: oss
+      OPENAI_API_KEY: sk-test-placeholder
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Lint (pylint)
+        run: uv run pylint src/extension_shield --exit-zero
+
+      - name: Run tests
+        run: uv run pytest tests/ -v --tb=short
+
+  secrets-check:
+    name: Secrets Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check .env is not committed
+        run: |
+          if git ls-files --error-unmatch .env 2>/dev/null; then
+            echo "ERROR: .env is tracked by git!"
+            exit 1
+          fi
+          echo ".env is properly gitignored"
+
+      - name: Install gitleaks
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz | tar xz
+          sudo mv gitleaks /usr/local/bin/
+
+      - name: Run gitleaks
+        run: gitleaks detect --no-git --source . --verbose
+
+      - name: Check .env.example has no real keys
+        run: |
+          # Ensure .env.example doesn't contain real-looking API keys
+          if grep -E '(sk-[a-zA-Z0-9]{20,}|eyJ[a-zA-Z0-9]{30,}|sbp_[a-zA-Z0-9]{20,})' .env.example; then
+            echo "ERROR: .env.example appears to contain real API keys!"
+            exit 1
+          fi
+          echo ".env.example looks clean"
+
+  frontend-check:
+    name: Frontend Build Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Copy env example
+        working-directory: frontend
+        run: cp .env.example .env
+
+      - name: Build frontend (OSS mode)
+        working-directory: frontend
+        run: npm run build

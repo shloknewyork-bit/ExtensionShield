@@ -366,7 +366,7 @@ function AuthLoadingDots() {
 function AppHeader() {
   const location = useLocation();
   const { theme } = useTheme();
-  const { user, isAuthenticated, openSignInModal, isLoading } = useAuth();
+  const { user, isAuthenticated, openSignInModal, isLoading, authEnabled } = useAuth();
   const isHomePage = location.pathname === "/";
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const mobileMenuRef = React.useRef(null);
@@ -415,11 +415,11 @@ function AppHeader() {
             <AuthLoadingDots />
           ) : isAuthenticated && user ? (
             <UserMenu />
-          ) : (
+          ) : authEnabled !== false ? (
             <button type="button" className="action-signin" onClick={openSignInModal}>
               Sign In
             </button>
-          )}
+          ) : null}
         </div>
 
         {/* Theme toggler next to hamburger (not inside): one-tap access without opening menu */}
@@ -487,11 +487,11 @@ function AppHeader() {
               <AuthLoadingDots />
             ) : isAuthenticated && user ? (
               <UserMenu />
-            ) : (
+            ) : authEnabled !== false ? (
               <button type="button" className="action-signin mobile-signin" onClick={() => { openSignInModal(); setMobileMenuOpen(false); }}>
                 Sign In
               </button>
-            )}
+            ) : null}
           </div>
         </div>,
         document.body
@@ -524,12 +524,13 @@ function getRouteSegment(pathname) {
 function AppContent() {
   const location = useLocation();
   const routeSegment = getRouteSegment(location.pathname);
+  const { authEnabled } = useAuth();
 
   return (
     <div className="atlas-app" data-route={routeSegment}>
       <AppBackground />
       <AppHeader />
-      <SignInModal />
+      {authEnabled !== false && <SignInModal />}
       <TelemetryTracker />
 
       <main className="atlas-main">
