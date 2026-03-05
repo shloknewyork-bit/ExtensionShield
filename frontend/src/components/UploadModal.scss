@@ -65,7 +65,7 @@
   border: none;
   border-radius: 10px;
   background: transparent;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   cursor: pointer;
   transition: color 0.2s ease, background 0.2s ease;
 
@@ -75,13 +75,13 @@
   }
 
   &:hover {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     background: rgba(255, 255, 255, 0.06);
   }
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px var(--atlas-accent);
+    box-shadow: 0 0 0 2px var(--extensionshield-accent);
   }
 }
 
@@ -89,13 +89,13 @@
   margin: 0 0 0.25rem;
   font-size: clamp(1.125rem, 2vw, 1.375rem);
   font-weight: 600;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .upload-modal-sub {
   margin: 0 0 1.25rem;
   font-size: 0.9375rem;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .upload-modal-dropzone-wrap {
@@ -131,7 +131,7 @@
   margin: 0;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .upload-modal-gate__btn {
@@ -139,7 +139,7 @@
   font-size: 0.9375rem;
   font-weight: 500;
   color: #fff;
-  background: var(--atlas-accent);
+  background: var(--extensionshield-accent);
   border: none;
   border-radius: 10px;
   cursor: pointer;
@@ -147,18 +147,18 @@
 
   &:hover {
     opacity: 0.95;
-    box-shadow: 0 4px 12px var(--atlas-accent-glow, rgba(34, 197, 94, 0.35));
+    box-shadow: 0 4px 12px var(--extensionshield-accent-glow, rgba(34, 197, 94, 0.35));
   }
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px var(--atlas-accent);
+    box-shadow: 0 0 0 2px var(--extensionshield-accent);
   }
 }
 
 .upload-modal-micro {
   margin: 0.75rem 0 0;
   font-size: 0.75rem;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   line-height: 1.4;
 }

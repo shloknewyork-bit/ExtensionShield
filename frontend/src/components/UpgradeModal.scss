@@ -23,8 +23,8 @@
   width: 100%;
   max-width: 360px;
   padding: 1.5rem 1.75rem;
-  background: var(--atlas-bg-secondary);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-bg-secondary);
+  border: 1px solid var(--extensionshield-border);
   border-radius: 16px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
   animation: upgrade-modal-slide 0.25s ease-out;
@@ -48,7 +48,7 @@
   padding: 0.375rem;
   border: none;
   background: none;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   cursor: pointer;
   border-radius: 8px;
   transition: color 0.2s ease, background 0.2s ease;
@@ -60,12 +60,12 @@
   }
 
   &:hover {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     background: rgba(255, 255, 255, 0.06);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--atlas-accent);
+    outline: 2px solid var(--extensionshield-accent);
     outline-offset: 2px;
   }
 }
@@ -74,13 +74,13 @@
   margin: 0 0 0.75rem;
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .upgrade-modal__body {
   margin: 0 0 1.25rem;
   font-size: 0.9375rem;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   line-height: 1.5;
 }
 
@@ -91,18 +91,18 @@
   font-size: 0.9375rem;
   font-weight: 500;
   color: #fff;
-  background: linear-gradient(135deg, var(--atlas-accent) 0%, #16a34a 100%);
+  background: linear-gradient(135deg, var(--extensionshield-accent) 0%, #16a34a 100%);
   border: none;
   border-radius: 10px;
   cursor: pointer;
   transition: box-shadow 0.2s ease;
 
   &:hover {
-    box-shadow: 0 4px 16px var(--atlas-accent-glow);
+    box-shadow: 0 4px 16px var(--extensionshield-accent-glow);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--atlas-accent);
+    outline: 2px solid var(--extensionshield-accent);
     outline-offset: 2px;
   }
 }

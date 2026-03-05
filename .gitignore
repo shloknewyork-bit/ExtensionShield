@@ -239,3 +239,8 @@ supabase/.volumes/
 
 # Private internal docs
 docs/
+
+# Proprietary intel (do not commit contents of data/intel except README and .gitignore)
+/data/intel/*
+!/data/intel/README.md
+!/data/intel/.gitignore

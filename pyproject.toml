@@ -3,6 +3,7 @@ name = "extension-shield"
 version = "0.1.0"
 description = "Enterprise Chrome Extension Governance & Security Analysis - extensionshield.com"
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.11.13"
 dependencies = [
     "beautifulsoup4>=4.14.2",

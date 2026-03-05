@@ -3,7 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "author": "stanzin",
+  "author": "Stanzin",
+  "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
   },

@@ -14,7 +14,7 @@
   margin: 0 0 0.35rem;
   font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   line-height: 1.3;
@@ -23,7 +23,7 @@
 .private-build-trust-pills__sentence {
   margin: 0.5rem 0 0.75rem;
   font-size: clamp(0.8125rem, 1.2vw, 0.875rem);
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   line-height: 1.45;
   max-width: 42ch;
 }
@@ -74,9 +74,9 @@
 .private-build-trust-pills__pill {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   background: var(--theme-bg-card, rgba(17, 24, 39, 0.4));
-  border: 1px solid var(--theme-border, var(--atlas-border));
+  border: 1px solid var(--theme-border, var(--extensionshield-border));
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
   white-space: nowrap;
@@ -85,6 +85,6 @@
 .light .private-build-trust-pills__pill {
   background: var(--theme-bg-card, rgba(255, 255, 255, 0.7));
   border-color: var(--theme-border, rgba(39, 39, 42, 0.12));
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 

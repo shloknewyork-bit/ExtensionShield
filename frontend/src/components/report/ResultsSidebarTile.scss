@@ -161,8 +161,8 @@
    Light theme
    ============================================================================ */
 .light .results-sidebar-tile {
-  background: var(--atlas-bg-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-bg-card);
+  border: 1px solid var(--extensionshield-border);
   box-shadow: 0 4px 20px rgba(38, 35, 31, 0.06);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 
@@ -173,7 +173,7 @@
   }
 
   &.is-clickable:hover {
-    background: var(--atlas-bg-card);
+    background: var(--extensionshield-bg-card);
     border-color: rgba(22, 163, 74, 0.25);
     box-shadow: 0 12px 40px rgba(38, 35, 31, 0.12);
   }
@@ -190,16 +190,16 @@
 }
 
 .light .tile-title {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   font-weight: 700;
 }
 
 .light .tile-chevron {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
 }
 
 .light .tile-findings-badge {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .light .tile-pill {
@@ -220,12 +220,12 @@
     color: var(--risk-bad);
   }
   &.tile-pill-na {
-    background: var(--atlas-bg-secondary);
-    border: 1px solid var(--atlas-border);
-    color: var(--atlas-text-secondary);
+    background: var(--extensionshield-bg-secondary);
+    border: 1px solid var(--extensionshield-border);
+    color: var(--extensionshield-text-secondary);
   }
 }
 
 .light .tile-progress {
-  background: var(--atlas-border);
+  background: var(--extensionshield-border);
 }

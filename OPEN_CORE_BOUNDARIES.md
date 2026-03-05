@@ -30,3 +30,5 @@ Examples of gated features: user history, karma, telemetry summary, review queue
 
 - **OSS** = everything you need to run and verify the trust layer locally; no cloud required.
 - **Cloud** = optional hosted product (ExtensionShield Cloud) using the same codebase with Supabase and extra features; those features return 501 when the app is run in OSS mode.
+
+For full setup and configuration options, see [GET_STARTED.md](GET_STARTED.md).

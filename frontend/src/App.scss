@@ -10,9 +10,9 @@
    CSS VARIABLES (layout only; theme colors live in index.css :root / .light)
    ============================================================================ */
 :root {
-  --atlas-header-height: 72px;
+  --extensionshield-header-height: 72px;
   /* Total offset (1rem top padding + header height) for content clearance */
-  --atlas-header-offset: calc(var(--atlas-header-height) + 1rem);
+  --extensionshield-header-offset: calc(var(--extensionshield-header-height) + 1rem);
 
   /* Responsive layout: friendly on 32" desktop, Mac, laptop, and small devices */
   --layout-max-width: 1440px;
@@ -35,7 +35,7 @@ body {
   margin: 0;
   padding: 0;
   background: transparent;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -44,10 +44,10 @@ body {
 /* ============================================================================
    APP CONTAINER - transparent so AppBackground shows through
    ============================================================================ */
-.atlas-app {
+.extensionshield-app {
   min-height: 100vh;
   background: transparent;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   position: relative;
   overflow-x: hidden;
   display: flex;
@@ -55,27 +55,27 @@ body {
 }
 
 /* Per-route accent overlays (AppBackground uses these) */
-.atlas-app[data-route="home"] {
+.extensionshield-app[data-route="home"] {
   --accentHue: 270;
   --overlayOpacity: 0.15;
   --starsOpacity: 0.8;
 }
-.atlas-app[data-route="scan"] {
+.extensionshield-app[data-route="scan"] {
   --accentHue: 270;
   --overlayOpacity: 0.15;
   --starsOpacity: 0.8;
 }
-.atlas-app[data-route="research"] {
+.extensionshield-app[data-route="research"] {
   --accentHue: 270;
   --overlayOpacity: 0.12;
   --starsOpacity: 0.7;
 }
-.atlas-app[data-route="resources"] {
+.extensionshield-app[data-route="resources"] {
   --accentHue: 270;
   --overlayOpacity: 0.1;
   --starsOpacity: 0.65;
 }
-.atlas-app[data-route="default"] {
+.extensionshield-app[data-route="default"] {
   --accentHue: 270;
   --overlayOpacity: 0.1;
   --starsOpacity: 0.6;
@@ -84,7 +84,7 @@ body {
 /* ============================================================================
    HEADER - Fixed pill + glass style (no scroll animation)
    ============================================================================ */
-.atlas-header {
+.extensionshield-header {
   position: fixed;
   top: 0;
   left: 0;
@@ -93,7 +93,7 @@ body {
   padding-top: 1rem;
   padding-left: var(--layout-padding-x);
   padding-right: var(--layout-padding-x);
-  min-height: calc(var(--atlas-header-height) + 1rem);
+  min-height: calc(var(--extensionshield-header-height) + 1rem);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -116,7 +116,7 @@ body {
   }
 }
 
-.light .atlas-header.solid .header-container {
+.light .extensionshield-header.solid .header-container {
   background: rgba(250, 248, 244, 0.78);
   box-shadow: 0 4px 24px rgba(38, 35, 31, 0.1), 0 0 0 1px rgba(38, 35, 31, 0.08);
   border: 1px solid rgba(38, 35, 31, 0.14);
@@ -124,24 +124,24 @@ body {
 
 .light .action-signin {
   color: #fff;
-  background: var(--atlas-accent-cta, var(--atlas-accent));
-  border-color: var(--atlas-accent-cta, var(--atlas-accent));
+  background: var(--extensionshield-accent-cta, var(--extensionshield-accent));
+  border-color: var(--extensionshield-accent-cta, var(--extensionshield-accent));
 
   &:hover {
-    background: var(--atlas-accent-hover);
-    border-color: var(--atlas-accent-hover);
+    background: var(--extensionshield-accent-hover);
+    border-color: var(--extensionshield-accent-hover);
     color: #fff;
   }
 }
 
 .light .get-extension-btn {
   color: #fff;
-  background: var(--atlas-accent-cta, var(--atlas-accent));
-  border-color: var(--atlas-accent-cta, var(--atlas-accent));
+  background: var(--extensionshield-accent-cta, var(--extensionshield-accent));
+  border-color: var(--extensionshield-accent-cta, var(--extensionshield-accent));
 
   &:hover {
-    background: var(--atlas-accent-hover);
-    border-color: var(--atlas-accent-hover);
+    background: var(--extensionshield-accent-hover);
+    border-color: var(--extensionshield-accent-hover);
     color: #fff;
   }
 }
@@ -149,7 +149,7 @@ body {
 .header-container {
   width: 100%;
   max-width: var(--layout-max-width);
-  height: var(--atlas-header-height);
+  height: var(--extensionshield-header-height);
   padding: 0 clamp(0.75rem, 2.5vw, 1.75rem);
   display: flex;
   align-items: center;
@@ -197,7 +197,7 @@ body {
 .logo-text {
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   letter-spacing: -0.02em;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -214,7 +214,7 @@ body {
   content: "";
   width: 1px;
   height: 24px;
-  background: var(--atlas-border-subtle);
+  background: var(--extensionshield-border-subtle);
   margin-right: 0.5rem;
   margin-left: 0.25rem;
 }
@@ -223,18 +223,18 @@ body {
   padding: 0.625rem 1.125rem;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   text-decoration: none;
   border-radius: 8px;
   transition: all 0.2s ease;
 
   &:hover {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     background: rgba(255, 255, 255, 0.05);
   }
 
   &.active {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     background: rgba(34, 197, 94, 0.1);
   }
 }
@@ -271,12 +271,12 @@ body {
   left: 0;
   width: 320px;
   max-width: calc(100vw - 2rem);
-  background: var(--atlas-bg-card);
+  background: var(--extensionshield-bg-card);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--atlas-border);
+  border: 1px solid var(--extensionshield-border);
   border-radius: 14px;
-  box-shadow: var(--atlas-card-shadow);
+  box-shadow: var(--extensionshield-card-shadow);
   padding: 0.75rem;
   z-index: 1300;
   animation: megamenuEnter 0.2s ease;
@@ -291,10 +291,10 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   padding: 0.25rem 0.5rem 0.5rem;
   margin: -0.25rem -0.25rem 0;
-  border-bottom: 1px solid var(--atlas-border-subtle);
+  border-bottom: 1px solid var(--extensionshield-border-subtle);
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
   text-align: center;
@@ -325,47 +325,47 @@ body {
 /* Light mode – theme vars for consistency across all routes */
 .light .megamenu-dropdown,
 .light .nav-dropdown-menu {
-  background: var(--atlas-bg-card);
-  border: 1px solid var(--atlas-border);
-  box-shadow: var(--atlas-card-shadow);
+  background: var(--extensionshield-bg-card);
+  border: 1px solid var(--extensionshield-border);
+  box-shadow: var(--extensionshield-card-shadow);
 }
 
 .light .megamenu-item:hover,
 .light .nav-dropdown-item:hover {
   background: var(--theme-hover-bg);
-  border-color: var(--atlas-border);
+  border-color: var(--extensionshield-border);
 }
 
 .light .megamenu-label,
 .light .nav-dropdown-label {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .megamenu-desc,
 .light .nav-dropdown-desc {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .light .megamenu-icon,
 .light .nav-dropdown-icon {
-  background: var(--atlas-bg-secondary);
-  border-color: var(--atlas-border);
+  background: var(--extensionshield-bg-secondary);
+  border-color: var(--extensionshield-border);
 }
 
 .light .nav-dropdown-category,
 .light .megamenu-category {
-  color: var(--atlas-text-muted);
-  border-bottom-color: var(--atlas-border-subtle);
+  color: var(--extensionshield-text-muted);
+  border-bottom-color: var(--extensionshield-border-subtle);
 }
 
 .light .mobile-menu-section-title {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
 }
 
 /* Light mode - user menu dropdown match site theme */
 .light .user-menu-dropdown {
   background: rgba(255, 255, 255, 0.98);
-  border: 1px solid var(--atlas-border);
+  border: 1px solid var(--extensionshield-border);
   box-shadow: 0 20px 50px rgba(36, 34, 30, 0.12), 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
@@ -375,16 +375,16 @@ body {
 
   &:hover {
     background: rgba(255, 255, 255, 1);
-    border-color: var(--atlas-border-accent);
+    border-color: var(--extensionshield-border-accent);
   }
 }
 
 .light .user-name {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .menu-chevron {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
 }
 
 .light .menu-header {
@@ -392,31 +392,31 @@ body {
 }
 
 .light .menu-user-name {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .menu-user-email {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
 }
 
 .light .menu-provider {
   background: rgba(0, 0, 0, 0.04);
 
   span {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
   }
 }
 
 .light .menu-divider {
-  background: var(--atlas-border);
+  background: var(--extensionshield-border);
 }
 
 .light .menu-item {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 
   &:hover {
-    background: var(--atlas-accent-subtle);
-    color: var(--atlas-text-primary);
+    background: var(--extensionshield-accent-subtle);
+    color: var(--extensionshield-text-primary);
   }
 
   &.signout:hover {
@@ -435,7 +435,7 @@ body {
   padding: 0.875rem;
   border-radius: 10px;
   text-decoration: none;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   transition: all 0.2s ease;
   border: 1px solid transparent;
   position: relative;
@@ -448,7 +448,7 @@ body {
 
   &:hover {
     background: var(--theme-hover-bg);
-    border-color: var(--atlas-border);
+    border-color: var(--extensionshield-border);
     transform: translateX(4px);
   }
 
@@ -458,8 +458,8 @@ body {
 
     &:hover {
       opacity: 1;
-      background: var(--atlas-accent-subtle);
-      border-color: var(--atlas-border-accent);
+      background: var(--extensionshield-accent-subtle);
+      border-color: var(--extensionshield-border-accent);
     }
   }
 
@@ -476,8 +476,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--atlas-bg-secondary);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-bg-secondary);
+  border: 1px solid var(--extensionshield-border);
   border-radius: 8px;
 }
 
@@ -489,7 +489,7 @@ body {
 .megamenu-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   margin-bottom: 0.125rem;
   display: flex;
   flex-direction: column;
@@ -542,7 +542,7 @@ body {
 
 .megamenu-desc {
   font-size: 0.75rem;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   line-height: 1.3;
 }
 
@@ -581,12 +581,12 @@ body {
   left: 0;
   min-width: 280px;
   max-width: calc(100vw - 2rem);
-  background: var(--atlas-bg-card);
+  background: var(--extensionshield-bg-card);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--atlas-border);
+  border: 1px solid var(--extensionshield-border);
   border-radius: 14px;
-  box-shadow: var(--atlas-card-shadow);
+  box-shadow: var(--extensionshield-card-shadow);
   padding: 0.75rem;
   z-index: 1300;
   animation: megamenuEnter 0.2s ease;
@@ -599,7 +599,7 @@ body {
   &--sections {
     position: fixed;
     left: 50%;
-    top: calc(var(--atlas-header-height) + 0.5rem);
+    top: calc(var(--extensionshield-header-height) + 0.5rem);
     transform: translateX(-50%);
     animation: megamenuEnterCentered 0.2s ease;
     min-width: 320px;
@@ -639,10 +639,10 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   padding: 0.25rem 0.5rem 0.5rem;
   margin: -0.25rem -0.25rem 0;
-  border-bottom: 1px solid var(--atlas-border-subtle);
+  border-bottom: 1px solid var(--extensionshield-border-subtle);
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
   text-align: center;
@@ -655,13 +655,13 @@ body {
   padding: 0.875rem;
   border-radius: 10px;
   text-decoration: none;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   transition: all 0.2s ease;
   border: 1px solid transparent;
 
   &:hover {
     background: var(--theme-hover-bg);
-    border-color: var(--atlas-border);
+    border-color: var(--extensionshield-border);
     transform: translateX(4px);
   }
 
@@ -678,8 +678,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--atlas-bg-secondary);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-bg-secondary);
+  border: 1px solid var(--extensionshield-border);
   border-radius: 8px;
 
   svg {
@@ -704,7 +704,7 @@ body {
 .nav-dropdown-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   line-height: 1.2;
 }
 
@@ -715,8 +715,8 @@ body {
   letter-spacing: 0.04em;
   padding: 0.15rem 0.4rem;
   border-radius: 999px;
-  color: var(--atlas-accent);
-  border: 1px solid var(--atlas-accent);
+  color: var(--extensionshield-accent);
+  border: 1px solid var(--extensionshield-accent);
   background: transparent;
   opacity: 0.95;
 }
@@ -727,7 +727,7 @@ body {
 
 .nav-dropdown-desc {
   font-size: 0.75rem;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   line-height: 1.3;
 }
 
@@ -748,8 +748,8 @@ body {
   font-weight: 600;
   color: #fff;
   text-decoration: none;
-  background: var(--atlas-accent-cta, var(--atlas-accent));
-  border: 1px solid var(--atlas-accent-cta, var(--atlas-accent));
+  background: var(--extensionshield-accent-cta, var(--extensionshield-accent));
+  border: 1px solid var(--extensionshield-accent-cta, var(--extensionshield-accent));
   border-radius: 10px;
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   font-family: inherit;
@@ -760,14 +760,14 @@ body {
   }
 
   &:hover {
-    background: var(--atlas-accent-hover);
-    border-color: var(--atlas-accent-hover);
+    background: var(--extensionshield-accent-hover);
+    border-color: var(--extensionshield-accent-hover);
     color: #fff;
-    box-shadow: 0 4px 12px var(--atlas-accent-glow, rgba(34, 197, 94, 0.25));
+    box-shadow: 0 4px 12px var(--extensionshield-accent-glow, rgba(34, 197, 94, 0.25));
   }
 
   &:focus-visible {
-    outline: 2px solid var(--atlas-accent);
+    outline: 2px solid var(--extensionshield-accent);
     outline-offset: 2px;
   }
 
@@ -791,16 +791,16 @@ body {
   font-weight: 500;
   color: #fff;
   text-decoration: none;
-  background: var(--atlas-accent-cta, var(--atlas-accent));
-  border: 1px solid var(--atlas-accent-cta, var(--atlas-accent));
+  background: var(--extensionshield-accent-cta, var(--extensionshield-accent));
+  border: 1px solid var(--extensionshield-accent-cta, var(--extensionshield-accent));
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   font-family: inherit;
 
   &:hover {
-    background: var(--atlas-accent-hover);
-    border-color: var(--atlas-accent-hover);
+    background: var(--extensionshield-accent-hover);
+    border-color: var(--extensionshield-accent-hover);
     color: #fff;
   }
 }
@@ -815,7 +815,7 @@ body {
   .loading-dot {
     width: 6px;
     height: 6px;
-    background: var(--atlas-accent);
+    background: var(--extensionshield-accent);
     border-radius: 50%;
     animation: loadingPulse 1.4s ease-in-out infinite;
 
@@ -878,8 +878,8 @@ body {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--atlas-accent) 0%, #16a34a 100%);
-  color: var(--atlas-bg-primary);
+  background: linear-gradient(135deg, var(--extensionshield-accent) 0%, #16a34a 100%);
+  color: var(--extensionshield-bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -890,7 +890,7 @@ body {
 .user-name {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -900,7 +900,7 @@ body {
 .menu-chevron {
   width: 16px;
   height: 16px;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   transition: transform 0.2s ease;
 
   &.open {
@@ -956,8 +956,8 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--atlas-accent) 0%, #16a34a 100%);
-  color: var(--atlas-bg-primary);
+  background: linear-gradient(135deg, var(--extensionshield-accent) 0%, #16a34a 100%);
+  color: var(--extensionshield-bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -975,7 +975,7 @@ body {
 .menu-user-name {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -983,7 +983,7 @@ body {
 
 .menu-user-email {
   font-size: 0.8125rem;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1005,7 +1005,7 @@ body {
 
   span {
     font-size: 0.75rem;
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
   }
 }
 
@@ -1027,7 +1027,7 @@ body {
   padding: 0.75rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   background: transparent;
   border: none;
   border-radius: 10px;
@@ -1045,7 +1045,7 @@ body {
 
   &:hover {
     background: rgba(255, 255, 255, 0.05);
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 
   &.signout {
@@ -1067,14 +1067,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--atlas-bg-primary);
+  background: var(--extensionshield-bg-primary);
 }
 
 .loading-spinner {
   width: 48px;
   height: 48px;
   border: 4px solid rgba(34, 197, 94, 0.1);
-  border-top-color: var(--atlas-accent);
+  border-top-color: var(--extensionshield-accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -1086,7 +1086,7 @@ body {
 /* ============================================================================
    MAIN CONTENT
    ============================================================================ */
-.atlas-main {
+.extensionshield-main {
   position: relative;
   z-index: 1;
   flex: 1;
@@ -1099,7 +1099,7 @@ body {
 }
 
 /* All page-level children stretch full width so centering is handled by inner max-width */
-.atlas-main > * {
+.extensionshield-main > * {
   width: 100%;
   max-width: var(--layout-max-width);
   margin-left: auto;
@@ -1107,8 +1107,8 @@ body {
 }
 
 /* For pages that need padding from header */
-.atlas-main > div:not(.home-page) {
-  padding-top: var(--atlas-header-offset);
+.extensionshield-main > div:not(.home-page) {
+  padding-top: var(--extensionshield-header-offset);
 }
 
 /* ============================================================================
@@ -1149,7 +1149,7 @@ body {
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: var(--atlas-border-accent);
+    border-color: var(--extensionshield-border-accent);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
   }
 }
@@ -1163,13 +1163,13 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--atlas-bg-secondary);
+  background: var(--extensionshield-bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 184, 0.2);
   border-radius: 5px;
-  border: 2px solid var(--atlas-bg-secondary);
+  border: 2px solid var(--extensionshield-bg-secondary);
 
   &:hover {
     background: rgba(148, 163, 184, 0.3);
@@ -1220,8 +1220,8 @@ body {
   width: 44px;
   height: 44px;
   padding: 0;
-  border: 1px solid var(--atlas-border);
-  background: color-mix(in srgb, var(--atlas-bg-secondary) 95%, var(--atlas-bg-primary));
+  border: 1px solid var(--extensionshield-border);
+  background: color-mix(in srgb, var(--extensionshield-bg-secondary) 95%, var(--extensionshield-bg-primary));
   border-radius: 10px;
   cursor: pointer;
   flex-direction: column;
@@ -1235,7 +1235,7 @@ body {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--atlas-accent);
+    outline: 2px solid var(--extensionshield-accent);
     outline-offset: 2px;
   }
 
@@ -1243,7 +1243,7 @@ body {
     display: block;
     width: 20px;
     height: 2px;
-    background: var(--atlas-text-primary);
+    background: var(--extensionshield-text-primary);
     border-radius: 1px;
     transition: transform 0.25s ease, opacity 0.25s ease;
   }
@@ -1251,14 +1251,14 @@ body {
 
 .mobile-menu {
   position: fixed;
-  top: var(--atlas-header-offset);
+  top: var(--extensionshield-header-offset);
   left: 0;
   right: 0;
   bottom: 0;
-  background: color-mix(in srgb, var(--atlas-bg-primary) 98%, transparent);
+  background: color-mix(in srgb, var(--extensionshield-bg-primary) 98%, transparent);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--atlas-border);
+  border-top: 1px solid var(--extensionshield-border);
   padding: 1.5rem 1rem 2rem;
   overflow-y: auto;
   z-index: 1200; /* above header (1100) when portaled to body — works on all routes */
@@ -1292,7 +1292,7 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   padding: 0 1rem 0.25rem;
   margin-bottom: 0.125rem;
 }
@@ -1305,7 +1305,7 @@ body {
 
 .mobile-menu-actions {
   padding-top: 1rem;
-  border-top: 1px solid var(--atlas-border);
+  border-top: 1px solid var(--extensionshield-border);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -1325,22 +1325,22 @@ body {
   padding: 0.875rem 1rem;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   text-decoration: none;
   border-radius: 10px;
   transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    background: var(--atlas-accent-subtle);
-    color: var(--atlas-text-primary);
-    box-shadow: inset 3px 0 0 var(--atlas-accent);
+    background: var(--extensionshield-accent-subtle);
+    color: var(--extensionshield-text-primary);
+    box-shadow: inset 3px 0 0 var(--extensionshield-accent);
   }
 
   &.active {
-    background: var(--atlas-accent-subtle);
-    color: var(--atlas-accent);
+    background: var(--extensionshield-accent-subtle);
+    color: var(--extensionshield-accent);
     font-weight: 600;
-    box-shadow: inset 3px 0 0 var(--atlas-accent);
+    box-shadow: inset 3px 0 0 var(--extensionshield-accent);
   }
 }
 
@@ -1355,7 +1355,7 @@ body {
   }
 
   .hamburger-bar {
-    background: var(--atlas-text-primary);
+    background: var(--extensionshield-text-primary);
   }
 }
 
@@ -1365,10 +1365,10 @@ body {
 }
 
 .light .mobile-menu-link {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 
   &:hover {
-    background: var(--atlas-accent-subtle);
+    background: var(--extensionshield-accent-subtle);
   }
 }
 
@@ -1414,7 +1414,7 @@ body {
 /* Below 860px: all menu items (incl. megamenu) move into hamburger; theme toggler stays next to hamburger for one-tap access */
 @media (max-width: 860px) {
   :root {
-    --atlas-header-height: 64px;
+    --extensionshield-header-height: 64px;
   }
 
   .header-container {
@@ -1451,7 +1451,7 @@ body {
 
 @media (max-width: 480px) {
   :root {
-    --atlas-header-height: 56px;
+    --extensionshield-header-height: 56px;
   }
 
   .header-container {
@@ -1467,7 +1467,7 @@ body {
   }
 
   .mobile-menu {
-    top: var(--atlas-header-offset);
+    top: var(--extensionshield-header-offset);
     padding: 1rem 0.75rem 1.5rem;
   }
 
@@ -1489,6 +1489,6 @@ body {
 .scan-history-page,
 .analysis-page,
 .settings-page {
-  background: var(--atlas-bg-primary);
+  background: var(--extensionshield-bg-primary);
   min-height: 100vh;
 }

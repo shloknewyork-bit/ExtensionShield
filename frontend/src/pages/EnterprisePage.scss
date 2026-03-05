@@ -108,7 +108,7 @@
 
 .enterprise-header p {
   margin: 0;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   line-height: 1.75;
   font-size: 1rem;
 }
@@ -121,8 +121,8 @@
 }
 
 .enterprise-card {
-  background: var(--atlas-bg-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-bg-card);
+  border: 1px solid var(--extensionshield-border);
   border-radius: 16px;
   padding: 1.75rem;
 }
@@ -140,7 +140,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   font-size: 0.9rem;
 }
 
@@ -152,14 +152,14 @@
 
 .enterprise-features li::before {
   content: "✓";
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
   font-weight: var(--weight-strong, 700);
   opacity: 0.95;
 }
 
 .enterprise-card-divider {
   height: 1px;
-  background: var(--atlas-border);
+  background: var(--extensionshield-border);
   margin: 1.5rem 0;
 }
 
@@ -169,14 +169,14 @@
   &__heading {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     margin: 0 0 0.625rem;
     line-height: 1.35;
   }
 
   &__text {
     font-size: 0.8125rem;
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
     line-height: 1.55;
     margin: 0 0 0.625rem;
   }
@@ -186,7 +186,7 @@
     padding: 0;
     margin: 0;
     font-size: 0.8125rem;
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
     line-height: 1.5;
 
     li {
@@ -202,7 +202,7 @@
         content: "•";
         position: absolute;
         left: 0;
-        color: var(--atlas-accent);
+        color: var(--extensionshield-accent);
       }
     }
   }
@@ -218,7 +218,7 @@
     font-weight: var(--weight-ui, 500);
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
     margin-bottom: 0.625rem;
   }
 }
@@ -234,7 +234,7 @@
   align-items: center;
   gap: 1.25rem;
   font-size: 0.875rem;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   cursor: pointer;
   line-height: 1.35;
   min-height: 1.5rem;
@@ -244,7 +244,7 @@
     height: 1.125rem;
     margin: 0;
     padding: 0;
-    accent-color: var(--atlas-accent);
+    accent-color: var(--extensionshield-accent);
     flex-shrink: 0;
     align-self: center;
     vertical-align: middle;
@@ -258,8 +258,8 @@
 }
 
 .enterprise-form {
-  background: var(--atlas-bg-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-bg-card);
+  border: 1px solid var(--extensionshield-border);
   border-radius: 16px;
   padding: 1.75rem;
 }
@@ -286,18 +286,18 @@
   font-weight: var(--weight-ui, 500);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   margin-bottom: 0.5rem;
 }
 
 .field input,
 .field textarea {
   width: 100%;
-  background: var(--atlas-bg-secondary);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-bg-secondary);
+  border: 1px solid var(--extensionshield-border);
   border-radius: 12px;
   padding: 0.85rem 0.95rem;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   font-family: inherit;
@@ -309,8 +309,8 @@
 
 .field input:focus,
 .field textarea:focus {
-  border-color: var(--atlas-border-accent);
-  box-shadow: 0 0 0 3px var(--atlas-accent-subtle);
+  border-color: var(--extensionshield-border-accent);
+  box-shadow: 0 0 0 3px var(--extensionshield-accent-subtle);
 }
 
 .form-status {
@@ -319,15 +319,15 @@
   border-radius: 12px;
   font-size: 0.875rem;
   font-weight: 600;
-  border: 1px solid var(--atlas-border);
-  color: var(--atlas-text-secondary);
-  background: var(--atlas-bg-secondary);
+  border: 1px solid var(--extensionshield-border);
+  color: var(--extensionshield-text-secondary);
+  background: var(--extensionshield-bg-secondary);
 }
 
 .form-status.success {
   border-color: rgba(34, 197, 94, 0.3);
   background: rgba(34, 197, 94, 0.08);
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .form-status.error {
@@ -343,7 +343,7 @@
   border: 1px solid rgba(148, 163, 184, 0.25);
   border-radius: 8px;
   background: transparent;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
@@ -353,7 +353,7 @@
 .enterprise-submit:hover {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(148, 163, 184, 0.4);
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .enterprise-submit:disabled {
@@ -364,7 +364,7 @@
 .form-note {
   margin-top: 0.75rem;
   font-size: 0.8125rem;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   line-height: 1.6;
 }
 
@@ -393,8 +393,8 @@
 
 .light .enterprise-card,
 .light .enterprise-form {
-  background: var(--atlas-surface-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-surface-card);
+  border: 1px solid var(--extensionshield-border);
   box-shadow: 0 4px 20px rgba(38, 35, 31, 0.06);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
@@ -407,35 +407,35 @@
 }
 
 .light .enterprise-features {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   font-weight: 500;
 }
 
 .light .enterprise-features li::before {
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .field label {
   font-weight: 600;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .field input,
 .light .field textarea {
-  background: var(--atlas-bg-secondary);
-  border-color: var(--atlas-border);
-  color: var(--atlas-text-primary);
+  background: var(--extensionshield-bg-secondary);
+  border-color: var(--extensionshield-border);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .field input:focus,
 .light .field textarea:focus {
-  border-color: var(--atlas-accent);
-  box-shadow: 0 0 0 3px var(--atlas-accent-subtle);
+  border-color: var(--extensionshield-accent);
+  box-shadow: 0 0 0 3px var(--extensionshield-accent-subtle);
 }
 
 .light .form-note {
   font-weight: 500;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 /* Light: same green as sign-in (action-signin) */

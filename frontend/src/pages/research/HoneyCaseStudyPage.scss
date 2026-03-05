@@ -5,7 +5,7 @@
 .honey-case-study-page {
   min-height: 100vh;
   background: transparent;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
   position: relative;
 }
 
@@ -35,16 +35,16 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
   margin-bottom: 2rem;
   flex-wrap: wrap;
   
   a {
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     text-decoration: none;
     
     &:hover {
-      color: var(--atlas-accent, #22c55e);
+      color: var(--extensionshield-accent, #22c55e);
     }
   }
 }
@@ -56,13 +56,13 @@
     font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 700;
     margin-bottom: 0.75rem;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 }
 
 .honey-subtitle {
   font-size: 1.25rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   font-style: italic;
 }
 
@@ -111,7 +111,7 @@
   border-radius: 4px;
   font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
 }
 
 /* Stats */
@@ -138,14 +138,14 @@
     display: block;
     font-size: 2rem;
     font-weight: 700;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     margin-bottom: 0.25rem;
   }
   
   .stat-label {
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--atlas-text-muted, #64748b);
+    color: var(--extensionshield-text-muted, #64748b);
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
@@ -165,12 +165,12 @@
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 1rem;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
   
   p {
     font-size: 1rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     line-height: 1.8;
     margin-bottom: 1rem;
   }
@@ -197,12 +197,12 @@
     font-size: 1rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
   
   p {
     font-size: 0.875rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     line-height: 1.6;
     margin: 0;
   }
@@ -228,11 +228,11 @@
     border: 1px solid rgba(148, 163, 184, 0.1);
     border-radius: 8px;
     font-size: 0.9375rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     line-height: 1.6;
     
     strong {
-      color: var(--atlas-text-primary, #f8fafc);
+      color: var(--extensionshield-text-primary, #f8fafc);
       font-weight: 600;
     }
   }
@@ -251,12 +251,12 @@
     font-size: 1.25rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
   
   p {
     font-size: 0.9375rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     margin-bottom: 1.5rem;
   }
 
@@ -266,7 +266,7 @@
     font-size: 0.9375rem;
 
     a {
-      color: var(--atlas-accent, #22c55e);
+      color: var(--extensionshield-accent, #22c55e);
       text-decoration: none;
     }
     a:hover {
@@ -280,7 +280,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.875rem 1.5rem;
-  background: var(--atlas-accent, #22c55e);
+  background: var(--extensionshield-accent, #22c55e);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -306,7 +306,7 @@
 
 /* Day mode – Honey case study */
 .light .honey-case-study-page {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .honey-bg .bg-gradient {
@@ -316,25 +316,25 @@
 }
 
 .light .breadcrumb a:hover {
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .honey-header h1 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .honey-subtitle {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .light .honey-stats {
   background: rgba(247, 243, 235, 0.95);
-  border: 1px solid var(--atlas-border);
+  border: 1px solid var(--extensionshield-border);
 }
 
 .light .finding-card {
-  background: var(--atlas-surface-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-surface-card);
+  border: 1px solid var(--extensionshield-border);
   box-shadow: 0 4px 20px rgba(38, 35, 31, 0.06);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
@@ -346,30 +346,30 @@
 }
 
 .light .finding-card h3 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   font-weight: 700;
 }
 
 .light .finding-card p {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   font-weight: 500;
 }
 
 .light .honey-article section h2 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .honey-article section p {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   font-weight: 500;
 }
 
 .light .honey-stats .stat-value {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .honey-stats .stat-label {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   font-weight: 600;
 }
 
@@ -378,38 +378,38 @@
 }
 
 .light .date-badge {
-  background: var(--atlas-accent-subtle);
-  border-color: var(--atlas-border-accent);
-  color: var(--atlas-text-secondary);
+  background: var(--extensionshield-accent-subtle);
+  border-color: var(--extensionshield-border-accent);
+  color: var(--extensionshield-text-secondary);
   font-weight: 600;
 }.light .lessons-list li {
   background: rgba(247, 243, 235, 0.9);
-  border: 1px solid var(--atlas-border);
-  color: var(--atlas-text-secondary);
+  border: 1px solid var(--extensionshield-border);
+  color: var(--extensionshield-text-secondary);
 }
 
 .light .lessons-list li strong {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .honey-cta {
-  background: linear-gradient(135deg, var(--atlas-accent-subtle) 0%, var(--atlas-bg-secondary) 100%);
-  border: 1px solid var(--atlas-border-accent);
+  background: linear-gradient(135deg, var(--extensionshield-accent-subtle) 0%, var(--extensionshield-bg-secondary) 100%);
+  border: 1px solid var(--extensionshield-border-accent);
 }
 
 .light .cta-button {
-  background: var(--atlas-accent);
+  background: var(--extensionshield-accent);
   color: rgb(255 255 255);
 }
 
 .light .cta-button:hover {
-  box-shadow: 0 8px 24px var(--atlas-accent-glow);
+  box-shadow: 0 8px 24px var(--extensionshield-accent-glow);
 }
 
 /* Day mode: labels/badges green to match ExtensionShield */
 .light .category-badge {
-  background: var(--atlas-accent-subtle);
-  border-color: var(--atlas-border-accent);
-  color: var(--atlas-accent);
+  background: var(--extensionshield-accent-subtle);
+  border-color: var(--extensionshield-border-accent);
+  color: var(--extensionshield-accent);
   font-weight: 600;
 }

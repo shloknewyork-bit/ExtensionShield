@@ -5,7 +5,7 @@
 .benchmarks-page {
   min-height: 100vh;
   background: transparent;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
   position: relative;
 }
 
@@ -69,7 +69,7 @@
 
 .benchmarks-header p {
   font-size: 1.125rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   max-width: 700px;
   margin: 0 auto;
   line-height: 1.7;
@@ -105,11 +105,11 @@
 
 .methodology-item {
   font-size: 0.875rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   line-height: 1.5;
   
   strong {
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     font-weight: 600;
   }
 }
@@ -171,13 +171,13 @@
 .highlight-label {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
   margin-bottom: 0.5rem;
 }
 
 .highlight-detail {
   font-size: 0.8125rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   line-height: 1.5;
 }
 
@@ -197,12 +197,12 @@
     font-size: 1.75rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
   
   p {
     font-size: 1rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     line-height: 1.6;
   }
 }
@@ -231,7 +231,7 @@
 }
 
 .sources-box__link {
-  color: var(--atlas-accent, #22c55e);
+  color: var(--extensionshield-accent, #22c55e);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.875rem;
@@ -242,13 +242,13 @@
 }
 
 .sources-box__link:hover {
-  color: var(--atlas-accent-hover, #16a34a);
+  color: var(--extensionshield-accent-hover, #16a34a);
 }
 
 .sources-box__desc {
   margin: 0.25rem 0 0 0;
   font-size: 0.8125rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   line-height: 1.5;
 }
 
@@ -275,7 +275,7 @@
   p {
     margin: 0;
     font-size: 0.8125rem;
-    color: var(--atlas-text-muted, #64748b);
+    color: var(--extensionshield-text-muted, #64748b);
     font-style: italic;
     line-height: 1.5;
   }
@@ -289,7 +289,7 @@
   transition: all 0.3s ease;
 
   .trend-chart__title {
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 
   &:hover {
@@ -314,12 +314,12 @@
     font-size: 1.25rem;
     font-weight: 700;
     margin-bottom: 0.75rem;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
   
   p {
     font-size: 0.9375rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     margin-bottom: 1rem;
     line-height: 1.6;
   }
@@ -391,7 +391,7 @@
   h4 {
     font-size: 1.125rem;
     font-weight: 700;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     margin: 0;
   }
 }
@@ -406,7 +406,7 @@
     padding-left: 1.25rem;
     margin-bottom: 0.5rem;
     font-size: 0.875rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     line-height: 1.5;
     
     &:before {
@@ -452,7 +452,7 @@
     padding-left: 1.25rem;
     margin-bottom: 0.5rem;
     font-size: 0.875rem;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     line-height: 1.5;
     
     &:before {
@@ -531,7 +531,7 @@
   h4 {
     font-size: 1.125rem;
     font-weight: 700;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     margin: 0;
   }
 }
@@ -550,7 +550,7 @@
 
 .recommendation-reason {
   font-size: 0.9375rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   line-height: 1.6;
   margin-bottom: 1rem;
 }
@@ -582,12 +582,12 @@
   }
   
   &.secondary {
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     font-weight: 500;
     font-size: 0.8125rem;
     
     &:hover {
-      color: var(--atlas-text-primary, #f8fafc);
+      color: var(--extensionshield-text-primary, #f8fafc);
     }
   }
 }
@@ -625,7 +625,7 @@
   h4 {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     margin: 0;
   }
   
@@ -652,7 +652,7 @@
 
 .reason-simple {
   font-size: 0.8125rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   line-height: 1.5;
   margin: 0;
 }
@@ -661,7 +661,7 @@
 .methodology-simple {
   text-align: center;
   padding: 1rem;
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
   font-size: 0.8125rem;
   
   p {
@@ -669,7 +669,7 @@
     
     &.free-note {
       margin-top: 0.5rem;
-      color: var(--atlas-text-secondary, #94a3b8);
+      color: var(--extensionshield-text-secondary, #94a3b8);
       font-size: 0.875rem;
     }
   }
@@ -685,7 +685,7 @@
   min-height: 400px;
   
   p {
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     font-size: 1rem;
   }
 }
@@ -708,54 +708,54 @@
 
 /* Day mode */
 .light .benchmarks-page {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .methodology-info-box,
 .light .highlight-tile {
-  background: var(--atlas-surface-card);
-  border-color: var(--atlas-border-subtle);
+  background: var(--extensionshield-surface-card);
+  border-color: var(--extensionshield-border-subtle);
 }
 
 .light .methodology-info-box h4 {
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .methodology-item strong {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .methodology-item {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .light .highlight-tile:hover {
-  border-color: var(--atlas-accent);
+  border-color: var(--extensionshield-accent);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .light .highlight-number,
 .light .highlight-badge {
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .highlight-badge {
-  background: var(--atlas-accent-subtle);
-  border-color: var(--atlas-accent);
+  background: var(--extensionshield-accent-subtle);
+  border-color: var(--extensionshield-accent);
 }
 
 .light .highlight-label {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .highlight-detail {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 /* Day mode: all cards use same light surface for consistent contrast */
 .light .chart-card {
-  background: var(--atlas-surface-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-surface-card);
+  border: 1px solid var(--extensionshield-border);
   box-shadow: 0 4px 20px rgba(38, 35, 31, 0.06);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 
@@ -769,12 +769,12 @@
 .light .chart-card .trend-chart__title,
 .light .chart-card h3,
 .light .chart-card .chart-container {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .chart-card .recharts-cartesian-axis-tick text,
 .light .chart-card .recharts-legend-item-text {
-  fill: var(--atlas-text-secondary) !important;
+  fill: var(--extensionshield-text-secondary) !important;
 }
 
 .light .chart-card .recharts-cartesian-grid line {
@@ -782,37 +782,37 @@
 }
 
 .light .trends-disclaimer {
-  background: var(--atlas-accent-subtle);
-  border-left-color: var(--atlas-accent);
-  p { color: var(--atlas-text-secondary); font-weight: 500; }
+  background: var(--extensionshield-accent-subtle);
+  border-left-color: var(--extensionshield-accent);
+  p { color: var(--extensionshield-text-secondary); font-weight: 500; }
 }
 
 .light .section-header h2 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }.light .section-header p {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   font-weight: 500;
 }
 
 .light .differentiator-card-simple {
-  background: var(--atlas-surface-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-surface-card);
+  border: 1px solid var(--extensionshield-border);
   box-shadow: 0 4px 20px rgba(38, 35, 31, 0.06);
 
-  h3 { color: var(--atlas-text-primary); }
-  p { color: var(--atlas-text-secondary); font-weight: 500; }
+  h3 { color: var(--extensionshield-text-primary); }
+  p { color: var(--extensionshield-text-secondary); font-weight: 500; }
 }
 
 .light .key-features span {
-  background: var(--atlas-accent-subtle);
-  border-color: var(--atlas-border-accent);
-  color: var(--atlas-accent);
+  background: var(--extensionshield-accent-subtle);
+  border-color: var(--extensionshield-border-accent);
+  color: var(--extensionshield-accent);
   font-weight: 600;
 }
 
 .light .capability-card {
-  background: var(--atlas-surface-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-surface-card);
+  border: 1px solid var(--extensionshield-border);
   box-shadow: 0 4px 20px rgba(38, 35, 31, 0.06);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 
@@ -823,29 +823,29 @@
   }
 
   &.expanded {
-    border-color: var(--atlas-border-accent);
+    border-color: var(--extensionshield-border-accent);
     box-shadow: 0 12px 32px rgba(22, 163, 74, 0.12);
   }
 }
 
 .light .capability-header h4 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .capability-signals li,
 .light .capability-signals-full li {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   font-weight: 500;
 }
 
 .light .capability-signals li:before,
 .light .capability-signals-full li:before {
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .recommendation-card {
-  background: var(--atlas-surface-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-surface-card);
+  border: 1px solid var(--extensionshield-border);
   box-shadow: 0 4px 20px rgba(38, 35, 31, 0.06);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 
@@ -857,68 +857,68 @@
 }
 
 .light .recommendation-header h4 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .recommendation-reason {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   font-weight: 500;
 }
 
 .light .recommendation-link.primary {
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .example-card-simple {
-  background: var(--atlas-surface-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-surface-card);
+  border: 1px solid var(--extensionshield-border);
   box-shadow: 0 4px 16px rgba(38, 35, 31, 0.06);
 }
 
 .light .example-header-simple h4 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .example-header-simple .category-badge {
-  background: var(--atlas-accent-subtle);
-  border-color: var(--atlas-border-accent);
-  color: var(--atlas-accent);
+  background: var(--extensionshield-accent-subtle);
+  border-color: var(--extensionshield-border-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .reason-simple {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   font-weight: 500;
 }
 
 .light .status-badge.implemented {
-  background: var(--atlas-accent-subtle);
-  border-color: var(--atlas-border-accent);
-  color: var(--atlas-accent);
+  background: var(--extensionshield-accent-subtle);
+  border-color: var(--extensionshield-border-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .benchmarks-badge {
-  background: var(--atlas-accent-subtle);
-  border: 1px solid var(--atlas-border-accent);
-  color: var(--atlas-accent);
+  background: var(--extensionshield-accent-subtle);
+  border: 1px solid var(--extensionshield-border-accent);
+  color: var(--extensionshield-accent);
   font-weight: 600;
 }
 
 .light .sources-box {
-  background: var(--atlas-surface-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-surface-card);
+  border: 1px solid var(--extensionshield-border);
   box-shadow: 0 4px 20px rgba(38, 35, 31, 0.06);
 }
 
 .light .sources-box__title {
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .sources-box__link {
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .sources-box__desc {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   font-weight: 500;
 }
 
@@ -930,7 +930,7 @@
 .scanner-comparison-table-wrap {
   overflow-x: auto;
   border-radius: 8px;
-  border: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.2));
+  border: 1px solid var(--extensionshield-border, rgba(148, 163, 184, 0.2));
 }
 
 .scanner-comparison-table {
@@ -943,13 +943,13 @@
 .scanner-comparison-table td {
   padding: 0.75rem 1rem;
   text-align: left;
-  border-bottom: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.15));
+  border-bottom: 1px solid var(--extensionshield-border, rgba(148, 163, 184, 0.15));
 }
 
 .scanner-comparison-table th {
   background: rgba(15, 23, 42, 0.5);
   font-weight: 600;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
 }
 
 .scanner-comparison-table tbody tr:hover {
@@ -957,7 +957,7 @@
 }
 
 .scanner-comparison-table a {
-  color: var(--atlas-accent, #22c55e);
+  color: var(--extensionshield-accent, #22c55e);
   text-decoration: none;
 }
 
@@ -968,5 +968,5 @@
 .scanner-comparison-meta {
   margin-top: 0.75rem;
   font-size: 0.8rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
 }

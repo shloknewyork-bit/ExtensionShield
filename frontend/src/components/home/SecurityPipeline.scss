@@ -44,7 +44,7 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   transition: all 0.3s ease;
 }
 
@@ -56,7 +56,7 @@
 .extension-label {
   font-size: 0.6875rem;
   font-weight: 500;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -82,7 +82,7 @@
 .connector-progress {
   position: absolute;
   inset: 0;
-  background: var(--atlas-accent);
+  background: var(--extensionshield-accent);
   transform-origin: top center;
 }
 
@@ -92,10 +92,10 @@
   left: 50%;
   width: 8px;
   height: 8px;
-  background: var(--atlas-accent);
+  background: var(--extensionshield-accent);
   border-radius: 50%;
   transform: translateX(-50%);
-  box-shadow: 0 0 10px var(--atlas-accent-glow, rgba(34, 197, 94, 0.5));
+  box-shadow: 0 0 10px var(--extensionshield-accent-glow, rgba(34, 197, 94, 0.5));
 }
 
 .pipeline-stages {
@@ -125,7 +125,7 @@
 .stage-connector-fill {
   position: absolute;
   inset: 0;
-  background: var(--atlas-accent);
+  background: var(--extensionshield-accent);
   transform-origin: top center;
 }
 
@@ -183,7 +183,7 @@
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
-  color: var(--stage-color, var(--atlas-text-secondary));
+  color: var(--stage-color, var(--extensionshield-text-secondary));
   transition: all 0.3s ease;
 }
 
@@ -201,8 +201,8 @@
 
 .pipeline-stage.complete .stage-icon {
   background: rgba(34, 197, 94, 0.12);
-  border-color: var(--atlas-accent);
-  color: var(--atlas-accent);
+  border-color: var(--extensionshield-accent);
+  color: var(--extensionshield-accent);
 }
 
 .stage-info {
@@ -226,14 +226,14 @@
 .stage-label {
   font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   white-space: nowrap;
 }
 
 .stage-weight {
   font-size: 0.625rem;
   font-weight: 500;
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 /* Tooltip appears above each stage (icon) so description is clearly associated */
@@ -243,19 +243,19 @@
   left: 50%;
   transform: translateX(-50%);
   padding: 0.4rem 0.65rem;
-  background: var(--atlas-bg-tertiary, #2e2b28);
+  background: var(--extensionshield-bg-tertiary, #2e2b28);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   font-size: 0.6875rem;
   font-weight: 500;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   white-space: nowrap;
   z-index: 10;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .light .stage-tooltip {
-  background: var(--atlas-bg-card, #f9fafb);
+  background: var(--extensionshield-bg-card, #f9fafb);
   border-color: rgba(0, 0, 0, 0.1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -268,11 +268,11 @@
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: var(--atlas-bg-tertiary, #2e2b28);
+  border-top-color: var(--extensionshield-bg-tertiary, #2e2b28);
 }
 
 .light .stage-tooltip::before {
-  border-top-color: var(--atlas-bg-card, #f9fafb);
+  border-top-color: var(--extensionshield-bg-card, #f9fafb);
 }
 
 .pipeline-result {
@@ -292,7 +292,7 @@
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   transition: all 0.3s ease;
 }
 
@@ -303,22 +303,22 @@
 
 .pipeline-result.verified .result-icon {
   background: rgba(34, 197, 94, 0.12);
-  border-color: var(--atlas-accent);
-  color: var(--atlas-accent);
-  box-shadow: 0 0 20px var(--atlas-accent-glow, rgba(34, 197, 94, 0.25));
+  border-color: var(--extensionshield-accent);
+  color: var(--extensionshield-accent);
+  box-shadow: 0 0 20px var(--extensionshield-accent-glow, rgba(34, 197, 94, 0.25));
 }
 
 .result-label {
   font-size: 0.6875rem;
   font-weight: 500;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   transition: color 0.3s ease;
 }
 
 .pipeline-result.verified .result-label {
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
   font-weight: 600;
 }
 
@@ -336,7 +336,7 @@
 .pipeline-caption {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   margin: 0;
   opacity: 0.9;
 }

@@ -1,0 +1,4 @@
+# Ignore all contents of data/intel except this file and README
+*
+!.gitignore
+!README.md

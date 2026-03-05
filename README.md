@@ -1,121 +1,46 @@
-<h1 align="center">ExtensionShield</h1>
+# ExtensionShield
 
-<p align="center">
-  <strong>Chrome Extension Security Scanner & Governance Platform</strong>
-</p>
+**Chrome Extension Security Scanner & Governance Platform**
 
-<p align="center">
-  Open-core: the scanner, CLI, and local analysis are MIT-licensed and fully functional.<br/>
-  Cloud features (auth, history, team monitoring, community queue) are available via
-  <a href="https://extensionshield.com">ExtensionShield Cloud</a>.
-</p>
+ExtensionShield scans Chrome extensions (from the Web Store or CRX/ZIP uploads), runs security and privacy analysis, and produces risk scores and AI-powered summaries. The **core** (scanner, CLI, local analysis) is **MIT-licensed** and works without any cloud. Optional **cloud** features (auth, history, team monitoring, community queue) are available via [ExtensionShield Cloud](https://extensionshield.com).
 
-**Security Policy**: See [SECURITY.md](SECURITY.md) &nbsp;|&nbsp; **Open-Core Boundaries**: See [docs/OPEN_CORE_BOUNDARIES.md](docs/OPEN_CORE_BOUNDARIES.md)
+- **Security:** [SECURITY.md](SECURITY.md) — Reporting vulnerabilities, secrets policy  
+- **Open-core:** [OPEN_CORE_BOUNDARIES.md](OPEN_CORE_BOUNDARIES.md) — What’s OSS vs Cloud and how it’s enforced  
 
 ---
 
-## Quick Start (OSS Mode)
+## Quick start
 
-No Supabase keys, no cloud accounts needed. Just an LLM API key for AI summaries.
+1. **Clone and install**
+   ```bash
+   git clone https://github.com/<your-org>/ExtensionShield.git
+   cd ExtensionShield
+   make install && cd frontend && npm install
+   ```
+2. **Configure**
+   ```bash
+   cp .env.example .env
+   # Add OPENAI_API_KEY in .env (for AI summaries). OSS mode is the default.
+   cp frontend/.env.example frontend/.env
+   ```
+3. **Run**
+   ```bash
+   make api      # Terminal 1 → http://localhost:8007
+   make frontend # Terminal 2 → http://localhost:5173
+   ```
 
-### Local Development
-
-```bash
-# 1. Clone and install
-git clone https://github.com/<your-org>/ExtensionShield.git
-cd ExtensionShield
-make install                    # Python (uv sync)
-cd frontend && npm install      # Frontend dependencies
-
-# 2. Configure environment
-cp .env.example .env
-# Edit .env: add OPENAI_API_KEY (required for AI summaries)
-# EXTSHIELD_MODE=oss is the default — no other keys needed
-
-cp frontend/.env.example frontend/.env
-# No changes needed for OSS mode
-
-# 3. Start servers (two terminals)
-make api                        # Terminal 1: API at http://localhost:8007
-make frontend                   # Terminal 2: UI at http://localhost:5173
-```
-
-### Docker
-
-```bash
-cp .env.example .env
-# Edit .env: add your OPENAI_API_KEY
-docker compose up --build
-# → http://localhost:8007
-```
-
-### CLI
-
-```bash
-make analyze URL=https://chromewebstore.google.com/detail/example/abcdef
-```
+Full setup (Docker, CLI, Cloud mode, Make commands): **[GET_STARTED.md](GET_STARTED.md)**.
 
 ---
 
-## What Works in OSS Mode
+## What ExtensionShield does
 
-| Feature | OSS | Cloud |
-|---------|-----|-------|
-| Scan Chrome Web Store extensions | Yes | Yes |
-| Upload & scan CRX/ZIP files | Yes | Yes |
-| Security scoring + risk analysis | Yes | Yes |
-| SAST, permissions, entropy analysis | Yes | Yes |
-| VirusTotal integration | Yes | Yes |
-| AI-powered summaries | Yes | Yes |
-| CLI analysis | Yes | Yes |
-| SQLite local storage | Yes | Yes |
-| View scan reports in browser | Yes | Yes |
-| Supabase persistence | — | Yes |
-| User authentication | — | Yes |
-| Scan history per user | — | Yes |
-| User karma / reputation | — | Yes |
-| Community review queue | — | Yes |
-| Telemetry admin dashboard | — | Yes |
-| Enterprise pilot forms | — | Yes |
+- **Scan** extensions from the Chrome Web Store or by uploading CRX/ZIP files  
+- **Analyze** permissions, SAST, entropy, and optional VirusTotal integration  
+- **Score** security and privacy risk and generate reports  
+- **Summarize** findings with an LLM (OpenAI or others)  
 
----
-
-## Enabling Cloud Mode
-
-To enable all features, set these in `.env`:
-
-```bash
-EXTSHIELD_MODE=cloud
-DB_BACKEND=supabase
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE
-```
-
-And in `frontend/.env`:
-
-```bash
-VITE_AUTH_ENABLED=true
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY_HERE
-```
-
-**OSS vs Cloud mode:** The API enforces the boundary server-side. In OSS mode (`EXTSHIELD_MODE=oss`, default), cloud-only routes (history, auth/karma, telemetry admin, community queue, enterprise forms) return **HTTP 501** with `{"error": "not_implemented", "feature": "...", "mode": "oss"}`. Optional local metrics in OSS: set `OSS_TELEMETRY_ENABLED=true` to store pageview/event in SQLite only (no outbound). See [docs/OPEN_CORE_BOUNDARIES.md](docs/OPEN_CORE_BOUNDARIES.md).
-
----
-
-## Make Commands
-
-```bash
-make help           # Show all commands
-make dev            # Show OSS dev setup instructions
-make api            # Start API server (port 8007)
-make frontend       # Start React dev server (port 5173)
-make analyze URL=   # Analyze extension from URL
-make test           # Run tests
-make format         # Format code (Black)
-make lint           # Lint code (Pylint)
-make secrets-check  # Check for accidental committed secrets
-```
+In **OSS mode** (default) you get the full scanner, CLI, local SQLite storage, and report UI—no cloud required. **Cloud mode** adds auth, scan history, telemetry, and enterprise features; see [GET_STARTED.md](GET_STARTED.md#enabling-cloud-mode) and [OPEN_CORE_BOUNDARIES.md](OPEN_CORE_BOUNDARIES.md).
 
 ---
 
@@ -123,24 +48,27 @@ make secrets-check  # Check for accidental committed secrets
 
 | Document | Description |
 |----------|-------------|
-| [docs/README.md](docs/README.md) | Documentation index |
-| [docs/OPEN_CORE_BOUNDARIES.md](docs/OPEN_CORE_BOUNDARIES.md) | What's OSS vs Cloud |
-| [SECURITY.md](SECURITY.md) | Reporting vulnerabilities, secrets policy |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution guidelines |
-| [docs/TRADEMARK.md](docs/TRADEMARK.md) | Brand usage guidelines |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | High-level architecture |
+| [GET_STARTED.md](GET_STARTED.md) | Setup, config, Docker, CLI, OSS vs Cloud, Make commands |
+| [OPEN_CORE_BOUNDARIES.md](OPEN_CORE_BOUNDARIES.md) | OSS vs Cloud; enforcement; configuration |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
+| [SECURITY.md](SECURITY.md) | Reporting vulnerabilities; secrets policy |
+| [COMMERCIAL.md](COMMERCIAL.md) | Commercial use (non-binding) |
+| [TRADEMARK.md](TRADEMARK.md) | Brand usage guidelines |
+| [NOTICE](NOTICE) | Third-party attributions |
 
 ---
 
-## License
+## License & attribution
 
-**Core** (scanner, CLI, local analysis): MIT License — see [LICENSE](LICENSE) for details.
+- **Core** (scanner, CLI, local analysis): **MIT** — see [LICENSE](LICENSE).  
+- **Cloud** (auth, Supabase, telemetry admin, community queue, enterprise forms): **proprietary**, available via [ExtensionShield Cloud](https://extensionshield.com).  
 
-**Cloud features** (auth, Supabase persistence, telemetry admin, community queue, enterprise forms):
-proprietary, available via [ExtensionShield Cloud](https://extensionshield.com).
+Attribution: [NOTICE](NOTICE). Brand: [TRADEMARK.md](TRADEMARK.md). Commercial use: [COMMERCIAL.md](COMMERCIAL.md) (non-binding).
 
 ---
 
-## Acknowledgments
+## Community
 
-ExtensionShield builds on the excellent [ThreatXtension](https://github.com/barvhaim/ThreatXtension) project, extending it with compliance, evidence-oriented layers, and governance.
+We build ExtensionShield in the open so security tools stay transparent and inspectable. Feedback, issue reports, and small improvements (docs, tests, rule tweaks) are welcome. If it helps you or your organization, consider contributing a PR, sharing your use case, or supporting the project. We run open-source programs and internships when we can—community support helps keep that going.
+
+**Acknowledgments:** ExtensionShield is our own design; we took inspiration from [ThreatXtension](https://github.com/barvhaim/ThreatXtension) in the same space (extension scanning, VirusTotal integration).

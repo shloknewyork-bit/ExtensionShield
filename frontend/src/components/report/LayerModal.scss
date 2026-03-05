@@ -433,9 +433,9 @@
 // Light theme overrides
 // ---------------------------------------------------------------------------
 .light .lm-dialog-smooth > button {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   &:hover {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     background: var(--theme-hover-bg);
   }
 }
@@ -502,10 +502,10 @@
 }
 
 .light .lm-info-trigger {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   &:hover,
   &:focus-visible {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 }
 

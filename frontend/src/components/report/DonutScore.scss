@@ -105,11 +105,11 @@
 
 /* Light theme – score value and pill visible */
 .light .donut-label {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
 }
 
 .light .donut-value {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .donut-status-pill {
@@ -129,8 +129,8 @@
     color: var(--risk-bad);
   }
   &.status-na {
-    background: var(--atlas-bg-secondary);
-    border: 1px solid var(--atlas-border);
-    color: var(--atlas-text-secondary);
+    background: var(--extensionshield-bg-secondary);
+    border: 1px solid var(--extensionshield-border);
+    color: var(--extensionshield-text-secondary);
   }
 }

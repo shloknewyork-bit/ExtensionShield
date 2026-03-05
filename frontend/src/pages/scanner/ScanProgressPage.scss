@@ -19,13 +19,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: calc(var(--atlas-header-height, 72px) + 2rem) 1.5rem 2rem;
+  padding: calc(var(--extensionshield-header-height, 72px) + 2rem) 1.5rem 2rem;
   background: var(--theme-bg-primary);
   min-height: 100vh;
 }
 
 .light .scan-progress-center {
-  background: var(--atlas-bg-primary);
+  background: var(--extensionshield-bg-primary);
 }
 
 .scan-progress-minimal-card {
@@ -36,15 +36,15 @@
   align-items: center;
   text-align: center;
   padding: 2rem 1.5rem;
-  background: var(--atlas-bg-secondary);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-bg-secondary);
+  border: 1px solid var(--extensionshield-border);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
 .light .scan-progress-minimal-card {
-  background: var(--atlas-bg-card);
-  border-color: var(--atlas-border);
+  background: var(--extensionshield-bg-card);
+  border-color: var(--extensionshield-border);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
 
@@ -53,7 +53,7 @@
   height: 64px;
   border-radius: 14px;
   object-fit: contain;
-  background: var(--atlas-bg-tertiary);
+  background: var(--extensionshield-bg-tertiary);
   margin-bottom: 1rem;
 }
 
@@ -61,7 +61,7 @@
   margin: 0 0 1.5rem;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   letter-spacing: -0.01em;
   line-height: 1.3;
   max-width: 100%;
@@ -71,7 +71,7 @@
 }
 
 .light .scan-progress-minimal-name {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .scan-progress-minimal-bar-wrap {
@@ -80,7 +80,7 @@
 
 .scan-progress-minimal-bar {
   height: 6px;
-  background: var(--atlas-bg-tertiary);
+  background: var(--extensionshield-bg-tertiary);
   border-radius: 3px;
   overflow: hidden;
   margin-bottom: 0.5rem;
@@ -88,12 +88,12 @@
 
 .scan-progress-minimal-fill {
   height: 100%;
-  background: var(--atlas-accent);
+  background: var(--extensionshield-accent);
   border-radius: 3px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   &.already-scanned {
-    background: var(--atlas-accent);
+    background: var(--extensionshield-accent);
   }
 }
 
@@ -106,11 +106,11 @@
 
 .scan-progress-minimal-pct {
   font-weight: 600;
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 .scan-progress-minimal-label {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
 }
 
 /* Retro Style Header Overlay */
@@ -244,8 +244,8 @@
   background: none;
   background-clip: unset;
   -webkit-background-clip: unset;
-  -webkit-text-fill-color: var(--atlas-accent);
-  color: var(--atlas-accent);
+  -webkit-text-fill-color: var(--extensionshield-accent);
+  color: var(--extensionshield-accent);
   text-shadow: none;
   filter: none;
   animation: none;
@@ -979,8 +979,8 @@
   z-index: 10;
   max-width: 420px;
   padding: 1.5rem;
-  background: var(--atlas-bg-secondary);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-bg-secondary);
+  border: 1px solid var(--extensionshield-border);
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 
@@ -988,13 +988,13 @@
     margin: 0 0 0.5rem;
     font-size: 1.125rem;
     font-weight: 600;
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 
   p {
     margin: 0 0 1rem;
     font-size: 0.9375rem;
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
     line-height: 1.5;
   }
 }
@@ -1088,8 +1088,8 @@
    Light theme – progress page and modals (Results Available, error) match site
    ============================================================================ */
 .light .scan-progress-page {
-  background: var(--atlas-bg-primary);
-  color: var(--atlas-text-primary);
+  background: var(--extensionshield-bg-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .retro-header-overlay {
@@ -1103,99 +1103,99 @@
 
 /* Completion modal (Results Available / Scan Complete!) – light */
 .light .completion-modal-content {
-  background: var(--atlas-bg-card) !important;
-  border: 2px solid var(--atlas-border) !important;
+  background: var(--extensionshield-bg-card) !important;
+  border: 2px solid var(--extensionshield-border) !important;
   box-shadow: 0 12px 40px rgba(38, 35, 31, 0.15) !important;
 }
 
 .light .completion-modal-title {
-  color: var(--atlas-accent) !important;
+  color: var(--extensionshield-accent) !important;
   text-shadow: none !important;
 }
 
 .light .completion-modal-description {
-  color: var(--atlas-text-primary) !important;
+  color: var(--extensionshield-text-primary) !important;
 }
 
 .light .completion-modal-content .dialog-footer {
-  border-top-color: var(--atlas-border) !important;
+  border-top-color: var(--extensionshield-border) !important;
 }
 
 .light .completion-modal-content .dialog-footer button:first-child {
-  background: var(--atlas-bg-secondary) !important;
-  border-color: var(--atlas-border) !important;
-  color: var(--atlas-text-primary) !important;
+  background: var(--extensionshield-bg-secondary) !important;
+  border-color: var(--extensionshield-border) !important;
+  color: var(--extensionshield-text-primary) !important;
 }
 
 .light .completion-modal-content .dialog-footer button:first-child:hover {
-  background: var(--atlas-bg-tertiary) !important;
-  border-color: var(--atlas-border) !important;
+  background: var(--extensionshield-bg-tertiary) !important;
+  border-color: var(--extensionshield-border) !important;
   box-shadow: 0 4px 12px rgba(38, 35, 31, 0.08) !important;
 }
 
 .light .completion-modal-content .dialog-footer button:last-child {
-  background: var(--atlas-accent) !important;
-  border-color: var(--atlas-accent) !important;
+  background: var(--extensionshield-accent) !important;
+  border-color: var(--extensionshield-accent) !important;
   color: #fff !important;
   box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25) !important;
 }
 
 .light .completion-modal-content .dialog-footer button:last-child:hover {
-  background: var(--atlas-accent-hover) !important;
+  background: var(--extensionshield-accent-hover) !important;
   box-shadow: 0 6px 16px rgba(22, 163, 74, 0.3) !important;
 }
 
 .light .completion-modal-content button[aria-label="Close"] {
-  color: var(--atlas-text-muted) !important;
+  color: var(--extensionshield-text-muted) !important;
 }
 
 .light .completion-modal-content button[aria-label="Close"]:hover {
-  background: var(--atlas-bg-secondary) !important;
-  color: var(--atlas-text-primary) !important;
+  background: var(--extensionshield-bg-secondary) !important;
+  color: var(--extensionshield-text-primary) !important;
 }
 
 /* Error modal – light */
 .light .error-modal-content {
-  background: var(--atlas-bg-card) !important;
-  border: 2px solid var(--atlas-border) !important;
+  background: var(--extensionshield-bg-card) !important;
+  border: 2px solid var(--extensionshield-border) !important;
   box-shadow: 0 12px 40px rgba(38, 35, 31, 0.15) !important;
 }
 
 .light .error-modal-title {
-  color: var(--atlas-accent) !important;
+  color: var(--extensionshield-accent) !important;
   text-shadow: none !important;
 }
 
 .light .error-modal-description {
-  color: var(--atlas-text-primary) !important;
+  color: var(--extensionshield-text-primary) !important;
 }
 
 .light .error-modal-content .dialog-footer {
-  border-top-color: var(--atlas-border) !important;
+  border-top-color: var(--extensionshield-border) !important;
 }
 
 .light .error-modal-content .dialog-footer button {
-  color: var(--atlas-text-primary) !important;
+  color: var(--extensionshield-text-primary) !important;
 }
 
 .light .error-modal-content .dialog-footer button:first-child {
-  background: var(--atlas-accent-subtle) !important;
-  border-color: var(--atlas-accent) !important;
-  color: var(--atlas-accent) !important;
+  background: var(--extensionshield-accent-subtle) !important;
+  border-color: var(--extensionshield-accent) !important;
+  color: var(--extensionshield-accent) !important;
 }
 
 .light .error-modal-content .dialog-footer button:last-child {
-  background: var(--atlas-bg-secondary) !important;
-  border-color: var(--atlas-border) !important;
-  color: var(--atlas-text-primary) !important;
+  background: var(--extensionshield-bg-secondary) !important;
+  border-color: var(--extensionshield-border) !important;
+  color: var(--extensionshield-text-primary) !important;
 }
 
 .light .error-modal-content button[aria-label="Close"] {
-  color: var(--atlas-text-muted) !important;
+  color: var(--extensionshield-text-muted) !important;
 }
 
 .light .error-modal-content button[aria-label="Close"]:hover {
-  background: var(--atlas-bg-secondary) !important;
-  color: var(--atlas-text-primary) !important;
+  background: var(--extensionshield-bg-secondary) !important;
+  color: var(--extensionshield-text-primary) !important;
 }
 

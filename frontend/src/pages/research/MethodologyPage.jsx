@@ -16,7 +16,7 @@ const methodologyFaqSchema = {
       "name": "How is the extension risk score calculated?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "ExtensionShield combines three pipelines: Security (40%), Privacy (35%), and Compliance (25%). Security uses open-source SAST (ThreatXtension/Semgrep), Privacy analyzes data collection and tracking, and Compliance covers policy alignment and developer reputation."
+        "text": "ExtensionShield combines three pipelines: Security (40%), Privacy (35%), and Compliance (25%). Security uses open-source SAST (Semgrep-based rules), Privacy analyzes data collection and tracking, and Compliance covers policy alignment and developer reputation."
       }
     },
     {
@@ -24,7 +24,7 @@ const methodologyFaqSchema = {
       "name": "What is ThreatXtension?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "ThreatXtension is an open-source Chrome extension security scanner we use for static analysis (SAST). It runs 47+ Semgrep rules to detect malicious patterns, obfuscation, and data exfiltration in extension code."
+        "text": "ThreatXtension is an open-source Chrome extension security scanner in the same space. We took inspiration from its approach; our SAST and scoring pipeline are implemented independently in ExtensionShield."
       }
     },
     {
@@ -106,7 +106,7 @@ const MethodologyPage = () => {
 
           {/* Three Pipeline Flow */}
           <div className="pipeline-flow">
-            {/* Pipeline 1: ThreatXtension (Open Source) */}
+            {/* Pipeline 1: SAST (Open Source) */}
             <div className="pipeline-card">
               <div className="pipeline-number">01</div>
               <div className="pipeline-content">
@@ -130,7 +130,7 @@ const MethodologyPage = () => {
                           <button
                             type="button"
                             className="pipeline-open-source-trigger"
-                            aria-label="Open source credit — Built on ThreatXtension"
+                            aria-label="Open source credit — Inspired by ThreatXtension"
                           >
                             <Info className="pipeline-open-source-trigger-icon" aria-hidden />
                           </button>
@@ -144,9 +144,8 @@ const MethodologyPage = () => {
                             </div>
                             <h3>Built on Open Source</h3>
                             <p>
-                              Pipeline 1 leverages <strong>ThreatXtension</strong> by Bar Haim & Itzik Chanan,
-                              an open-source Chrome extension security scanner. We&apos;re grateful for their contribution
-                              to browser security research.
+                              Pipeline 1 is our Security (SAST) pipeline. We took inspiration from the approach of <strong>ThreatXtension</strong> by Bar Haim & Itzik Chanan,
+                              an open-source Chrome extension security scanner in the same space.
                             </p>
                             <div className="credit-links">
                               <a href="https://github.com/barvhaim/ThreatXtension" target="_blank" rel="noopener noreferrer" className="credit-link">
@@ -168,7 +167,7 @@ const MethodologyPage = () => {
                     </div>
                     <h3>Security Analysis</h3>
                     <h4 className="tech-credit">
-                      Powered by <a href="https://github.com/barvhaim/ThreatXtension" target="_blank" rel="noopener noreferrer">ThreatXtension</a>
+                      Inspired by <a href="https://github.com/barvhaim/ThreatXtension" target="_blank" rel="noopener noreferrer">ThreatXtension</a>
                     </h4>
                     <p>Static application security testing (SAST) with custom Semgrep rules detecting malicious patterns, obfuscation, and data exfiltration.</p>
                     

@@ -72,7 +72,7 @@ class TestOSSImportDoesNotInitSupabase:
 
     def test_oss_health_does_not_require_supabase(self):
         """GET /health with OSS flags returns 200 and mode=oss. No Supabase at import is proven by test_oss_mode_returns_sqlite_even_when_db_backend_supabase."""
-        with patch("extension_shield.utils.mode.get_feature_flags", return_value=_oss_flags()):
+        with patch("extension_shield.api.main.get_feature_flags", return_value=_oss_flags()):
             from extension_shield.api.main import app
             client = TestClient(app)
             r = client.get("/health")
@@ -95,9 +95,10 @@ class TestCloudRoutesReturn501WithCorrectDetail:
     )
     def test_cloud_route_returns_501_and_detail_shape(self, method, url, kwargs, expected_feature):
         with patch("extension_shield.utils.mode.get_feature_flags", return_value=_oss_flags()):
-            from extension_shield.api.main import app
-            client = TestClient(app)
-            r = getattr(client, method)(url, **kwargs)
+            with patch("extension_shield.api.main.get_feature_flags", return_value=_oss_flags()):
+                from extension_shield.api.main import app
+                client = TestClient(app)
+                r = getattr(client, method)(url, **kwargs)
         assert r.status_code == 501
         data = r.json()
         detail = data.get("detail") or data

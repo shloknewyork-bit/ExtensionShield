@@ -6,8 +6,8 @@
   min-height: 100vh;
   min-width: 100%;
   width: 100%;
-  background: var(--atlas-bg-primary);
-  color: var(--atlas-text-primary, #f8fafc);
+  background: var(--extensionshield-bg-primary);
+  color: var(--extensionshield-text-primary, #f8fafc);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -61,7 +61,7 @@
 }
 .history-login-gate__text {
   font-size: 1.125rem;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   margin: 0 0 1.25rem;
 }
 .history-login-gate .action-signin {
@@ -209,7 +209,7 @@
   transform: translateY(-50%);
   width: 16px;
   height: 16px;
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
   pointer-events: none;
 }
 
@@ -221,13 +221,13 @@
   background: rgba(17, 24, 39, 0.8);
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 12px;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
   transition: all 0.2s ease;
   margin: 0; // Remove any margin
 }
 
 .search-input::placeholder {
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
 }
 
 .search-input:focus {
@@ -248,7 +248,7 @@
   background: rgba(148, 163, 184, 0.1);
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 12px;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   cursor: pointer;
   transition: all 0.2s ease;
   margin: 0; // Remove any margin
@@ -261,7 +261,7 @@
   &:hover {
     background: rgba(148, 163, 184, 0.15);
     border-color: rgba(148, 163, 184, 0.3);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 }
 
@@ -337,7 +337,7 @@
   h3 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     margin: 0;
     letter-spacing: -0.02em;
   }
@@ -373,26 +373,26 @@
 }
 
 .light .login-overlay-content {
-  background: var(--atlas-bg-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-bg-card);
+  border: 1px solid var(--extensionshield-border);
   box-shadow: 0 20px 60px rgba(38, 35, 31, 0.12);
 
   .lock-icon {
-    color: var(--atlas-accent);
+    color: var(--extensionshield-accent);
   }
 
   h3 {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 }
 
 .light .login-overlay-btn {
-  background: linear-gradient(135deg, var(--atlas-accent) 0%, var(--atlas-accent-hover) 100%);
+  background: linear-gradient(135deg, var(--extensionshield-accent) 0%, var(--extensionshield-accent-hover) 100%);
   color: #fff;
-  box-shadow: 0 4px 20px var(--atlas-accent-glow);
+  box-shadow: 0 4px 20px var(--extensionshield-accent-glow);
 
   &:hover {
-    box-shadow: 0 6px 30px var(--atlas-accent-glow);
+    box-shadow: 0 6px 30px var(--extensionshield-accent-glow);
   }
 }
 
@@ -422,7 +422,7 @@
 
 .loading-text {
   font-size: 1rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
 }
 
 /* ============================================================================
@@ -487,7 +487,7 @@
       padding: 1rem 1rem;
       text-align: left;
       font-weight: 500;
-      color: var(--atlas-text-secondary, #94a3b8);
+      color: var(--extensionshield-text-secondary, #94a3b8);
       font-size: 0.75rem;
       letter-spacing: 0.04em;
       text-transform: uppercase;
@@ -542,7 +542,7 @@
 
     td {
       padding: 0.875rem 1rem;
-      color: var(--atlas-text-primary, #f8fafc);
+      color: var(--extensionshield-text-primary, #f8fafc);
       vertical-align: middle;
 
       &.extension-cell {
@@ -550,7 +550,7 @@
       }
 
       .no-data {
-        color: var(--atlas-text-muted, #64748b);
+        color: var(--extensionshield-text-muted, #64748b);
         opacity: 0.5;
       }
     }
@@ -581,7 +581,7 @@
 
 .extension-name {
   font-weight: 500;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -590,12 +590,12 @@
 
 .extension-scanned {
   font-size: 0.7rem;
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
 }
 
 .rating-value {
   font-weight: 500;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
 }
 
 /* ============================================================================
@@ -625,25 +625,25 @@
   &.risk-low {
     background: rgba(34, 197, 94, 0.1);
     border-color: rgba(34, 197, 94, 0.22);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 
   &.risk-medium {
     background: rgba(245, 158, 11, 0.1);
     border-color: rgba(245, 158, 11, 0.25);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 
   &.risk-high {
     background: rgba(239, 68, 68, 0.1);
     border-color: rgba(239, 68, 68, 0.25);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 
   &.risk-unknown {
     background: rgba(148, 163, 184, 0.08);
     border-color: rgba(148, 163, 184, 0.2);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 }
 
@@ -767,7 +767,7 @@
 
 .findings-count {
   font-size: 0.8125rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   white-space: nowrap;
 }
 
@@ -806,7 +806,7 @@
   background: transparent;
   border: 1px solid rgba(148, 163, 184, 0.15);
   border-radius: 6px;
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
   cursor: pointer;
   transition: all 0.2s ease;
 
@@ -818,7 +818,7 @@
   &:hover {
     background: rgba(148, 163, 184, 0.1);
     border-color: rgba(148, 163, 184, 0.3);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 }
 
@@ -861,7 +861,7 @@
 
 .pagination-info {
   font-size: 0.875rem;
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
 }
 
 .pagination-controls {
@@ -879,7 +879,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   transition: all 0.2s ease;
 
   svg {
@@ -890,7 +890,7 @@
   &:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(148, 163, 184, 0.2);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 
   &:disabled {
@@ -904,7 +904,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
 
   label {
     white-space: nowrap;
@@ -915,7 +915,7 @@
     border: 1px solid rgba(148, 163, 184, 0.1);
     border-radius: 6px;
     padding: 0.5rem 0.75rem;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -957,13 +957,13 @@
   h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     margin: 0 0 0.5rem;
   }
 
   p {
     font-size: 0.875rem;
-    color: var(--atlas-text-muted, #64748b);
+    color: var(--extensionshield-text-muted, #64748b);
     margin: 0 0 1.5rem;
     max-width: 400px;
   }
@@ -994,37 +994,37 @@
 /* Day mode – Scan history empty state */
 .light .history-page .empty-state {
   background: rgba(247, 243, 235, 0.8);
-  border-color: var(--atlas-border);
+  border-color: var(--extensionshield-border);
 }
 
 .light .history-page .empty-state h3 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .history-page .empty-state p {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
 }
 
 .light .history-page .empty-action-btn {
-  background: linear-gradient(135deg, var(--atlas-accent) 0%, var(--atlas-accent-hover) 100%);
-  box-shadow: 0 4px 15px var(--atlas-accent-glow);
+  background: linear-gradient(135deg, var(--extensionshield-accent) 0%, var(--extensionshield-accent-hover) 100%);
+  box-shadow: 0 4px 15px var(--extensionshield-accent-glow);
 }
 
 .light .history-page .empty-action-btn:hover {
-  box-shadow: 0 6px 20px var(--atlas-accent-glow);
+  box-shadow: 0 6px 20px var(--extensionshield-accent-glow);
 }
 
 /* History page – search input same as homepage/scanner, table same as /scan */
 .light .history-page {
   .history-header h1 {
-    background: linear-gradient(135deg, var(--atlas-text-primary) 0%, var(--atlas-text-secondary) 100%);
+    background: linear-gradient(135deg, var(--extensionshield-text-primary) 0%, var(--extensionshield-text-secondary) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
   .history-header p {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 
   /* Search input – same color as homepage (.search-container light) */
@@ -1034,79 +1034,79 @@
 
   .search-input {
     background: rgba(247, 243, 235, 0.98);
-    border: 1px solid var(--atlas-border);
-    color: var(--atlas-text-primary);
+    border: 1px solid var(--extensionshield-border);
+    color: var(--extensionshield-text-primary);
 
     &::placeholder {
-      color: var(--atlas-text-muted);
+      color: var(--extensionshield-text-muted);
     }
 
     &:focus {
-      border-color: var(--atlas-accent);
+      border-color: var(--extensionshield-accent);
       background: rgba(247, 243, 235, 0.98);
-      box-shadow: 0 0 0 4px var(--atlas-accent-subtle);
+      box-shadow: 0 0 0 4px var(--extensionshield-accent-subtle);
     }
   }
 
   .search-icon {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
   }
 
   .scan-count-badge {
-    background: var(--atlas-accent-subtle);
-    border-color: var(--atlas-border-accent);
-    color: var(--atlas-accent);
+    background: var(--extensionshield-accent-subtle);
+    border-color: var(--extensionshield-border-accent);
+    color: var(--extensionshield-accent);
   }
 
   .export-btn {
-    color: var(--atlas-accent);
-    border-color: var(--atlas-border-accent);
+    color: var(--extensionshield-accent);
+    border-color: var(--extensionshield-border-accent);
 
     &:hover {
-      background: var(--atlas-accent-subtle);
-      border-color: var(--atlas-accent);
-      color: var(--atlas-accent-hover);
+      background: var(--extensionshield-accent-subtle);
+      border-color: var(--extensionshield-accent);
+      color: var(--extensionshield-accent-hover);
     }
   }
 
   /* Extensions table – same as /scan route */
   .extensions-table thead {
-    background: var(--atlas-bg-secondary);
-    border-bottom-color: var(--atlas-border);
+    background: var(--extensionshield-bg-secondary);
+    border-bottom-color: var(--extensionshield-border);
 
     th {
-      color: var(--atlas-text-primary);
+      color: var(--extensionshield-text-primary);
     }
   }
 
   .extensions-table tbody tr {
-    border-bottom-color: var(--atlas-border);
+    border-bottom-color: var(--extensionshield-border);
 
     &:hover,
     &.row-hovered {
-      background: var(--atlas-accent-subtle);
+      background: var(--extensionshield-accent-subtle);
     }
   }
 
   .extensions-table tbody td {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 
   .extensions-table .extension-name {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     font-weight: 600;
   }
 
   .extensions-table .extension-scanned {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 
   .extensions-table .findings-count {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 
   .extensions-table .no-data {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
     opacity: 1;
   }
 
@@ -1146,75 +1146,75 @@
   }
 
   .view-all-history-btn {
-    color: var(--atlas-accent);
-    border-color: var(--atlas-border-accent);
+    color: var(--extensionshield-accent);
+    border-color: var(--extensionshield-border-accent);
 
     &:hover {
-      background: var(--atlas-accent-subtle);
-      border-color: var(--atlas-accent);
-      color: var(--atlas-accent-hover);
+      background: var(--extensionshield-accent-subtle);
+      border-color: var(--extensionshield-accent);
+      color: var(--extensionshield-accent-hover);
     }
   }
 
   /* Pagination – match site theme */
   .table-pagination .pagination-info {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
   }
 
   .pagination-btn {
-    background: var(--atlas-bg-card);
-    border-color: var(--atlas-border);
-    color: var(--atlas-text-secondary);
+    background: var(--extensionshield-bg-card);
+    border-color: var(--extensionshield-border);
+    color: var(--extensionshield-text-secondary);
 
     &:hover:not(:disabled) {
-      background: var(--atlas-accent-subtle);
-      border-color: var(--atlas-border-accent);
-      color: var(--atlas-text-primary);
+      background: var(--extensionshield-accent-subtle);
+      border-color: var(--extensionshield-border-accent);
+      color: var(--extensionshield-text-primary);
     }
   }
 
   .pagination-rows {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
 
     select {
-      background: var(--atlas-bg-card);
-      border-color: var(--atlas-border);
-      color: var(--atlas-text-primary);
+      background: var(--extensionshield-bg-card);
+      border-color: var(--extensionshield-border);
+      color: var(--extensionshield-text-primary);
 
       &:hover {
-        border-color: var(--atlas-border-accent);
+        border-color: var(--extensionshield-border-accent);
       }
 
       &:focus {
-        border-color: var(--atlas-accent);
-        box-shadow: 0 0 0 2px var(--atlas-accent-subtle);
+        border-color: var(--extensionshield-accent);
+        box-shadow: 0 0 0 2px var(--extensionshield-accent-subtle);
       }
     }
   }
 
   .row-hover-actions {
-    background: var(--atlas-bg-card);
-    border-color: var(--atlas-border);
+    background: var(--extensionshield-bg-card);
+    border-color: var(--extensionshield-border);
     box-shadow: 0 4px 20px rgba(38, 35, 31, 0.12);
   }
 
   .hover-action-btn {
-    color: var(--atlas-text-secondary);
-    border-color: var(--atlas-border);
+    color: var(--extensionshield-text-secondary);
+    border-color: var(--extensionshield-border);
 
     &:hover {
       background: rgba(0, 0, 0, 0.04);
-      border-color: var(--atlas-border);
-      color: var(--atlas-text-primary);
+      border-color: var(--extensionshield-border);
+      color: var(--extensionshield-text-primary);
     }
 
     &.primary {
-      color: var(--atlas-accent);
-      border-color: var(--atlas-border-accent);
+      color: var(--extensionshield-accent);
+      border-color: var(--extensionshield-border-accent);
 
       &:hover {
-        background: var(--atlas-accent-subtle);
-        border-color: var(--atlas-accent);
+        background: var(--extensionshield-accent-subtle);
+        border-color: var(--extensionshield-accent);
       }
     }
 

@@ -4,7 +4,7 @@
   min-height: 100vh;
   width: 100%;
   background: transparent;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   font-family: var(--font-sans, inherit);
   display: flex;
   flex-direction: column;
@@ -14,7 +14,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: calc(var(--atlas-header-height, 72px) + 2rem) var(--layout-padding-x, 1rem);
+  padding: calc(var(--extensionshield-header-height, 72px) + 2rem) var(--layout-padding-x, 1rem);
   padding-top: 5rem;
 }
 
@@ -44,14 +44,14 @@
 }
 
 .scan-upload-steps__step--active .scan-upload-steps__circle {
-  background: var(--atlas-accent);
+  background: var(--extensionshield-accent);
   color: #fff;
-  border-color: var(--atlas-accent);
+  border-color: var(--extensionshield-accent);
   box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
 }
 
 .scan-upload-steps__step--active .scan-upload-steps__label {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   font-weight: 500;
 }
 
@@ -64,15 +64,15 @@
   border-radius: 50%;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   background: transparent;
-  border: 1px solid var(--atlas-border);
+  border: 1px solid var(--extensionshield-border);
   flex-shrink: 0;
 }
 
 .scan-upload-steps__label {
   font-size: clamp(0.75rem, 1.2vw, 0.8125rem);
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   white-space: nowrap;
 }
 
@@ -87,7 +87,7 @@
 .scan-upload-steps__connector {
   width: 28px;
   height: 1px;
-  background: var(--atlas-border);
+  background: var(--extensionshield-border);
   margin: 0 0.35rem;
   flex-shrink: 0;
 }
@@ -95,7 +95,7 @@
 .scan-upload-kicker {
   font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   letter-spacing: 0.15em;
   margin: 0 0 0.5rem;
   line-height: 1.4;
@@ -107,7 +107,7 @@
   line-height: 1.25;
   margin: 0 0 0.5rem;
   letter-spacing: -0.02em;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .scan-upload-subhead {
@@ -115,7 +115,7 @@
   font-weight: 400;
   line-height: 1.45;
   margin: 0 0 2rem;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .scan-upload-dropzone-wrap {
@@ -146,7 +146,7 @@
   margin: 0;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .scan-upload-gate__btn {
@@ -154,7 +154,7 @@
   font-size: 0.9375rem;
   font-weight: 500;
   color: #fff;
-  background: var(--atlas-accent);
+  background: var(--extensionshield-accent);
   border: none;
   border-radius: 10px;
   cursor: pointer;
@@ -162,12 +162,12 @@
 
   &:hover {
     opacity: 0.95;
-    box-shadow: 0 4px 12px var(--atlas-accent-glow);
+    box-shadow: 0 4px 12px var(--extensionshield-accent-glow);
   }
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px var(--atlas-accent);
+    box-shadow: 0 0 0 2px var(--extensionshield-accent);
   }
 }
 
@@ -176,7 +176,7 @@
   font-size: 0.875rem;
 
   a {
-    color: var(--atlas-accent);
+    color: var(--extensionshield-accent);
     text-decoration: none;
 
     &:hover {
@@ -194,12 +194,12 @@
   justify-content: center;
   gap: 0.5rem 1rem;
   font-size: 0.8125rem;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 
   li {
     &::before {
       content: "✓ ";
-      color: var(--atlas-accent);
+      color: var(--extensionshield-accent);
       font-weight: 600;
     }
   }
@@ -213,7 +213,7 @@
 
 .scan-upload-privacy {
   font-size: 0.8125rem;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   margin: 2rem 0 0;
   line-height: 1.4;
 }

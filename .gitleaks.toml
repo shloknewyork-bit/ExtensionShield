@@ -8,12 +8,15 @@ title = "ExtensionShield secret scan"
   description = "Allowlist placeholder and example values (no real secrets)"
   paths = [
     '''\.env\.example$''',
+    '''deploy/env\.production\.template$''',
     '''env\.production\.template$''',
     '''\.env\.template$''',
     '''frontend/\.env\.example$''',
+    '''\.github/workflows/ci\.yml$''',
   ]
   regexes = [
     '''sk-your-openai-api-key-here''',
+    '''sk-test-placeholder''',
     '''YOUR_OPENAI_KEY_HERE''',
     '''YOUR_WATSONX_KEY_HERE''',
     '''YOUR_GROQ_KEY_HERE''',

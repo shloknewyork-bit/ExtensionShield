@@ -1980,16 +1980,12 @@ class SupabaseDatabase:
 
 def _create_db():
     """
-    Choose storage backend based on DB_BACKEND env var — same logic as commit 981032d.
+    Choose storage backend based on EXTSHIELD_MODE and DB_BACKEND.
 
-    DB_BACKEND is the primary signal:
-      - "supabase": Use Supabase (Postgres). Fall back to SQLite on init failure.
-      - "sqlite" / unset: Use local SQLite.
-
-    This respects DB_BACKEND regardless of EXTSHIELD_MODE or ENV, so:
-      - Production (Railway) with DB_BACKEND=supabase → Supabase.
-      - Local dev with DB_BACKEND=supabase → Supabase (same data as prod).
-      - Local dev without DB_BACKEND (or =sqlite) → SQLite (no cloud needed).
+    - When mode is "oss": always use SQLite (no Supabase client). This enforces the
+      open-core boundary: OSS runs with no cloud dependencies.
+    - When mode is "cloud": use DB_BACKEND — "supabase" → Supabase (with fallback to
+      SQLite on init failure), "sqlite" or unset → SQLite.
     """
     import logging
     _logger = logging.getLogger(__name__)
@@ -1998,6 +1994,13 @@ def _create_db():
 
     flags = get_feature_flags()
     settings = get_settings()
+
+    # OSS mode: never use Supabase; always SQLite (enforce open-core boundary).
+    if flags.mode == "oss":
+        _db = Database()
+        _logger.info("DB backend: sqlite (OSS mode)")
+        print(f"✓ DB backend: sqlite (OSS mode)  |  mode={flags.mode}")
+        return _db
 
     if settings.db_backend == "supabase":
         try:

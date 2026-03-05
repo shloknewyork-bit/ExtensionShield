@@ -4,15 +4,15 @@
 
 .contribute-page {
   min-height: 100vh;
-  background: var(--atlas-bg-primary, #0d1424);
-  color: var(--atlas-text-primary, #f8fafc);
+  background: var(--extensionshield-bg-primary, #0d1424);
+  color: var(--extensionshield-text-primary, #f8fafc);
   font-family: var(--font-sans);
 }
 
 .contribute-content {
   max-width: 640px;
   margin: 0 auto;
-  padding: calc(var(--atlas-header-height, 60px) + 2rem) 1.5rem 4rem;
+  padding: calc(var(--extensionshield-header-height, 60px) + 2rem) 1.5rem 4rem;
 }
 
 .contribute-header {
@@ -21,7 +21,7 @@
   h1 {
     font-size: clamp(1.75rem, 3.5vw, 2.125rem);
     font-weight: var(--weight-strong, 700);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     margin-bottom: 0.5rem;
     letter-spacing: -0.02em;
     line-height: 1.2;
@@ -29,7 +29,7 @@
 
   .subtitle {
     font-size: 1rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     line-height: 1.6;
   }
 }
@@ -49,15 +49,15 @@
   align-items: center;
   gap: 1.25rem;
   padding: 1rem 1.25rem;
-  background: var(--atlas-bg-card, rgba(15, 23, 42, 0.6));
-  border: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.12));
+  background: var(--extensionshield-bg-card, rgba(15, 23, 42, 0.6));
+  border: 1px solid var(--extensionshield-border, rgba(148, 163, 184, 0.12));
   border-radius: var(--radius-md, 10px);
   cursor: pointer;
   transition: border-color 0.2s ease, background 0.2s ease;
 
   &:hover {
-    border-color: var(--atlas-border-accent, rgba(34, 197, 94, 0.35));
-    background: var(--atlas-bg-elevated, rgba(15, 23, 42, 0.8));
+    border-color: var(--extensionshield-border-accent, rgba(34, 197, 94, 0.35));
+    background: var(--extensionshield-bg-elevated, rgba(15, 23, 42, 0.8));
   }
 
   .card-body {
@@ -68,13 +68,13 @@
   h3 {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     margin-bottom: 0.2rem;
   }
 
   p {
     font-size: 0.8125rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     line-height: 1.5;
     margin-bottom: 0.375rem;
   }
@@ -88,7 +88,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   background: rgba(148, 163, 184, 0.08);
 
   svg {
@@ -97,7 +97,7 @@
   }
 
   &[data-type="scan"] {
-    color: var(--atlas-accent, #22c55e);
+    color: var(--extensionshield-accent, #22c55e);
     background: rgba(34, 197, 94, 0.1);
   }
 
@@ -121,7 +121,7 @@
   display: inline-block;
   font-size: 0.6875rem;
   font-weight: 500;
-  color: var(--atlas-text-tertiary, #64748b);
+  color: var(--extensionshield-text-tertiary, #64748b);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 
@@ -133,11 +133,11 @@
 /* Footer */
 .contribute-footer {
   padding-top: 1.5rem;
-  border-top: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.12));
+  border-top: 1px solid var(--extensionshield-border, rgba(148, 163, 184, 0.12));
 
   p {
     font-size: 0.875rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     line-height: 1.65;
     margin: 0;
   }
@@ -149,7 +149,7 @@
 
 @media (max-width: 768px) {
   .contribute-content {
-    padding: calc(var(--atlas-header-height, 60px) + 1.5rem) 1.25rem 3rem;
+    padding: calc(var(--extensionshield-header-height, 60px) + 1.5rem) 1.25rem 3rem;
   }
 
   .contribute-header {
@@ -166,39 +166,39 @@
    ============================================================================ */
 
 .light .contribute-page {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .contribute-header h1 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .contribute-header .subtitle {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .light .contribution-card {
-  background: var(--atlas-bg-card);
-  border-color: var(--atlas-border);
+  background: var(--extensionshield-bg-card);
+  border-color: var(--extensionshield-border);
 
   &:hover {
-    border-color: var(--atlas-border-accent);
-    background: var(--atlas-bg-elevated);
+    border-color: var(--extensionshield-border-accent);
+    background: var(--extensionshield-bg-elevated);
   }
 
   h3 {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 
   p {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 }
 
 .light .contribute-footer {
-  border-top-color: var(--atlas-border);
+  border-top-color: var(--extensionshield-border);
 
   p {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 }

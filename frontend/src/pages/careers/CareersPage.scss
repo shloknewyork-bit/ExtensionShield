@@ -12,7 +12,7 @@
 .careers-content {
   max-width: 800px;
   margin: 0 auto;
-  padding: calc(var(--atlas-header-height, 60px) + 2rem) 1.5rem 4rem;
+  padding: calc(var(--extensionshield-header-height, 60px) + 2rem) 1.5rem 4rem;
 }
 
 /* Hero – "Open roles" only, centered */
@@ -94,7 +94,7 @@
 /* Responsive */
 @media (max-width: 768px) {
   .careers-content {
-    padding: calc(var(--atlas-header-height, 60px) + 1.5rem) 1.25rem 3rem;
+    padding: calc(var(--extensionshield-header-height, 60px) + 1.5rem) 1.25rem 3rem;
   }
 
   .careers-hero {

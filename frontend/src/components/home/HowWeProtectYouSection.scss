@@ -37,7 +37,7 @@
 .how-protect-title {
   font-size: clamp(1.5rem, 3.5vw, 2rem);
   font-weight: 600;
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   margin: 0 0 0.5rem;
   line-height: 1.25;
 }
@@ -45,7 +45,7 @@
 .how-protect-subhead {
   font-size: 1.125rem;
   font-style: italic;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   max-width: 36ch;
   margin: 0 0 0.75rem;
   line-height: 1.5;
@@ -53,7 +53,7 @@
 
 .how-protect-body {
   font-size: 0.9375rem;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   line-height: 1.55;
   margin: 0;
   max-width: 42ch;
@@ -68,7 +68,7 @@
 
 .how-protect-tagline {
   font-size: 0.8125rem;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   line-height: 1.45;
   margin: 0.5rem 0 0;
   max-width: 42ch;
@@ -117,14 +117,14 @@
   &.how-protect-node-icon--neutral {
     background: var(--theme-bg-card, rgba(255, 255, 255, 0.08));
     border: 1px solid var(--theme-border, rgba(0, 0, 0, 0.08));
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 }
 
 .how-protect-node-label {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   text-align: center;
   line-height: 1.2;
 }
@@ -142,7 +142,7 @@
   display: flex;
   justify-content: center;
   align-items: stretch;
-  color: var(--atlas-accent, #22c55e);
+  color: var(--extensionshield-accent, #22c55e);
 
   svg {
     width: 100%;
@@ -167,22 +167,22 @@
   width: 100%;
   height: 100%;
   display: block;
-  color: var(--atlas-accent, #22c55e);
+  color: var(--extensionshield-accent, #22c55e);
 }
 
 .how-protect-split-path {
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 .how-protect-split-dot {
-  fill: var(--atlas-accent);
+  fill: var(--extensionshield-accent);
 
   &.how-protect-split-dot--danger {
-    fill: var(--atlas-danger, #dc2626);
+    fill: var(--extensionshield-danger, #dc2626);
   }
 
   &.how-protect-split-dot--success {
-    fill: var(--atlas-accent, #22c55e);
+    fill: var(--extensionshield-accent, #22c55e);
   }
 }
 
@@ -211,7 +211,7 @@
   width: 12px;
   height: 32px;
   flex-shrink: 0;
-  color: var(--atlas-accent, #22c55e);
+  color: var(--extensionshield-accent, #22c55e);
   display: flex;
   justify-content: center;
   align-items: stretch;
@@ -224,11 +224,11 @@
 }
 
 .how-protect-outcome-connector--danger {
-  color: var(--atlas-danger, #dc2626);
+  color: var(--extensionshield-danger, #dc2626);
 }
 
 .how-protect-outcome-connector--success {
-  color: var(--atlas-accent, #22c55e);
+  color: var(--extensionshield-accent, #22c55e);
 }
 
 .how-protect-outcome-card {
@@ -255,15 +255,15 @@
   background: rgba(239, 68, 68, 0.06);
 
   .how-protect-outcome-icon-wrap {
-    color: var(--atlas-danger, #ef4444);
+    color: var(--extensionshield-danger, #ef4444);
   }
 
   .how-protect-outcome-title {
-    color: var(--atlas-danger);
+    color: var(--extensionshield-danger);
   }
 
   .how-protect-outcome-desc {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 
   &:hover {
@@ -276,15 +276,15 @@
   background: rgba(34, 197, 94, 0.08);
 
   .how-protect-outcome-icon-wrap {
-    color: var(--atlas-accent, #22c55e);
+    color: var(--extensionshield-accent, #22c55e);
   }
 
   .how-protect-outcome-title {
-    color: var(--atlas-accent);
+    color: var(--extensionshield-accent);
   }
 
   .how-protect-outcome-desc {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 
   &:hover {
@@ -323,14 +323,14 @@
   padding: 0;
   font-size: 0.8125rem;
   /* Explicit opaque color so inherited transparent color cannot make text invisible (WCAG) */
-  color: var(--atlas-text-secondary) !important;
+  color: var(--extensionshield-text-secondary) !important;
   text-align: center;
   line-height: 1.45;
   overflow-wrap: break-word;
 }
 
 .light .how-protect-footnote {
-  color: var(--atlas-text-secondary, rgb(47 44 37)) !important;
+  color: var(--extensionshield-text-secondary, rgb(47 44 37)) !important;
 }
 
 /* Light theme */

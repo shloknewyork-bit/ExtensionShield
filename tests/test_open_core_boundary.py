@@ -44,11 +44,13 @@ def client():
 
 @pytest.fixture(autouse=True)
 def force_oss_mode():
-    """Ensure tests run with OSS mode unless overridden. Clear cache so env-based tests see fresh flags."""
+    """Ensure tests run with OSS mode unless overridden. Clear cache so env-based tests see fresh flags.
+    Patch both mode (for require_cloud_dep) and main (for health and other handlers that call get_feature_flags)."""
     reset_feature_flags_cache()
-    with patch("extension_shield.utils.mode.get_feature_flags") as mock:
-        mock.return_value = _oss_flags()
-        yield mock
+    mock = MagicMock(return_value=_oss_flags())
+    with patch("extension_shield.utils.mode.get_feature_flags", mock):
+        with patch("extension_shield.api.main.get_feature_flags", mock):
+            yield mock
 
 
 class TestOSSModeTrustLayer:

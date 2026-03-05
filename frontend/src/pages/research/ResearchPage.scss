@@ -5,7 +5,7 @@
 .research-page {
   min-height: 100vh;
   background: transparent;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
   position: relative;
 }
 
@@ -71,7 +71,7 @@
 
 .research-header p {
   font-size: 1.125rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.7;
@@ -79,7 +79,7 @@
 
 /* Day mode – Research page titles and cards */
 .light .research-page {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .research-bg .bg-gradient {
@@ -93,21 +93,21 @@
 }
 
 .light .research-header h1 {
-  background: linear-gradient(135deg, var(--atlas-text-primary) 0%, var(--atlas-text-muted) 100%);
+  background: linear-gradient(135deg, var(--extensionshield-text-primary) 0%, var(--extensionshield-text-muted) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .light .research-badge {
-  background: var(--atlas-accent-subtle);
-  border-color: var(--atlas-border-accent);
-  color: var(--atlas-accent);
+  background: var(--extensionshield-accent-subtle);
+  border-color: var(--extensionshield-border-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .research-card {
-  background: var(--atlas-surface-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-surface-card);
+  border: 1px solid var(--extensionshield-border);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 
   &:hover {
@@ -117,25 +117,25 @@
   }
 
   &.featured {
-    background: linear-gradient(135deg, var(--atlas-accent-subtle) 0%, var(--atlas-bg-secondary) 100%);
-    border-color: var(--atlas-border-accent);
+    background: linear-gradient(135deg, var(--extensionshield-accent-subtle) 0%, var(--extensionshield-bg-secondary) 100%);
+    border-color: var(--extensionshield-border-accent);
   }
 
   &.coming-soon:hover {
-    border-color: var(--atlas-border);
+    border-color: var(--extensionshield-border);
   }
 }
 
 .light .card-content h3 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .card-content p {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .light .card-link {
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 .research-grid {
@@ -205,12 +205,12 @@
   font-size: 1.25rem;
   font-weight: 700;
   margin-bottom: 0.75rem;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
 }
 
 .card-content p {
   font-size: 0.9375rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   line-height: 1.6;
   margin-bottom: 1rem;
 }
@@ -221,7 +221,7 @@
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--atlas-accent, #22c55e);
+  color: var(--extensionshield-accent, #22c55e);
   
   svg {
     width: 16px;
@@ -239,6 +239,6 @@
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
 }
 

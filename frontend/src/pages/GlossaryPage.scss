@@ -1,6 +1,6 @@
 .glossary-page {
   min-height: 100vh;
-  background: var(--atlas-bg-primary);
+  background: var(--extensionshield-bg-primary);
   position: relative;
   padding: 2rem 1rem;
   
@@ -185,16 +185,16 @@
 
 /* Day mode */
 .light .glossary-page .glossary-header h1 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .glossary-page .glossary-header p {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }.light .glossary-page .glossary-term {
-  background: var(--atlas-surface-card);
-  border-color: var(--atlas-border-subtle);
+  background: var(--extensionshield-surface-card);
+  border-color: var(--extensionshield-border-subtle);
 }
 
 .light .glossary-page .glossary-term:hover {
-  background: var(--atlas-surface-hover);
+  background: var(--extensionshield-surface-hover);
 }

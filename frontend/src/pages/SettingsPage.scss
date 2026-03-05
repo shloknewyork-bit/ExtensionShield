@@ -5,7 +5,7 @@
 .settings-page {
   min-height: 100vh;
   background: transparent;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -23,7 +23,7 @@
 .page-title {
   font-size: clamp(1.75rem, 4vw, 2rem);
   font-weight: 600;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
   margin: 0 0 0.75rem 0;
   display: flex;
   align-items: center;
@@ -35,13 +35,13 @@
   svg {
     width: 1.5rem;
     height: 1.5rem;
-    color: var(--atlas-accent, #22c55e);
+    color: var(--extensionshield-accent, #22c55e);
   }
 }
 
 .page-subtitle {
   font-size: 1.0625rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   margin: 0;
   line-height: 1.7;
   max-width: 600px;
@@ -80,7 +80,7 @@
   
   p {
     font-size: 0.875rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     margin: 0;
     line-height: 1.65;
     font-weight: 400;
@@ -93,7 +93,7 @@
   margin: 0 auto;
   padding: 1.5rem;
   background: rgba(17, 24, 39, 0.6);
-  border: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.15));
+  border: 1px solid var(--extensionshield-border, rgba(148, 163, 184, 0.15));
   border-radius: 1rem;
   backdrop-filter: blur(20px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -105,12 +105,12 @@
   justify-content: space-between;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.1));
+  border-bottom: 1px solid var(--extensionshield-border, rgba(148, 163, 184, 0.1));
   
   h2 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     margin: 0;
     display: flex;
     align-items: center;
@@ -121,7 +121,7 @@
     svg {
       width: 1.5rem;
       height: 1.5rem;
-      color: var(--atlas-accent, #22c55e);
+      color: var(--extensionshield-accent, #22c55e);
     }
   }
 }
@@ -131,7 +131,7 @@
   padding: 1.5rem;
   border-radius: 0.75rem;
   background: rgba(17, 24, 39, 0.5);
-  border: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.1));
+  border: 1px solid var(--extensionshield-border, rgba(148, 163, 184, 0.1));
   margin-bottom: 1.5rem;
   
   &:last-child {
@@ -148,7 +148,7 @@
   svg {
     width: 1.5rem;
     height: 1.5rem;
-    color: var(--atlas-accent, #22c55e);
+    color: var(--extensionshield-accent, #22c55e);
     margin-top: 0.25rem;
     flex-shrink: 0;
   }
@@ -161,7 +161,7 @@
 .section-title {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
   margin: 0 0 0.5rem 0;
   line-height: 1.3;
   letter-spacing: -0.01em;
@@ -169,7 +169,7 @@
 
 .section-description {
   font-size: 0.875rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   margin: 0 0 1rem 0;
   line-height: 1.65;
   font-weight: 400;
@@ -186,19 +186,19 @@
   flex: 1;
   padding: 1rem;
   border-radius: 0.75rem;
-  border: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.1));
+  border: 1px solid var(--extensionshield-border, rgba(148, 163, 184, 0.1));
   background: rgba(17, 24, 39, 0.5);
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    border-color: var(--atlas-border-accent, rgba(34, 197, 94, 0.3));
+    border-color: var(--extensionshield-border-accent, rgba(34, 197, 94, 0.3));
     background: rgba(17, 24, 39, 0.7);
   }
   
   &.active {
     background: rgba(34, 197, 94, 0.1);
-    border-color: var(--atlas-accent, #22c55e);
+    border-color: var(--extensionshield-accent, #22c55e);
   }
   
   &.active-aggressive {
@@ -214,7 +214,7 @@
   .option-label {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
@@ -232,7 +232,7 @@
   
   .option-description {
     font-size: 0.8125rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     line-height: 1.65;
     margin: 0;
     font-weight: 400;
@@ -252,7 +252,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 0;
-  border-bottom: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.1));
+  border-bottom: 1px solid var(--extensionshield-border, rgba(148, 163, 184, 0.1));
   
   &:last-child {
     border-bottom: none;
@@ -260,7 +260,7 @@
   
   .label {
     font-size: 0.875rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     font-weight: 400;
     line-height: 1.5;
   }
@@ -268,11 +268,11 @@
   .value {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     line-height: 1.5;
     
     &.active {
-      color: var(--atlas-accent, #22c55e);
+      color: var(--extensionshield-accent, #22c55e);
     }
   }
 }
@@ -302,19 +302,19 @@
    Light mode – match site design theme
    ============================================================================ */
 .light .settings-page {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .page-title {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 
   svg {
-    color: var(--atlas-accent);
+    color: var(--extensionshield-accent);
   }
 }
 
 .light .page-subtitle {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
 }
 
 .light .beta-notice {
@@ -326,77 +326,77 @@
   }
 
   p {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 }
 
 .light .settings-card {
-  background: var(--atlas-bg-card);
-  border-color: var(--atlas-border);
-  box-shadow: var(--atlas-card-shadow);
+  background: var(--extensionshield-bg-card);
+  border-color: var(--extensionshield-border);
+  box-shadow: var(--extensionshield-card-shadow);
 }
 
 .light .settings-card-header {
-  border-bottom-color: var(--atlas-border);
+  border-bottom-color: var(--extensionshield-border);
 
   h2 {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
 
     svg {
-      color: var(--atlas-accent);
+      color: var(--extensionshield-accent);
     }
   }
 }
 
 .light .settings-section {
   background: rgba(255, 255, 255, 0.6);
-  border-color: var(--atlas-border);
+  border-color: var(--extensionshield-border);
 }
 
 .light .section-title {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .section-description {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .light .section-header svg {
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .security-option {
   background: rgba(255, 255, 255, 0.6);
-  border-color: var(--atlas-border);
+  border-color: var(--extensionshield-border);
 
   &:hover {
-    border-color: var(--atlas-border-accent);
+    border-color: var(--extensionshield-border-accent);
     background: rgba(255, 255, 255, 0.8);
   }
 
   &.active {
-    background: var(--atlas-accent-subtle);
-    border-color: var(--atlas-accent);
+    background: var(--extensionshield-accent-subtle);
+    border-color: var(--extensionshield-accent);
   }
 
   .option-label span {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 
   .option-description {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 }
 
 .light .account-row {
-  border-bottom-color: var(--atlas-border);
+  border-bottom-color: var(--extensionshield-border);
 
   .label {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 
   .value {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 }
 

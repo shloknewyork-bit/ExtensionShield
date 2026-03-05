@@ -394,7 +394,7 @@ function AppHeader() {
   const mobileSections = getMobileNavSections();
 
   return (
-    <header className="atlas-header solid">
+    <header className="extensionshield-header solid">
       <div className="header-container">
         <NavLink to="/" className="header-logo" onClick={() => setMobileMenuOpen(false)}>
           <div className="header-logo-shield" aria-hidden="true">
@@ -526,13 +526,13 @@ function AppContent() {
   const routeSegment = getRouteSegment(location.pathname);
 
   return (
-    <div className="atlas-app" data-route={routeSegment}>
+    <div className="extensionshield-app" data-route={routeSegment}>
       <AppBackground />
       <AppHeader />
       <SignInModal />
       <TelemetryTracker />
 
-      <main className="atlas-main">
+      <main className="extensionshield-main">
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {routes.map((route, index) => (

@@ -105,12 +105,12 @@
     font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 700;
     margin-bottom: 0.5rem;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
   
   .founder-title {
     font-size: 1.125rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     font-weight: 500;
     margin: 0;
   }
@@ -130,7 +130,7 @@
       font-size: 1.5rem;
       font-weight: 700;
       margin-bottom: 1.25rem;
-      color: var(--atlas-text-primary, #f8fafc);
+      color: var(--extensionshield-text-primary, #f8fafc);
       position: relative;
       padding-bottom: 0.75rem;
       
@@ -141,14 +141,14 @@
         left: 0;
         width: 60px;
         height: 2px;
-        background: linear-gradient(90deg, var(--atlas-accent, #22c55e) 0%, transparent 100%);
+        background: linear-gradient(90deg, var(--extensionshield-accent, #22c55e) 0%, transparent 100%);
       }
     }
     
     p {
       font-size: 1.0625rem;
       line-height: 1.8;
-      color: var(--atlas-text-secondary, #94a3b8);
+      color: var(--extensionshield-text-secondary, #94a3b8);
       margin-bottom: 1.25rem;
       
       &:last-child {
@@ -156,12 +156,12 @@
       }
       
       strong {
-        color: var(--atlas-text-primary, #f8fafc);
+        color: var(--extensionshield-text-primary, #f8fafc);
         font-weight: 600;
       }
       
       a {
-        color: var(--atlas-accent, #22c55e);
+        color: var(--extensionshield-accent, #22c55e);
         text-decoration: none;
         font-weight: 500;
         border-bottom: 1px solid rgba(34, 197, 94, 0.3);
@@ -182,7 +182,7 @@
       li {
         font-size: 1.0625rem;
         line-height: 1.8;
-        color: var(--atlas-text-secondary, #94a3b8);
+        color: var(--extensionshield-text-secondary, #94a3b8);
         margin-bottom: 0.75rem;
         position: relative;
         padding-left: 1.5rem;
@@ -191,7 +191,7 @@
           content: '→';
           position: absolute;
           left: 0;
-          color: var(--atlas-accent, #22c55e);
+          color: var(--extensionshield-accent, #22c55e);
           font-weight: 600;
         }
         
@@ -200,7 +200,7 @@
         }
         
         strong {
-          color: var(--atlas-text-primary, #f8fafc);
+          color: var(--extensionshield-text-primary, #f8fafc);
           font-weight: 600;
         }
       }
@@ -259,17 +259,17 @@
   flex-wrap: wrap;
   margin-top: 3rem;
   padding-top: 3rem;
-  border-top: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.18));
+  border-top: 1px solid var(--extensionshield-border, rgba(148, 163, 184, 0.18));
 
   .link-button {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.875rem 1.5rem;
-    background: var(--atlas-bg-secondary, rgba(17, 24, 39, 0.6));
-    border: 1px solid var(--atlas-border, rgba(148, 163, 184, 0.18));
+    background: var(--extensionshield-bg-secondary, rgba(17, 24, 39, 0.6));
+    border: 1px solid var(--extensionshield-border, rgba(148, 163, 184, 0.18));
     border-radius: 12px;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     text-decoration: none;
     font-size: 0.9375rem;
     font-weight: 500;
@@ -282,9 +282,9 @@
     }
 
     &:hover {
-      border-color: var(--atlas-border-accent, rgba(34, 197, 94, 0.4));
-      background: var(--atlas-accent-subtle, rgba(34, 197, 94, 0.1));
-      color: var(--atlas-accent, #22c55e);
+      border-color: var(--extensionshield-border-accent, rgba(34, 197, 94, 0.4));
+      background: var(--extensionshield-accent-subtle, rgba(34, 197, 94, 0.1));
+      color: var(--extensionshield-accent, #22c55e);
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 
@@ -371,16 +371,16 @@
 
 /* Day mode */
 .light .about-us-page {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .about-us-page::before {
   background: radial-gradient(ellipse 80% 50% at 50% 50%, rgba(178, 82, 24, 0.06) 0%, transparent 70%);
 }.light .about-header .profile-image-container .profile-image,
 .light .about-header .profile-image-container .profile-placeholder {
-  border-color: var(--atlas-accent);
-  outline-color: var(--atlas-accent-subtle);
-  background: var(--atlas-surface-card);
+  border-color: var(--extensionshield-accent);
+  outline-color: var(--extensionshield-accent-subtle);
+  background: var(--extensionshield-surface-card);
 }
 
 .light .about-header h1 {
@@ -388,27 +388,27 @@
 }
 
 .light .about-section h2 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .about-section p {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .light .about-links {
-  border-top-color: var(--atlas-border);
+  border-top-color: var(--extensionshield-border);
 }
 
 .light .about-links .link-button {
-  background: var(--atlas-bg-card);
-  border-color: var(--atlas-border);
-  color: var(--atlas-text-primary);
+  background: var(--extensionshield-bg-card);
+  border-color: var(--extensionshield-border);
+  color: var(--extensionshield-text-primary);
   box-shadow: 0 4px 16px rgba(36, 34, 30, 0.06);
 
   &:hover {
-    border-color: var(--atlas-accent);
-    background: var(--atlas-accent-subtle);
-    color: var(--atlas-accent-hover);
-    box-shadow: 0 8px 24px var(--atlas-accent-glow);
+    border-color: var(--extensionshield-accent);
+    background: var(--extensionshield-accent-subtle);
+    color: var(--extensionshield-accent-hover);
+    box-shadow: 0 8px 24px var(--extensionshield-accent-glow);
   }
 }

@@ -238,7 +238,7 @@ licensed under the MIT License (see [LICENSE](LICENSE)).
 **Note**: ExtensionShield is open-core. The core scanner is MIT; cloud features
 (auth, Supabase persistence, history, telemetry admin, community queue,
 enterprise forms) are proprietary. Contributions to the core are always welcome.
-See [docs/OPEN_CORE_BOUNDARIES.md](docs/OPEN_CORE_BOUNDARIES.md) for details.
+See [OPEN_CORE_BOUNDARIES.md](OPEN_CORE_BOUNDARIES.md) for details.
 
 ---
 

@@ -793,24 +793,24 @@
    ============================================================================ */
 .light .results-v2 {
   /* Full-page light background so loading state is light (no dark flash) */
-  background: var(--atlas-bg-primary);
+  background: var(--extensionshield-bg-primary);
 
   .nav-back {
-    background: var(--atlas-bg-secondary);
-    border: 1px solid var(--atlas-border);
-    color: var(--atlas-text-primary);
+    background: var(--extensionshield-bg-secondary);
+    border: 1px solid var(--extensionshield-border);
+    color: var(--extensionshield-text-primary);
     font-weight: 600;
 
     &:hover {
-      border-color: var(--atlas-accent);
-      color: var(--atlas-accent-hover);
-      background: var(--atlas-accent-subtle);
+      border-color: var(--extensionshield-accent);
+      color: var(--extensionshield-accent-hover);
+      background: var(--extensionshield-accent-subtle);
     }
   }
 
   .extension-card {
-    background: var(--atlas-bg-card);
-    border: 1px solid var(--atlas-border);
+    background: var(--extensionshield-bg-card);
+    border: 1px solid var(--extensionshield-border);
     box-shadow: 0 4px 20px rgba(38, 35, 31, 0.06);
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 
@@ -822,102 +822,102 @@
   }
 
   .extension-card-title {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     font-weight: 700;
   }
 
   .extension-card-details {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     font-weight: 500;
   }
 
   .ext-detail-muted {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
     font-weight: 500;
   }
 
   .ext-divider {
-    background: var(--atlas-border);
+    background: var(--extensionshield-border);
   }
 
   .extension-card-description {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     font-weight: 500;
   }
 
   .description-webstore-link {
-    color: var(--atlas-accent);
+    color: var(--extensionshield-accent);
 
     &:hover {
-      color: var(--atlas-accent-hover);
+      color: var(--extensionshield-accent-hover);
     }
   }
 
   .publisher-disclosures {
-    border-top-color: var(--atlas-border);
+    border-top-color: var(--extensionshield-border);
   }
 
   .publisher-disclosures-label {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     font-weight: 600;
   }
 
   .publisher-info-icon {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
 
     &:hover {
-      color: var(--atlas-text-secondary);
+      color: var(--extensionshield-text-secondary);
     }
   }
 
   /* Dialog / popover – site light background (task 4) */
   .publisher-info-popover {
-    background: var(--atlas-bg-card);
-    border-color: var(--atlas-border);
+    background: var(--extensionshield-bg-card);
+    border-color: var(--extensionshield-border);
     box-shadow: 0 12px 40px rgba(38, 35, 31, 0.15);
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
 
     a {
-      color: var(--atlas-accent);
+      color: var(--extensionshield-accent);
 
       &:hover {
-        color: var(--atlas-accent-hover);
+        color: var(--extensionshield-accent-hover);
       }
     }
   }
 
   .publisher-info-label {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
   }
 
   .publisher-info-value {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 
   .publisher-info-description {
-    background: var(--atlas-bg-secondary);
-    color: var(--atlas-text-secondary);
+    background: var(--extensionshield-bg-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 
   .publisher-info-note {
-    border-top-color: var(--atlas-border);
-    color: var(--atlas-text-muted);
+    border-top-color: var(--extensionshield-border);
+    color: var(--extensionshield-text-muted);
   }
 
   .publisher-chip {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     font-weight: 500;
-    background: var(--atlas-bg-secondary);
-    border-color: var(--atlas-border);
+    background: var(--extensionshield-bg-secondary);
+    border-color: var(--extensionshield-border);
 
     &:hover {
-      border-color: var(--atlas-border);
-      background: var(--atlas-bg-tertiary);
+      border-color: var(--extensionshield-border);
+      background: var(--extensionshield-bg-tertiary);
     }
   }
 
   .publisher-chip-link:hover {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 
   /* results-v2-loading – black titles (task 2) */
@@ -928,18 +928,18 @@
     }
 
     p {
-      color: var(--atlas-text-muted);
+      color: var(--extensionshield-text-muted);
     }
   }
 
   .loading-progress-bar {
-    background: var(--atlas-border);
+    background: var(--extensionshield-border);
   }
 
   /* Summary panel (quick summary + top findings) – visible background and text, card hover */
   .summary-panel {
-    background: var(--atlas-bg-card);
-    border: 1px solid var(--atlas-border);
+    background: var(--extensionshield-bg-card);
+    border: 1px solid var(--extensionshield-border);
     box-shadow: 0 4px 20px rgba(38, 35, 31, 0.06);
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 
@@ -957,16 +957,16 @@
   }
 
   .summary-panel .summary-narrative-wrapper {
-    background: var(--atlas-bg-secondary);
-    border-color: var(--atlas-border);
+    background: var(--extensionshield-bg-secondary);
+    border-color: var(--extensionshield-border);
   }
 
   .summary-panel .summary-header {
-    border-bottom-color: var(--atlas-border);
+    border-bottom-color: var(--extensionshield-border);
   }
 
   .summary-panel .summary-title {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     font-weight: 700;
   }
 
@@ -975,40 +975,40 @@
   .summary-panel .reason-text,
   .summary-panel .access-text,
   .summary-panel .top-finding-item {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 
   .summary-panel .section-subtitle,
   .summary-panel .top-findings-title {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
     font-weight: 700;
   }
 
   .summary-panel .summary-action-btn {
-    background: var(--atlas-bg-secondary);
-    border-color: var(--atlas-border);
-    color: var(--atlas-text-primary);
+    background: var(--extensionshield-bg-secondary);
+    border-color: var(--extensionshield-border);
+    color: var(--extensionshield-text-primary);
     font-weight: 500;
 
     &:hover {
-      background: var(--atlas-bg-tertiary);
-      border-color: var(--atlas-border);
+      background: var(--extensionshield-bg-tertiary);
+      border-color: var(--extensionshield-border);
     }
   }
 
   .summary-panel .reason-card {
-    background: var(--atlas-bg-secondary);
-    border-color: var(--atlas-border);
+    background: var(--extensionshield-bg-secondary);
+    border-color: var(--extensionshield-border);
 
     &:hover {
-      background: var(--atlas-bg-tertiary);
-      border-color: var(--atlas-border);
+      background: var(--extensionshield-bg-tertiary);
+      border-color: var(--extensionshield-border);
     }
   }
 
   .summary-panel .access-card {
-    background: var(--atlas-accent-subtle);
-    border-color: var(--atlas-border-accent);
+    background: var(--extensionshield-accent-subtle);
+    border-color: var(--extensionshield-border-accent);
   }
 }
 

@@ -45,8 +45,7 @@ We will credit reporters in the release notes unless they prefer anonymity.
 - **Run `make secrets-check` before pushing.** This checks that `.env` is not
   committed and, if gitleaks is installed, scans for leaked secrets. See Makefile.
 - **Rotate compromised keys immediately.** If a key is accidentally committed,
-  rotate it in the provider's dashboard, purge from git history with
-  `git filter-repo`, and notify the maintainers. See
-  [docs/HISTORY_CLEANUP_AND_ROTATION.md](docs/HISTORY_CLEANUP_AND_ROTATION.md) for exact steps.
+  rotate it in the provider's dashboard, purge from git history (e.g. with
+  `git filter-repo`), and notify the maintainers.
 - **Keep dependencies updated.** CI runs `pip-audit` and `npm audit`
   automatically. Address high/critical findings promptly.

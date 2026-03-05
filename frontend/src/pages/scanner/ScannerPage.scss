@@ -51,7 +51,7 @@
   .scanner-tagline {
     font-size: clamp(0.6875rem, 1.5vw, 0.75rem);
     font-weight: 600;
-    color: var(--atlas-text-muted, #64748b);
+    color: var(--extensionshield-text-muted, #64748b);
     text-transform: uppercase;
     letter-spacing: 0.12em;
     margin: 0 0 0.625rem;
@@ -64,7 +64,7 @@
     line-height: 1.15;
     margin: 0 0 1rem;
     letter-spacing: -0.025em;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 }
 
@@ -131,7 +131,7 @@
   padding: 0.75rem;
   background: none;
   border: none;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -152,7 +152,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--atlas-accent, #22c55e);
+    outline: 2px solid var(--extensionshield-accent, #22c55e);
     outline-offset: 2px;
   }
 }
@@ -164,7 +164,7 @@
   gap: 0.5rem;
   margin: 2rem 0 0.75rem;
   font-size: clamp(0.8125rem, 1.4vw, 0.875rem);
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   line-height: 1.45;
   width: 100%;
 
@@ -172,7 +172,7 @@
     width: 18px;
     height: 18px;
     flex-shrink: 0;
-    color: var(--atlas-accent, #22c55e);
+    color: var(--extensionshield-accent, #22c55e);
   }
 }
 
@@ -200,7 +200,7 @@
   font: inherit;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
   cursor: pointer;
   transition: color 0.2s ease;
 
@@ -215,10 +215,10 @@
   }
 
   &:hover {
-    color: var(--atlas-accent, #22c55e);
+    color: var(--extensionshield-accent, #22c55e);
 
     .scanner-demo-icon svg {
-      color: var(--atlas-accent, #22c55e);
+      color: var(--extensionshield-accent, #22c55e);
       transform: scale(1.05);
     }
   }
@@ -291,7 +291,7 @@
 
   .loading-indicator {
     font-size: 0.875rem;
-    color: var(--atlas-text-muted, #64748b);
+    color: var(--extensionshield-text-muted, #64748b);
   }
 }
 
@@ -299,14 +299,14 @@
   .table-section-title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     letter-spacing: -0.02em;
     margin: 0 0 0.125rem;
   }
 
   .table-section-subtitle {
     font-size: 0.75rem;
-    color: var(--atlas-text-muted, #64748b);
+    color: var(--extensionshield-text-muted, #64748b);
     margin: 0;
     line-height: 1.4;
   }
@@ -459,7 +459,7 @@
   justify-content: center;
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
   flex-shrink: 0;
 }
 
@@ -472,7 +472,7 @@
 
 .extension-name {
   font-weight: 500;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -481,12 +481,12 @@
 
 .extension-scanned {
   font-size: 0.7rem;
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
 }
 
 .rating-value {
   font-weight: 500;
-  color: var(--atlas-text-primary, #f8fafc);
+  color: var(--extensionshield-text-primary, #f8fafc);
 }
 
 /* ============================================================================
@@ -518,25 +518,25 @@
   &.risk-low {
     background: rgba(34, 197, 94, 0.1);
     border-color: rgba(34, 197, 94, 0.22);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 
   &.risk-medium, &.risk-moderate {
     background: rgba(245, 158, 11, 0.1);
     border-color: rgba(245, 158, 11, 0.25);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 
   &.risk-high {
     background: rgba(239, 68, 68, 0.1);
     border-color: rgba(239, 68, 68, 0.25);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 
   &.risk-unknown {
     background: rgba(148, 163, 184, 0.08);
     border-color: rgba(148, 163, 184, 0.2);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 }
 
@@ -661,7 +661,7 @@
 
 .findings-count {
   font-size: 0.8125rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   white-space: nowrap;
 }
 
@@ -731,7 +731,7 @@
   background: transparent;
   border: 1px solid rgba(148, 163, 184, 0.15);
   border-radius: 6px;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   font-size: 0.6875rem;
   font-weight: 500;
   cursor: pointer;
@@ -747,7 +747,7 @@
   &:hover {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(148, 163, 184, 0.3);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 
   &.primary {
@@ -815,15 +815,15 @@
 
 .pagination-info {
   font-size: 0.875rem;
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
 }
 
 .view-all-history-btn {
   background: transparent;
-  border: 1px solid var(--atlas-border-accent, rgba(34, 197, 94, 0.35));
+  border: 1px solid var(--extensionshield-border-accent, rgba(34, 197, 94, 0.35));
   border-radius: 8px;
   padding: 0.5rem 1.25rem;
-  color: var(--atlas-accent, #22c55e);
+  color: var(--extensionshield-accent, #22c55e);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -831,9 +831,9 @@
   font-family: inherit;
 
   &:hover {
-    background: var(--atlas-accent-subtle, rgba(34, 197, 94, 0.12));
-    border-color: var(--atlas-accent, #22c55e);
-    color: var(--atlas-accent-hover, #16a34a);
+    background: var(--extensionshield-accent-subtle, rgba(34, 197, 94, 0.12));
+    border-color: var(--extensionshield-accent, #22c55e);
+    color: var(--extensionshield-accent-hover, #16a34a);
   }
 }
 
@@ -852,7 +852,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   transition: all 0.2s ease;
 
   svg {
@@ -863,7 +863,7 @@
   &:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(148, 163, 184, 0.2);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
 
   &:disabled {
@@ -877,7 +877,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: var(--atlas-text-muted, #64748b);
+  color: var(--extensionshield-text-muted, #64748b);
 
   label {
     white-space: nowrap;
@@ -888,7 +888,7 @@
     border: 1px solid rgba(148, 163, 184, 0.1);
     border-radius: 6px;
     padding: 0.5rem 0.75rem;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -947,13 +947,13 @@
   h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     margin-bottom: 0.5rem;
   }
 
   p {
     font-size: 0.875rem;
-    color: var(--atlas-text-muted, #64748b);
+    color: var(--extensionshield-text-muted, #64748b);
   }
 }
 
@@ -969,11 +969,11 @@
 
   p {
     font-size: 0.8125rem;
-    color: var(--atlas-text-muted, #64748b);
+    color: var(--extensionshield-text-muted, #64748b);
   }
 
   a {
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     text-decoration: none;
     margin-left: 0.25rem;
 
@@ -1504,79 +1504,79 @@
 .light .scanner-page {
   .scanner-search-container {
     background: rgba(247, 243, 235, 0.98);
-    border: 1px solid var(--atlas-border);
+    border: 1px solid var(--extensionshield-border);
 
     &:focus-within {
-      border-color: var(--atlas-accent);
-      box-shadow: 0 0 0 4px var(--atlas-accent-subtle);
+      border-color: var(--extensionshield-accent);
+      box-shadow: 0 0 0 4px var(--extensionshield-accent-subtle);
     }
 
     input::placeholder {
-      color: var(--atlas-text-muted);
+      color: var(--extensionshield-text-muted);
     }
   }
 
   .scanner-scan-icon {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
 
     &:hover:not(:disabled) {
-      background: var(--atlas-accent-subtle);
-      color: var(--atlas-accent);
+      background: var(--extensionshield-accent-subtle);
+      color: var(--extensionshield-accent);
     }
 
     &:focus-visible {
-      outline-color: var(--atlas-accent);
+      outline-color: var(--extensionshield-accent);
     }
   }
 
   .scanner-scan-info {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 
   /* Empty state – soft surface, theme text */
   .empty-state {
     background: rgba(247, 243, 235, 0.8);
-    border: 1px dashed var(--atlas-border);
+    border: 1px dashed var(--extensionshield-border);
   }
 
   .empty-state h3 {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 
   .empty-state p {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
   }
 
   .scanner-footer {
-    border-top-color: var(--atlas-border);
+    border-top-color: var(--extensionshield-border);
     background: rgba(247, 243, 235, 0.6);
   }
 
   .scanner-footer a:hover {
-    color: var(--atlas-accent);
+    color: var(--extensionshield-accent);
   }
 
   /* Extensions table – visible borders, text, and signal chips */
   .extensions-table thead {
-    background: var(--atlas-bg-secondary);
-    border-bottom-color: var(--atlas-border);
+    background: var(--extensionshield-bg-secondary);
+    border-bottom-color: var(--extensionshield-border);
 
     th {
-      color: var(--atlas-text-primary);
+      color: var(--extensionshield-text-primary);
     }
   }
 
   .extensions-table tbody tr {
-    border-bottom-color: var(--atlas-border);
+    border-bottom-color: var(--extensionshield-border);
 
     &:hover,
     &.row-hovered {
-      background: var(--atlas-accent-subtle);
+      background: var(--extensionshield-accent-subtle);
     }
   }
 
   .extensions-table tbody td {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 
   /* Scroll shadows: use subtle gradient in light mode (avoid black line) */
@@ -1596,29 +1596,29 @@
 
   /* Sticky extension-cell: light bg in light mode so text matches other fields */
   .extensions-table tbody td.extension-cell {
-    background: var(--atlas-bg-card);
+    background: var(--extensionshield-bg-card);
 
     tr:hover &,
     tr.row-hovered & {
-      background: var(--atlas-accent-subtle);
+      background: var(--extensionshield-accent-subtle);
     }
   }
 
   .extensions-table .extension-name {
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
     font-weight: 600;
   }
 
   .extensions-table .extension-scanned {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 
   .extensions-table .findings-count {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
   }
 
   .extensions-table .no-data {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
     opacity: 1;
   }
 
@@ -1659,81 +1659,81 @@
 
   /* View All History – accent color already from variables */
   .view-all-history-btn {
-    color: var(--atlas-accent);
-    border-color: var(--atlas-border-accent);
+    color: var(--extensionshield-accent);
+    border-color: var(--extensionshield-border-accent);
 
     &:hover {
-      background: var(--atlas-accent-subtle);
-      border-color: var(--atlas-accent);
-      color: var(--atlas-accent-hover);
+      background: var(--extensionshield-accent-subtle);
+      border-color: var(--extensionshield-accent);
+      color: var(--extensionshield-accent-hover);
     }
   }
 
   /* Pagination – match site theme */
   .table-pagination .pagination-info {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
   }
 
   .pagination-btn {
-    background: var(--atlas-bg-card);
-    border-color: var(--atlas-border);
-    color: var(--atlas-text-secondary);
+    background: var(--extensionshield-bg-card);
+    border-color: var(--extensionshield-border);
+    color: var(--extensionshield-text-secondary);
 
     &:hover:not(:disabled) {
-      background: var(--atlas-accent-subtle);
-      border-color: var(--atlas-border-accent);
-      color: var(--atlas-text-primary);
+      background: var(--extensionshield-accent-subtle);
+      border-color: var(--extensionshield-border-accent);
+      color: var(--extensionshield-text-primary);
     }
   }
 
   .pagination-rows {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
 
     select {
-      background: var(--atlas-bg-card);
-      border-color: var(--atlas-border);
-      color: var(--atlas-text-primary);
+      background: var(--extensionshield-bg-card);
+      border-color: var(--extensionshield-border);
+      color: var(--extensionshield-text-primary);
 
       &:hover {
-        border-color: var(--atlas-border-accent);
+        border-color: var(--extensionshield-border-accent);
       }
 
       &:focus {
-        border-color: var(--atlas-accent);
-        box-shadow: 0 0 0 2px var(--atlas-accent-subtle);
+        border-color: var(--extensionshield-accent);
+        box-shadow: 0 0 0 2px var(--extensionshield-accent-subtle);
       }
     }
   }
 
   /* Row hover actions (View / Monitor) – match site light background */
   .row-hover-actions {
-    background: var(--atlas-bg-card);
-    border-color: var(--atlas-border);
+    background: var(--extensionshield-bg-card);
+    border-color: var(--extensionshield-border);
     box-shadow: 0 4px 20px rgba(38, 35, 31, 0.12);
   }
 
   .hover-action-btn {
-    color: var(--atlas-text-secondary);
-    border-color: var(--atlas-border);
+    color: var(--extensionshield-text-secondary);
+    border-color: var(--extensionshield-border);
 
     &:hover {
       background: rgba(0, 0, 0, 0.04);
-      border-color: var(--atlas-border);
-      color: var(--atlas-text-primary);
+      border-color: var(--extensionshield-border);
+      color: var(--extensionshield-text-primary);
     }
 
     &.primary {
-      color: var(--atlas-accent);
-      border-color: var(--atlas-border-accent);
+      color: var(--extensionshield-accent);
+      border-color: var(--extensionshield-border-accent);
 
       &:hover {
-        background: var(--atlas-accent-subtle);
-        border-color: var(--atlas-accent);
+        background: var(--extensionshield-accent-subtle);
+        border-color: var(--extensionshield-accent);
       }
     }
 
     &.pro {
-      color: var(--atlas-text-secondary);
+      color: var(--extensionshield-text-secondary);
 
       .pro-badge {
         color: #fff;

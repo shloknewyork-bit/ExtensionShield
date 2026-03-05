@@ -15,7 +15,7 @@ $danger-red: #ef4444;
 $warning-yellow: #b45309;
 $success-green: #22c55e;
 
-// Overlay – matches homepage theme (atlas-bg-primary)
+// Overlay – matches homepage theme (extensionshield-bg-primary)
 .demo-modal-overlay {
   position: fixed;
   inset: 0;
@@ -30,7 +30,7 @@ $success-green: #22c55e;
   padding-right: max(1.5rem, env(safe-area-inset-right));
   min-height: 100dvh;
   box-sizing: border-box;
-  background: color-mix(in srgb, var(--atlas-bg-primary) 88%, black);
+  background: color-mix(in srgb, var(--extensionshield-bg-primary) 88%, black);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   overflow-y: auto;

@@ -346,9 +346,9 @@
     padding: 0.875rem 1rem;
     font-size: 0.9375rem;
     font-family: inherit;
-    color: var(--atlas-text-primary);
-    background: var(--atlas-bg-secondary);
-    border: 1px solid var(--atlas-border);
+    color: var(--extensionshield-text-primary);
+    background: var(--extensionshield-bg-secondary);
+    border: 1px solid var(--extensionshield-border);
     border-radius: 10px;
     outline: none;
     transition: all 0.2s ease;
@@ -359,8 +359,8 @@
     }
 
     &:focus {
-      background: var(--atlas-bg-secondary);
-      border-color: var(--atlas-border-accent);
+      background: var(--extensionshield-bg-secondary);
+      border-color: var(--extensionshield-border-accent);
       box-shadow:
         0 0 0 3px rgba(34, 197, 94, 0.1),
         inset 0 0 20px rgba(34, 197, 94, 0.03);
@@ -752,22 +752,22 @@
 
   &::before {
     background-image:
-      linear-gradient(var(--atlas-border-accent) 1px, transparent 1px),
-      linear-gradient(90deg, var(--atlas-border-accent) 1px, transparent 1px);
+      linear-gradient(var(--extensionshield-border-accent) 1px, transparent 1px),
+      linear-gradient(90deg, var(--extensionshield-border-accent) 1px, transparent 1px);
     opacity: 0.5;
   }
 }
 
 .light .signin-modal {
   background: #fff;
-  border: 1px solid var(--atlas-border);
-  box-shadow: 0 20px 60px rgba(38, 35, 31, 0.12), var(--atlas-card-shadow);
+  border: 1px solid var(--extensionshield-border);
+  box-shadow: 0 20px 60px rgba(38, 35, 31, 0.12), var(--extensionshield-card-shadow);
 
   &::before {
     background: linear-gradient(
       90deg,
       transparent,
-      var(--atlas-accent),
+      var(--extensionshield-accent),
       transparent
     );
     opacity: 0.6;
@@ -777,38 +777,38 @@
     background: linear-gradient(
       135deg,
       transparent 50%,
-      var(--atlas-accent-subtle) 50%
+      var(--extensionshield-accent-subtle) 50%
     );
   }
 }
 
 .light .modal-close {
   background: rgba(38, 35, 31, 0.06);
-  border-color: var(--atlas-border);
+  border-color: var(--extensionshield-border);
 
   svg {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
   }
 
   &:hover {
     background: rgba(38, 35, 31, 0.1);
-    border-color: var(--atlas-border);
+    border-color: var(--extensionshield-border);
 
     svg {
-      color: var(--atlas-text-primary);
+      color: var(--extensionshield-text-primary);
     }
   }
 }
 
 .light .modal-logo .logo-text {
-  background: linear-gradient(135deg, var(--atlas-text-primary) 0%, var(--atlas-text-secondary) 100%);
+  background: linear-gradient(135deg, var(--extensionshield-text-primary) 0%, var(--extensionshield-text-secondary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .light .divider span {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
 }
 
 .light .divider::before,
@@ -816,14 +816,14 @@
   background: linear-gradient(
     90deg,
     transparent,
-    var(--atlas-border),
+    var(--extensionshield-border),
     transparent
   );
 }
 
 .light .oauth-btn.google {
   background: #fff;
-  border-color: var(--atlas-border);
+  border-color: var(--extensionshield-border);
   color: #1a1d24;
 
   &:hover:not(:disabled) {
@@ -833,22 +833,22 @@
 }
 
 .light .form-field label {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
 }
 
 .light .form-field input {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
   background: #fff;
-  border-color: var(--atlas-border);
+  border-color: var(--extensionshield-border);
 
   &::placeholder {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
   }
 
   &:focus {
     background: #fff;
-    border-color: var(--atlas-border-accent);
-    box-shadow: 0 0 0 3px var(--atlas-accent-subtle);
+    border-color: var(--extensionshield-border-accent);
+    box-shadow: 0 0 0 3px var(--extensionshield-accent-subtle);
   }
 }
 
@@ -859,15 +859,15 @@
 }
 
 .light .magic-link-success-title {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .magic-link-success-text {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .light .magic-link-success-hint {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
 }
 
 .light .success-message {
@@ -891,11 +891,11 @@
 }
 
 .light .submit-btn {
-  background: linear-gradient(135deg, var(--atlas-accent) 0%, var(--atlas-accent-hover) 100%);
+  background: linear-gradient(135deg, var(--extensionshield-accent) 0%, var(--extensionshield-accent-hover) 100%);
   color: #fff;
 
   &:hover:not(:disabled) {
-    box-shadow: 0 8px 30px var(--atlas-accent-glow);
+    box-shadow: 0 8px 30px var(--extensionshield-accent-glow);
   }
 }
 
@@ -905,29 +905,29 @@
 }
 
 .light .mode-toggle p {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
 }
 
 .light .mode-toggle button {
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 
   &:hover:not(:disabled) {
-    color: var(--atlas-accent-hover);
+    color: var(--extensionshield-accent-hover);
   }
 }
 
 .light .modal-footer {
-  border-top-color: var(--atlas-border);
+  border-top-color: var(--extensionshield-border);
 
   p {
-    color: var(--atlas-text-muted);
+    color: var(--extensionshield-text-muted);
   }
 
   a {
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
 
     &:hover {
-      color: var(--atlas-accent);
+      color: var(--extensionshield-accent);
     }
   }
 }

@@ -2,8 +2,8 @@
 
 .open-source-programs-page {
   min-height: 100vh;
-  background: var(--atlas-bg-primary);
-  color: var(--atlas-text-primary);
+  background: var(--extensionshield-bg-primary);
+  color: var(--extensionshield-text-primary);
   position: relative;
   overflow: hidden;
 }
@@ -31,12 +31,12 @@
     font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 700;
     margin-bottom: 1rem;
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 
   p {
     font-size: clamp(1rem, 2.2vw, 1.125rem);
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.7;
@@ -52,12 +52,12 @@
 .oss-badge {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background: var(--atlas-accent-subtle);
-  border: 1px solid var(--atlas-border-accent);
+  background: var(--extensionshield-accent-subtle);
+  border: 1px solid var(--extensionshield-border-accent);
   border-radius: 999px;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
   margin-bottom: 1.5rem;
 }
 
@@ -73,17 +73,17 @@
   align-items: center;
   gap: 1rem;
   padding: 1.25rem;
-  background: var(--atlas-bg-card);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-bg-card);
+  border: 1px solid var(--extensionshield-border);
   border-radius: 12px;
   text-decoration: none;
   color: inherit;
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: var(--atlas-border-accent);
+    border-color: var(--extensionshield-border-accent);
     transform: translateY(-2px);
-    box-shadow: var(--atlas-card-shadow);
+    box-shadow: var(--extensionshield-card-shadow);
 
     .arrow {
       transform: translateX(4px);
@@ -102,8 +102,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--atlas-bg-secondary);
-  border: 1px solid var(--atlas-border);
+  background: var(--extensionshield-bg-secondary);
+  border: 1px solid var(--extensionshield-border);
   border-radius: 10px;
   flex-shrink: 0;
   font-size: 1.5rem;
@@ -128,12 +128,12 @@
     font-size: 1rem;
     font-weight: 700;
     margin-bottom: 0.25rem;
-    color: var(--atlas-text-primary);
+    color: var(--extensionshield-text-primary);
   }
 
   p {
     font-size: 0.875rem;
-    color: var(--atlas-text-secondary);
+    color: var(--extensionshield-text-secondary);
     margin: 0 0 0.5rem;
     line-height: 1.4;
   }
@@ -160,31 +160,31 @@
 
   &--rejected {
     background: rgba(239, 68, 68, 0.12);
-    color: var(--atlas-danger, #ef4444);
+    color: var(--extensionshield-danger, #ef4444);
   }
 
   &--accepted {
-    background: var(--atlas-accent-subtle);
-    color: var(--atlas-accent);
+    background: var(--extensionshield-accent-subtle);
+    color: var(--extensionshield-accent);
   }
 }
 
 .arrow {
   font-size: 1.25rem;
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
   transition: transform 0.3s ease;
 }
 
 .programs-note {
   font-size: 0.9375rem;
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
   text-align: center;
   max-width: 520px;
   margin: 0 auto;
   line-height: 1.6;
 
   a {
-    color: var(--atlas-accent);
+    color: var(--extensionshield-accent);
     text-decoration: none;
     font-weight: 500;
     &:hover { text-decoration: underline; }

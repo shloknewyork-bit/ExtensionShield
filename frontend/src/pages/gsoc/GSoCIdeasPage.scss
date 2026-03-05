@@ -47,7 +47,7 @@
   
   .intro-text {
     font-size: 1.125rem;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     max-width: 700px;
     margin: 0 auto 1rem;
     line-height: 1.8;
@@ -55,7 +55,7 @@
   
   .sub-text {
     font-size: 1rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.6;
@@ -111,7 +111,7 @@
   h3 {
     font-size: var(--report-text-xl);
     font-weight: var(--weight-strong, 700);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     margin: 0;
   }
 }
@@ -145,7 +145,7 @@
 
 .idea-description {
   font-size: 0.9375rem;
-  color: var(--atlas-text-secondary, #94a3b8);
+  color: var(--extensionshield-text-secondary, #94a3b8);
   line-height: 1.7;
   margin-bottom: 1rem;
 }
@@ -174,7 +174,7 @@
   h4 {
     font-size: var(--report-text-sm);
     font-weight: var(--weight-strong, 700);
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     margin-bottom: 0.75rem;
   }
   
@@ -187,7 +187,7 @@
     
     li {
       font-size: 0.875rem;
-      color: var(--atlas-text-secondary, #94a3b8);
+      color: var(--extensionshield-text-secondary, #94a3b8);
       line-height: 1.5;
     }
   }
@@ -205,12 +205,12 @@
     font-size: var(--report-text-xl);
     font-weight: var(--weight-strong, 700);
     margin-bottom: 0.5rem;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
   }
   
   p {
     font-size: 0.9375rem;
-    color: var(--atlas-text-secondary, #94a3b8);
+    color: var(--extensionshield-text-secondary, #94a3b8);
     margin-bottom: 1.5rem;
   }
 }
@@ -234,7 +234,7 @@
   transition: all 0.3s ease;
   
   &.primary {
-    background: var(--atlas-accent, #22c55e);
+    background: var(--extensionshield-accent, #22c55e);
     color: #fff;
     
     &:hover {
@@ -244,12 +244,12 @@
   
   &.secondary {
     background: transparent;
-    color: var(--atlas-text-primary, #f8fafc);
+    color: var(--extensionshield-text-primary, #f8fafc);
     border: 1px solid rgba(148, 163, 184, 0.3);
 
     &:hover {
-      border-color: var(--atlas-accent, #22c55e);
-      color: var(--atlas-accent, #22c55e);
+      border-color: var(--extensionshield-accent, #22c55e);
+      color: var(--extensionshield-accent, #22c55e);
     }
   }
 }
@@ -258,98 +258,98 @@
    Light mode – match site design theme
    ============================================================================ */
 .light .gsoc-ideas-page {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .gsoc-header h1 {
-  background: linear-gradient(135deg, var(--atlas-text-primary) 0%, var(--atlas-text-secondary) 100%);
+  background: linear-gradient(135deg, var(--extensionshield-text-primary) 0%, var(--extensionshield-text-secondary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .light .gsoc-header .intro-text {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .gsoc-header .sub-text {
-  color: var(--atlas-text-muted);
+  color: var(--extensionshield-text-muted);
 }
 
 .light .gsoc-badge {
   background: linear-gradient(135deg, rgba(230, 168, 0, 0.12) 0%, rgba(22, 163, 74, 0.08) 100%);
   border-color: rgba(22, 163, 74, 0.25);
-  color: var(--atlas-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .idea-card {
-  background: var(--atlas-bg-card);
-  border: 1px solid var(--atlas-border);
-  box-shadow: var(--atlas-card-shadow);
+  background: var(--extensionshield-bg-card);
+  border: 1px solid var(--extensionshield-border);
+  box-shadow: var(--extensionshield-card-shadow);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 
   &:hover {
     transform: translateY(-4px);
-    border-color: var(--atlas-border-accent);
+    border-color: var(--extensionshield-border-accent);
     box-shadow: 0 12px 40px rgba(38, 35, 31, 0.12);
   }
 }
 
 .light .idea-header h3 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .idea-description {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .light .skill-tag {
-  background: var(--atlas-accent-subtle);
-  border-color: var(--atlas-border-accent);
-  color: var(--atlas-accent);
+  background: var(--extensionshield-accent-subtle);
+  border-color: var(--extensionshield-border-accent);
+  color: var(--extensionshield-accent);
 }
 
 .light .idea-goals {
-  border-top-color: var(--atlas-border);
+  border-top-color: var(--extensionshield-border);
 }
 
 .light .idea-goals h4 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .idea-goals li {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .light .gsoc-cta {
-  background: var(--atlas-accent-subtle);
-  border-color: var(--atlas-border-accent);
+  background: var(--extensionshield-accent-subtle);
+  border-color: var(--extensionshield-border-accent);
 }
 
 .light .gsoc-cta h3 {
-  color: var(--atlas-text-primary);
+  color: var(--extensionshield-text-primary);
 }
 
 .light .gsoc-cta p {
-  color: var(--atlas-text-secondary);
+  color: var(--extensionshield-text-secondary);
 }
 
 .light .cta-button.primary {
-  background: linear-gradient(135deg, var(--atlas-accent) 0%, var(--atlas-accent-hover) 100%);
+  background: linear-gradient(135deg, var(--extensionshield-accent) 0%, var(--extensionshield-accent-hover) 100%);
   color: #fff;
 
   &:hover {
-    box-shadow: 0 8px 24px var(--atlas-accent-glow);
+    box-shadow: 0 8px 24px var(--extensionshield-accent-glow);
   }
 }
 
 .light .cta-button.secondary {
-  color: var(--atlas-text-primary);
-  border-color: var(--atlas-border);
+  color: var(--extensionshield-text-primary);
+  border-color: var(--extensionshield-border);
 
   &:hover {
-    border-color: var(--atlas-accent);
-    color: var(--atlas-accent);
+    border-color: var(--extensionshield-accent);
+    color: var(--extensionshield-accent);
   }
 }
 
