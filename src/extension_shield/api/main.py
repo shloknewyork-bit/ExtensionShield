@@ -36,6 +36,8 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from extension_shield.core.report_generator import ReportGenerator
+from extension_shield.core.extension_metadata import ExtensionMetadata
+from extension_shield.core.chromestats_downloader import ChromeStatsDownloader
 
 from extension_shield.workflow.graph import build_graph
 from extension_shield.workflow.state import WorkflowState, WorkflowStatus
@@ -534,6 +536,265 @@ def _has_cached_results(extension_id: str) -> bool:
     # File fallback
     result_file = RESULTS_DIR / f"{extension_id}_results.json"
     return result_file.exists()
+
+
+def _parse_iso_datetime(value: Any) -> Optional[datetime]:
+    """Parse an ISO datetime string, returning None on failure."""
+    if not value or not isinstance(value, str):
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except Exception:
+        return None
+
+
+def _build_public_store_url(extension_id: str) -> str:
+    """Build a canonical Chrome Web Store URL from an extension ID."""
+    return f"https://chromewebstore.google.com/detail/_/{extension_id}"
+
+
+def _get_payload_version(payload: Dict[str, Any]) -> Optional[str]:
+    """Best-effort current version extraction from a scan payload."""
+    metadata = payload.get("metadata") or {}
+    manifest = payload.get("manifest") or {}
+    chrome_stats = metadata.get("chrome_stats") if isinstance(metadata, dict) else {}
+    candidates = [
+        manifest.get("version") if isinstance(manifest, dict) else None,
+        metadata.get("version") if isinstance(metadata, dict) else None,
+        chrome_stats.get("version") if isinstance(chrome_stats, dict) else None,
+    ]
+    for candidate in candidates:
+        if isinstance(candidate, str) and candidate.strip():
+            return candidate.strip()
+    return None
+
+
+def _hydrate_db_scan_result(results: Dict[str, Any], identifier: str) -> Dict[str, Any]:
+    """Normalize a DB row into the API scan payload shape."""
+    db_metadata = results.get("metadata") or {}
+    if isinstance(db_metadata, str):
+        try:
+            db_metadata = json.loads(db_metadata)
+        except Exception:
+            db_metadata = {}
+
+    db_manifest = results.get("manifest") or {}
+    if isinstance(db_manifest, str):
+        try:
+            db_manifest = json.loads(db_manifest)
+        except Exception:
+            db_manifest = {}
+
+    db_chrome_stats = db_metadata.get("chrome_stats") or {}
+    name_candidates = [
+        results.get("extension_name"),
+        db_metadata.get("title"),
+        db_metadata.get("name"),
+        db_chrome_stats.get("name") if isinstance(db_chrome_stats, dict) else None,
+        db_manifest.get("name"),
+    ]
+    resolved_extension_name = next(
+        (n for n in name_candidates if n and isinstance(n, str) and n.strip() and n.strip() != "Unknown"),
+        results.get("extension_id") or identifier,
+    )
+
+    payload: Dict[str, Any] = {
+        "extension_id": results.get("extension_id"),
+        "extension_name": resolved_extension_name,
+        "slug": results.get("slug"),
+        "url": results.get("url"),
+        "timestamp": results.get("timestamp"),
+        "status": results.get("status"),
+        "user_id": results.get("user_id"),
+        "visibility": results.get("visibility"),
+        "source": results.get("source"),
+        "metadata": results.get("metadata", {}),
+        "manifest": results.get("manifest", {}),
+        "permissions_analysis": results.get("permissions_analysis", {}),
+        "sast_results": results.get("sast_results", {}),
+        "webstore_analysis": results.get("webstore_analysis", {}),
+        "summary": results.get("summary", {}),
+        "impact_analysis": results.get("impact_analysis", {}),
+        "privacy_compliance": results.get("privacy_compliance", {}),
+        "extracted_path": results.get("extracted_path"),
+        "icon_path": results.get("icon_path"),
+        "icon_base64": results.get("icon_base64"),
+        "icon_media_type": results.get("icon_media_type"),
+        "extracted_files": results.get("extracted_files", []),
+        "overall_security_score": results.get("security_score", 0),
+        "total_findings": results.get("total_findings", 0),
+        "risk_distribution": {
+            "high": results.get("high_risk_count", 0),
+            "medium": results.get("medium_risk_count", 0),
+            "low": results.get("low_risk_count", 0),
+        },
+        "overall_risk": results.get("risk_level", "unknown"),
+        "total_risk_score": results.get("total_findings", 0),
+    }
+    summary = results.get("summary") or {}
+    summary = summary if isinstance(summary, dict) else {}
+    payload["report_view_model"] = results.get("report_view_model") or summary.get("report_view_model")
+    payload["scoring_v2"] = results.get("scoring_v2") or summary.get("scoring_v2")
+    payload["governance_bundle"] = results.get("governance_bundle") or summary.get("governance_bundle")
+    return payload
+
+
+def _refresh_scan_payload_with_store_metadata(
+    payload: Dict[str, Any],
+    extension_id: str,
+    *,
+    force: bool = False,
+) -> Dict[str, Any]:
+    """
+    Refresh lightweight Chrome Web Store metadata for a cached public scan.
+
+    Returns a dict with:
+      - payload: updated or original payload
+      - refreshed: whether metadata was updated and persisted
+      - version_changed: whether live store version differs from cached payload
+      - cached_version / live_version: version strings when available
+    """
+    result = {
+        "payload": payload,
+        "refreshed": False,
+        "version_changed": False,
+        "cached_version": _get_payload_version(payload),
+        "live_version": None,
+    }
+
+    if not isinstance(payload, dict):
+        return result
+    if payload.get("visibility") == "private" or payload.get("source") == "upload":
+        return result
+
+    metadata = payload.get("metadata") or {}
+    metadata = metadata if isinstance(metadata, dict) else {}
+    refreshed_at = _parse_iso_datetime(metadata.get("webstore_refreshed_at"))
+    if not force and refreshed_at:
+        age_seconds = (datetime.now(timezone.utc) - refreshed_at.astimezone(timezone.utc)).total_seconds()
+        if age_seconds < 12 * 60 * 60:
+            return result
+
+    extension_url = payload.get("url") if isinstance(payload.get("url"), str) else None
+    if not extension_url:
+        extension_url = _build_public_store_url(extension_id)
+
+    live_metadata: Dict[str, Any] = {}
+    try:
+        extracted_metadata = ExtensionMetadata(extension_url=extension_url).fetch_metadata() or {}
+        if isinstance(extracted_metadata, dict):
+            live_metadata.update(extracted_metadata)
+    except Exception as exc:
+        logger.warning("[STORE_REFRESH] Failed to fetch live metadata for %s: %s", extension_id, exc)
+
+    try:
+        chromestats_details = ChromeStatsDownloader()._get_extension_details(extension_id)
+        if chromestats_details:
+            live_metadata["chrome_stats"] = chromestats_details
+            if not live_metadata.get("version"):
+                live_metadata["version"] = chromestats_details.get("version")
+            if live_metadata.get("user_count") is None:
+                live_metadata["user_count"] = chromestats_details.get("userCount")
+            if live_metadata.get("rating") is None:
+                live_metadata["rating"] = chromestats_details.get("ratingValue")
+            if live_metadata.get("ratings_count") is None:
+                live_metadata["ratings_count"] = chromestats_details.get("ratingCount")
+            if not live_metadata.get("last_updated"):
+                live_metadata["last_updated"] = chromestats_details.get("lastUpdate")
+    except Exception as exc:
+        logger.warning("[STORE_REFRESH] Failed to fetch chrome-stats details for %s: %s", extension_id, exc)
+
+    if not live_metadata:
+        return result
+
+    live_metadata["extension_id"] = extension_id
+    live_metadata["webstore_refreshed_at"] = datetime.now(timezone.utc).isoformat()
+
+    cached_version = result["cached_version"]
+    live_version = _get_payload_version({"metadata": live_metadata})
+    result["live_version"] = live_version
+    if cached_version and live_version and cached_version != live_version:
+        result["version_changed"] = True
+        return result
+
+    merged_metadata = dict(metadata)
+    for key, value in live_metadata.items():
+        if value is None:
+            continue
+        if isinstance(value, str) and not value.strip():
+            continue
+        merged_metadata[key] = value
+
+    updated_payload = dict(payload)
+    updated_payload["metadata"] = merged_metadata
+
+    name_candidates = [
+        updated_payload.get("extension_name"),
+        merged_metadata.get("title"),
+        merged_metadata.get("name"),
+        (merged_metadata.get("chrome_stats") or {}).get("name") if isinstance(merged_metadata.get("chrome_stats"), dict) else None,
+        (updated_payload.get("manifest") or {}).get("name"),
+    ]
+    updated_payload["extension_name"] = next(
+        (n for n in name_candidates if isinstance(n, str) and n.strip() and n.strip() != "Unknown"),
+        extension_id,
+    )
+
+    analysis_results = {
+        "permissions_analysis": updated_payload.get("permissions_analysis") or {},
+        "javascript_analysis": updated_payload.get("sast_results") or {},
+        "webstore_analysis": updated_payload.get("webstore_analysis") or {},
+        "virustotal_analysis": updated_payload.get("virustotal_analysis") or {},
+        "entropy_analysis": updated_payload.get("entropy_analysis") or {},
+        "impact_analysis": updated_payload.get("impact_analysis") or {},
+        "privacy_compliance": updated_payload.get("privacy_compliance") or {},
+        "executive_summary": updated_payload.get("summary") or {},
+    }
+    updated_payload["report_view_model"] = build_report_view_model_safe(
+        manifest=updated_payload.get("manifest") or {},
+        analysis_results=analysis_results,
+        metadata=merged_metadata,
+        extension_id=extension_id,
+        scan_id=extension_id,
+    )
+    updated_payload["publisher_disclosures"] = build_publisher_disclosures(
+        merged_metadata,
+        updated_payload.get("governance_bundle"),
+    )
+
+    scoring_v2 = _build_scoring_v2_for_payload(updated_payload, extension_id)
+    if scoring_v2:
+        updated_payload["scoring_v2"] = scoring_v2
+        updated_payload["overall_security_score"] = scoring_v2.get(
+            "overall_score",
+            updated_payload.get("overall_security_score", 0),
+        )
+        updated_payload["security_score"] = scoring_v2.get("security_score")
+        updated_payload["privacy_score"] = scoring_v2.get("privacy_score")
+        updated_payload["governance_score"] = scoring_v2.get("governance_score")
+        updated_payload["overall_confidence"] = scoring_v2.get("overall_confidence")
+        updated_payload["decision_v2"] = scoring_v2.get("decision")
+        updated_payload["decision_reasons_v2"] = scoring_v2.get("decision_reasons")
+        updated_payload["overall_risk"] = scoring_v2.get(
+            "risk_level",
+            updated_payload.get("overall_risk", "unknown"),
+        )
+
+    updated_payload = upgrade_legacy_payload(updated_payload, extension_id)
+    updated_payload = ensure_consumer_insights(updated_payload)
+    ensure_description_in_meta(updated_payload)
+    ensure_name_in_payload(updated_payload)
+    updated_payload["risk_and_signals"] = _extract_risk_and_signals(updated_payload)
+
+    scan_results[extension_id] = sanitize_for_json(updated_payload)
+    try:
+        db.save_scan_result(scan_results[extension_id])
+    except Exception as exc:
+        logger.warning("[STORE_REFRESH] Failed to persist refreshed metadata for %s: %s", extension_id, exc)
+
+    result["payload"] = scan_results[extension_id]
+    result["refreshed"] = True
+    return result
 
 
 # -----------------------------------------------------------------------------
@@ -1695,6 +1956,14 @@ async def root():
     return HTMLResponse(_no_frontend_html())
 
 
+# Legacy path redirects (so /scanner etc. work when requested directly)
+@app.get("/scanner")
+@app.get("/scanner/")
+def redirect_scanner_to_scan():
+    """Redirect legacy /scanner to canonical /scan."""
+    return RedirectResponse(url="/scan", status_code=302)
+
+
 @app.get("/robots.txt")
 async def robots_txt(request: Request):
     """
@@ -1951,14 +2220,61 @@ async def trigger_scan(scan_request: ScanRequest, background_tasks: BackgroundTa
     if not extension_id:
         raise HTTPException(status_code=400, detail="Invalid Chrome Web Store URL")
 
-    # If we already have results, treat this as a cached lookup (no deep-scan consumption)
-    if _has_cached_results(extension_id):
+    cached_payload = scan_results.get(extension_id)
+    if not cached_payload:
+        try:
+            existing = db.get_scan_result(extension_id)
+            if existing:
+                cached_payload = _hydrate_db_scan_result(existing, extension_id)
+        except Exception:
+            cached_payload = None
+
+    # If we already have results and the store version is unchanged, treat this as a cached lookup.
+    if cached_payload:
+        refresh_result = _refresh_scan_payload_with_store_metadata(
+            cached_payload,
+            extension_id,
+            force=True,
+        )
+        if not refresh_result.get("version_changed"):
+            if refresh_result.get("refreshed"):
+                logger.info(
+                    "[STORE_REFRESH] Refreshed cached store metrics for %s without deep rescan",
+                    extension_id,
+                )
         # Bump extension to top of recent scans (for both auth and anonymous users)
+            try:
+                db.touch_scan_result(extension_id)
+            except Exception:
+                pass
+            # Record user history even for cached lookups (if authenticated)
+            user_id = getattr(getattr(request, "state", None), "user_id", None)
+            if user_id:
+                try:
+                    db.add_user_scan_history(user_id=user_id, extension_id=extension_id)
+                except Exception:
+                    pass
+            scan_status[extension_id] = "completed"
+            return {
+                "message": "Cached results available",
+                "extension_id": extension_id,
+                "status": "completed",
+                "already_scanned": True,
+                "scan_type": "lookup",
+                "store_metrics_refreshed": bool(refresh_result.get("refreshed")),
+            }
+        logger.info(
+            "[STORE_REFRESH] Version change detected for %s (%s -> %s); starting deep rescan",
+            extension_id,
+            refresh_result.get("cached_version"),
+            refresh_result.get("live_version"),
+        )
+    elif _has_cached_results(extension_id):
+        # File-only fallback: we know we have cached results but cannot safely inspect version.
         try:
             db.touch_scan_result(extension_id)
         except Exception:
             pass
-        # Record user history even for cached lookups (if authenticated)
         user_id = getattr(getattr(request, "state", None), "user_id", None)
         if user_id:
             try:
@@ -2246,6 +2562,8 @@ async def get_scan_results(identifier: str, http_request: Request):
             # Upgrade legacy payload and ensure consumer_insights
             payload = upgrade_legacy_payload(payload, extension_id)
             payload = ensure_consumer_insights(payload)
+            refresh_result = _refresh_scan_payload_with_store_metadata(payload, extension_id)
+            payload = refresh_result.get("payload") or payload
             ensure_description_in_meta(payload)
             ensure_name_in_payload(payload)
             # Add risk and signals mapping
@@ -2265,72 +2583,7 @@ async def get_scan_results(identifier: str, http_request: Request):
             requester_id = getattr(getattr(http_request, "state", None), "user_id", None)
             if not requester_id or results.get("user_id") != requester_id:
                 raise HTTPException(status_code=404, detail="Scan results not found")
-        # Ensure extension_name is always populated, even for legacy DB rows
-        _db_metadata = results.get("metadata") or {}
-        if isinstance(_db_metadata, str):
-            try:
-                _db_metadata = json.loads(_db_metadata)
-            except Exception:
-                _db_metadata = {}
-        _db_manifest = results.get("manifest") or {}
-        if isinstance(_db_manifest, str):
-            try:
-                _db_manifest = json.loads(_db_manifest)
-            except Exception:
-                _db_manifest = {}
-        _db_chrome_stats = _db_metadata.get("chrome_stats") or {}
-        _db_name_candidates = [
-            results.get("extension_name"),
-            _db_metadata.get("title"),
-            _db_metadata.get("name"),
-            _db_chrome_stats.get("name") if isinstance(_db_chrome_stats, dict) else None,
-            _db_manifest.get("name"),
-        ]
-        _resolved_extension_name = next(
-            (n for n in _db_name_candidates if n and isinstance(n, str) and n.strip() and n.strip() != "Unknown"),
-            results.get("extension_id") or identifier,
-        )
-
-        # Ensure consistent field naming for frontend
-        formatted_results: Dict[str, Any] = {
-            "extension_id": results.get("extension_id"),
-            "extension_name": _resolved_extension_name,
-            "slug": results.get("slug"),
-            "url": results.get("url"),
-            "timestamp": results.get("timestamp"),
-            "status": results.get("status"),
-            "user_id": results.get("user_id"),
-            "visibility": results.get("visibility"),
-            "source": results.get("source"),
-            "metadata": results.get("metadata", {}),
-            "manifest": results.get("manifest", {}),
-            "permissions_analysis": results.get("permissions_analysis", {}),
-            "sast_results": results.get("sast_results", {}),
-            "webstore_analysis": results.get("webstore_analysis", {}),
-            "summary": results.get("summary", {}),
-            "impact_analysis": results.get("impact_analysis", {}),
-            "privacy_compliance": results.get("privacy_compliance", {}),
-            "extracted_path": results.get("extracted_path"),
-            "icon_path": results.get("icon_path"),
-            "icon_base64": results.get("icon_base64"),
-            "icon_media_type": results.get("icon_media_type"),
-            "extracted_files": results.get("extracted_files", []),
-            "overall_security_score": results.get("security_score", 0),
-            "total_findings": results.get("total_findings", 0),
-            "risk_distribution": {
-                "high": results.get("high_risk_count", 0),
-                "medium": results.get("medium_risk_count", 0),
-                "low": results.get("low_risk_count", 0),
-            },
-            "overall_risk": results.get("risk_level", "unknown"),
-            "total_risk_score": results.get("total_findings", 0),
-        }
-        # Extract signal/risk fields: DB stores scoring_v2, report_view_model, governance_bundle in summary JSON
-        summary = results.get("summary") or {}
-        summary = summary if isinstance(summary, dict) else {}
-        formatted_results["report_view_model"] = results.get("report_view_model") or summary.get("report_view_model")
-        formatted_results["scoring_v2"] = results.get("scoring_v2") or summary.get("scoring_v2")
-        formatted_results["governance_bundle"] = results.get("governance_bundle") or summary.get("governance_bundle")
+        formatted_results = _hydrate_db_scan_result(results, identifier)
 
         # Track if we need to upgrade (legacy payload without scoring_v2/report_view_model)
         had_scoring_v2 = bool(formatted_results.get("scoring_v2"))
@@ -2339,6 +2592,8 @@ async def get_scan_results(identifier: str, http_request: Request):
         # Upgrade legacy payload and ensure consumer_insights
         payload = upgrade_legacy_payload(formatted_results, extension_id)
         payload = ensure_consumer_insights(payload)
+        refresh_result = _refresh_scan_payload_with_store_metadata(payload, extension_id)
+        payload = refresh_result.get("payload") or payload
         ensure_description_in_meta(payload)
         ensure_name_in_payload(payload)
         # Add risk and signals mapping

@@ -745,11 +745,12 @@ class Database:
             print(f"Error getting risk distribution: {e}")
             return {"high": 0, "medium": 0, "low": 0}
 
-    def get_recent_scans(self, limit: int = 10, search: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_recent_scans(self, limit: int = 10, search: Optional[str] = None, include_all: bool = False) -> List[Dict[str, Any]]:
         """Get recent scans with summary info including metadata and signal data to avoid N+1 queries.
         Optional search filters by extension_name or extension_id (case-insensitive).
         When search is provided, results are ranked by relevance: exact title match first, then title
         starts with, then title contains (e.g. "block" matches "Paypal ad blocker"), then ID match; then by recency.
+        When include_all=True, returns all completed scans regardless of visibility/source (for QA export).
         """
         try:
             with self.get_connection() as conn:
@@ -757,10 +758,11 @@ class Database:
                 if search and search.strip():
                     term_raw = search.strip()
                     term = f"%{term_raw}%"
+                    visibility_filter = "" if include_all else " AND COALESCE(visibility, 'public') = 'public' AND COALESCE(source, 'webstore') = 'webstore'"
                     cursor.execute(
                         """
                         SELECT 
-                            extension_id, extension_name, slug, timestamp,
+                            extension_id, extension_name, slug, url, timestamp,
                             security_score, risk_level, total_findings,
                             total_files, metadata, 
                             sast_results, permissions_analysis, manifest, 
@@ -768,8 +770,7 @@ class Database:
                             icon_base64, icon_media_type
                         FROM scan_results
                         WHERE status = 'completed'
-                          AND COALESCE(visibility, 'public') = 'public'
-                          AND COALESCE(source, 'webstore') = 'webstore'
+                          """ + visibility_filter + """
                           AND (extension_name LIKE ? OR extension_id LIKE ?)
                         ORDER BY
                           CASE
@@ -785,10 +786,11 @@ class Database:
                         (term, term, term_raw, term_raw, term_raw, term, limit),
                     )
                 else:
+                    visibility_filter = "" if include_all else " AND COALESCE(visibility, 'public') = 'public' AND COALESCE(source, 'webstore') = 'webstore'"
                     cursor.execute(
                         """
                         SELECT 
-                            extension_id, extension_name, slug, timestamp,
+                            extension_id, extension_name, slug, url, timestamp,
                             security_score, risk_level, total_findings,
                             total_files, metadata, 
                             sast_results, permissions_analysis, manifest, 
@@ -796,8 +798,7 @@ class Database:
                             icon_base64, icon_media_type
                         FROM scan_results
                         WHERE status = 'completed'
-                          AND COALESCE(visibility, 'public') = 'public'
-                          AND COALESCE(source, 'webstore') = 'webstore'
+                          """ + visibility_filter + """
                         ORDER BY COALESCE(updated_at, timestamp) DESC
                         LIMIT ?
                     """,
@@ -1485,11 +1486,12 @@ class SupabaseDatabase:
             print(f"Error getting scan history (Supabase): {e}")
             return []
 
-    def get_recent_scans(self, limit: int = 10, search: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Get recent scans (public webstore only; exclude private uploads). Optional search filters by extension_name or extension_id.
+    def get_recent_scans(self, limit: int = 10, search: Optional[str] = None, include_all: bool = False) -> List[Dict[str, Any]]:
+        """Get recent scans (public webstore only unless include_all=True). Optional search filters by extension_name or extension_id.
         When search is provided, results are ranked by relevance: exact title first, then title starts with, then title contains, then ID; then by recency.
+        When include_all=True, returns all completed scans regardless of visibility/source (for QA export).
         """
-        select_cols = "extension_id, extension_name, slug, scanned_at, created_at, updated_at, security_score, risk_level, total_findings, total_files, high_risk_count, medium_risk_count, low_risk_count, metadata, webstore_analysis, sast_results, permissions_analysis, manifest, summary, icon_base64, icon_media_type"
+        select_cols = "extension_id, extension_name, url, slug, scanned_at, created_at, updated_at, security_score, risk_level, total_findings, total_files, high_risk_count, medium_risk_count, low_risk_count, metadata, webstore_analysis, sast_results, permissions_analysis, manifest, summary, icon_base64, icon_media_type"
         try:
             # When searching, fetch more candidates so we can rank by relevance then trim to limit
             limit_fetch = min(200, limit * 15) if (search and search.strip()) else limit
@@ -1497,10 +1499,10 @@ class SupabaseDatabase:
                 self.client.table(self.table_scan_results)
                 .select(select_cols)
                 .eq("status", "completed")
-                .or_("visibility.is.null,visibility.eq.public")
-                .or_("source.is.null,source.eq.webstore")
-                .order("updated_at", desc=True)
             )
+            if not include_all:
+                q = q.or_("visibility.is.null,visibility.eq.public").or_("source.is.null,source.eq.webstore")
+            q = q.order("updated_at", desc=True)
             if search and search.strip():
                 term = search.strip()
                 q = q.or_(f"extension_name.ilike.%{term}%,extension_id.ilike.%{term}%")
