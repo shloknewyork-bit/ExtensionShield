@@ -282,9 +282,20 @@ const ScanProgressPage = () => {
   }
 
   const showLoadingScreen = shouldShowLoading;
+  const hasError = Boolean(errorMessage);
   const scanMeta = extensionName
     ? `${extensionName} · ${alreadyScanned ? "cached result found" : "live scan"}`
-    : `Scan ID ${scanId}`;
+    : (alreadyScanned ? "Cached result found" : null);
+  // Only show meta when we have extension name or cached result; never show scan ID at bottom
+
+  // Friendly message for download/extension fetch failures (no internal service names)
+  const isDownloadError =
+    hasError &&
+    errorMessage.includes("download") &&
+    (errorMessage.includes("failed") || errorMessage.includes("returned no file") || errorMessage.includes("sources failed"));
+  const displayError = hasError
+    ? (isDownloadError ? "We couldn't download the extension package. Scores below are based on store data only." : errorMessage)
+    : "";
 
   return (
     <>
@@ -297,6 +308,7 @@ const ScanProgressPage = () => {
       <div className="scan-progress-page">
         {showLoadingScreen ? (
         <>
+          {!hasError && (
           <div className="scan-progress-center">
             <ScanActivityIndicator
               title="Scan in progress"
@@ -304,18 +316,18 @@ const ScanProgressPage = () => {
               meta={scanMeta}
             />
           </div>
+          )}
 
-          {errorMessage && (
+          {displayError && (
             <div className="scan-progress-inline-error">
               <h3>Something went wrong</h3>
-              <p>{errorMessage}</p>
+              <p>{displayError}</p>
               <div className="scan-progress-inline-error-actions">
                 <Button onClick={handleDismissError} variant="default">
                   Dismiss
                 </Button>
                 <Button
                   onClick={() => {
-                    setShowErrorModal(false);
                     navigate(getScanResultsRoute(scanId));
                   }}
                   variant="secondary"

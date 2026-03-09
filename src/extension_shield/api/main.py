@@ -83,6 +83,16 @@ from extension_shield.api.shared import (  # noqa: E402
 
 
 # Sentry: enable only in prod when SENTRY_DSN is set; never capture request bodies or auth headers
+def _sanitize_error_for_client(text: str) -> str:
+    """Strip competitor/service names from error messages shown to the client."""
+    if not text or not isinstance(text, str):
+        return text or ""
+    for phrase in ("Google CRX", "ChromeStats", "chrome-stats", "chromestats"):
+        if phrase in text:
+            text = text.replace(phrase, "download source")
+    return text
+
+
 def _init_sentry() -> None:
     if not get_settings().is_prod():
         return
@@ -1549,13 +1559,20 @@ async def run_analysis_workflow(url: str, extension_id: str):
         else:
             scan_status[extension_id] = "failed"
             logger.error("[TIMELINE] scan_failed → extension_id=%s, status=%s, error=%s", extension_id, final_state.get("status"), final_state.get("error"))
+            # Use store metadata for name when download failed but we have extension_metadata from earlier node
+            ext_meta = final_state.get("extension_metadata") or {}
+            ext_meta = ext_meta if isinstance(ext_meta, dict) else {}
+            resolved_name = (
+                ext_meta.get("title") or ext_meta.get("name")
+                or (ext_meta.get("chrome_stats") or {}).get("name") if isinstance(ext_meta.get("chrome_stats"), dict) else None
+            ) or extension_id
             failed_payload = {
                 "extension_id": extension_id,
-                "extension_name": extension_id,
+                "extension_name": resolved_name,
                 "url": url,
                 "status": "failed",
-                "error": final_state.get("error", "Unknown error"),
-                "metadata": {},
+                "error": _sanitize_error_for_client(final_state.get("error", "Unknown error")),
+                "metadata": ext_meta,
                 "manifest": {},
                 "overall_security_score": 0,
                 "overall_risk": "unknown",
@@ -1615,7 +1632,7 @@ async def run_analysis_workflow(url: str, extension_id: str):
             "extension_name": extension_id,
             "url": url,
             "status": "failed",
-            "error": error_message,
+            "error": _sanitize_error_for_client(error_message),
             "error_code": error_code,
             "metadata": {},
             "manifest": {},
@@ -2487,10 +2504,10 @@ async def get_scan_status(extension_id: str) -> ScanStatusResponse:
         # Ensure error is a string or None, not a complex object
         if error_val is not None:
             if isinstance(error_val, str):
-                error = error_val
+                error = _sanitize_error_for_client(error_val)
             else:
                 # Convert to string if it's not already
-                error = str(error_val)
+                error = _sanitize_error_for_client(str(error_val))
     except Exception as e:
         # If there's any issue accessing error (e.g., circular reference), set to None
         logger.warning(f"[get_scan_status] Failed to extract error for {extension_id}: {e}")
@@ -2570,6 +2587,8 @@ async def get_scan_results(identifier: str, http_request: Request):
             payload["risk_and_signals"] = _extract_risk_and_signals(payload)
             scan_results[extension_id] = payload
             log_scan_results_return_shape("memory", payload)
+            if payload.get("error"):
+                payload["error"] = _sanitize_error_for_client(payload["error"])
             return payload
 
     # Try loading from database (accepts extension_id or slug)
@@ -2616,6 +2635,8 @@ async def get_scan_results(identifier: str, http_request: Request):
                 logger.debug("[get_scan_results] Failed to persist upgraded payload: %s", persist_err)
         
         log_scan_results_return_shape("db", payload)
+        if payload.get("error"):
+            payload["error"] = _sanitize_error_for_client(payload["error"])
         return payload
     else:
         logger.debug("[get_scan_results] Database row does NOT exist for identifier=%s", identifier)
@@ -2646,6 +2667,8 @@ async def get_scan_results(identifier: str, http_request: Request):
             payload["risk_and_signals"] = _extract_risk_and_signals(payload)
             scan_results[extension_id] = payload  # Cache in memory
             log_scan_results_return_shape("file", payload)
+            if payload.get("error"):
+                payload["error"] = _sanitize_error_for_client(payload["error"])
             return payload
         except json.JSONDecodeError as e:
             logger.error("[get_scan_results] JSON file is corrupted for %s: %s", extension_id, str(e))
@@ -2659,6 +2682,9 @@ async def get_scan_results(identifier: str, http_request: Request):
         logger.debug("[get_scan_results] File does NOT exist: %s", result_file)
 
     logger.error("[get_scan_results] No results found in memory, DB, or file for identifier=%s", identifier)
+    # When client sends X-Prefer-Soft-NotFound, return 200 + body to avoid console 404 noise from batch checks.
+    if http_request.headers.get("X-Prefer-Soft-NotFound", "").lower() in ("1", "true", "yes"):
+        return JSONResponse(status_code=200, content={"_st": "not_found", "message": "Scan results not found"})
     raise HTTPException(status_code=404, detail="Scan results not found")
 
 
@@ -2771,8 +2797,8 @@ async def generate_pdf_report(extension_id: str) -> Response:
         pdf_bytes = report_generator.generate_pdf(results)
 
         # Get extension name for filename
-        extension_name = results.get("extension_name", results.get("metadata", {}).get("title", extension_id))
-        safe_name = "".join(c for c in extension_name if c.isalnum() or c in " -_")[:50]
+        extension_name = (results.get("metadata") or {}).get("title") or results.get("extension_name") or extension_id
+        safe_name = "".join(c for c in (extension_name or extension_id) if c.isalnum() or c in " -_")[:50]
         filename = f"Project_Atlas_Report_{safe_name}.pdf"
 
         return Response(

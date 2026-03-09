@@ -81,8 +81,13 @@ export const ScanProvider = ({ children }) => {
     return realScanService.extractExtensionId(url);
   }, []);
 
-  // Wait for scan completion with stage progression
+  // Wait for scan completion by polling status. Uses a long timeout so heavy extensions
+  // (VirusTotal, LLM, etc.) can finish; the progress page shows "Scan in progress" meanwhile.
   const waitForScanCompletion = useCallback(async (extensionId) => {
+    const POLL_INTERVAL_MS = 2500;
+    const MAX_WAIT_MS = 10 * 60 * 1000; // 10 minutes — backend can take several minutes for large extensions
+    const start = Date.now();
+    let lastStageIndex = -1;
     const stages = [
       "extracting",
       "security_scan",
@@ -91,55 +96,56 @@ export const ScanProvider = ({ children }) => {
       "generating_report",
     ];
 
-    for (let stageIndex = 0; stageIndex < stages.length; stageIndex++) {
+    while (Date.now() - start < MAX_WAIT_MS) {
       if (!mountedRef.current) return;
-      setScanStage(stages[stageIndex]);
 
-      const stageDuration = 10 + Math.random() * 5;
-      const steps = Math.ceil(stageDuration / 2);
-
-      for (let step = 0; step < steps; step++) {
-        if (!mountedRef.current) return;
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        if (!mountedRef.current) return;
-
-        const status = await realScanService.checkScanStatus(extensionId);
-        if (!mountedRef.current) return;
-        if (status.scanned) {
-          setScanStage("generating_report");
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          return;
-        }
-
-        if (status.status === "failed") {
-          // Check for service errors - show user-friendly message
-          if (
-            status.error_code === 401 || 
-            status.error_code === 503 || 
-            status.error_code === 403 ||
-            status.error?.includes("API key") || 
-            status.error?.includes("Invalid API key") || 
-            status.error?.includes("Authentication") || 
-            status.error?.includes("sk-proj") ||
-            status.error?.includes("Connection refused") || 
-            status.error?.includes("Errno 61") || 
-            status.error?.includes("LLM service") ||
-            status.error?.includes("quota") || 
-            status.error?.includes("token_quota") ||
-            status.error?.includes("SERVICE_UNAVAILABLE") ||
-            status.error?.includes("temporarily unavailable")
-          ) {
-            throw new Error(SERVICE_UNAVAILABLE_MESSAGE);
-          }
-          throw new Error(status.error || "Scan failed on the server.");
-        }
+      // Advance displayed stage roughly every 90s so the UI doesn't look stuck
+      const elapsed = Date.now() - start;
+      const stageIndex = Math.min(
+        Math.floor(elapsed / 90000),
+        stages.length - 1
+      );
+      if (stageIndex !== lastStageIndex) {
+        lastStageIndex = stageIndex;
+        setScanStage(stages[stageIndex]);
       }
+
+      const status = await realScanService.checkScanStatus(extensionId);
+      if (!mountedRef.current) return;
+
+      if (status.scanned) {
+        setScanStage("generating_report");
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        return;
+      }
+
+      if (status.status === "failed") {
+        if (
+          status.error_code === 401 ||
+          status.error_code === 503 ||
+          status.error_code === 403 ||
+          status.error?.includes("API key") ||
+          status.error?.includes("Invalid API key") ||
+          status.error?.includes("Authentication") ||
+          status.error?.includes("sk-proj") ||
+          status.error?.includes("Connection refused") ||
+          status.error?.includes("Errno 61") ||
+          status.error?.includes("LLM service") ||
+          status.error?.includes("quota") ||
+          status.error?.includes("token_quota") ||
+          status.error?.includes("SERVICE_UNAVAILABLE") ||
+          status.error?.includes("temporarily unavailable")
+        ) {
+          throw new Error(SERVICE_UNAVAILABLE_MESSAGE);
+        }
+        throw new Error(status.error || "Scan failed on the server.");
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
     }
 
     const status = await realScanService.checkScanStatus(extensionId);
-    if (status.scanned) {
-      return;
-    }
+    if (status.scanned) return;
 
     throw new Error("Scan timeout - extension analysis took too long");
   }, []);

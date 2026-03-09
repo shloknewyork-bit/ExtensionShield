@@ -1,8 +1,8 @@
 .scan-activity-indicator {
-  --scan-indicator-accent: #ff5a36;
-  --scan-indicator-accent-soft: rgba(255, 90, 54, 0.24);
-  --scan-indicator-ring: rgba(255, 90, 54, 0.58);
-  --scan-indicator-ring-soft: rgba(255, 90, 54, 0.14);
+  --scan-indicator-accent: #22c55e;
+  --scan-indicator-accent-soft: rgba(34, 197, 94, 0.24);
+  --scan-indicator-ring: rgba(34, 197, 94, 0.58);
+  --scan-indicator-ring-soft: rgba(34, 197, 94, 0.14);
   --scan-indicator-title: var(--extensionshield-text-primary, #f8fafc);
   --scan-indicator-text: var(--extensionshield-text-secondary, rgba(255, 255, 255, 0.72));
   --scan-indicator-muted: var(--extensionshield-text-muted, rgba(255, 255, 255, 0.5));
@@ -59,7 +59,7 @@
   inset: 18%;
   border-radius: 50%;
   background:
-    radial-gradient(circle, rgba(255, 128, 96, 0.48) 0%, rgba(255, 90, 54, 0.22) 38%, rgba(255, 90, 54, 0) 75%);
+    radial-gradient(circle, rgba(74, 222, 128, 0.48) 0%, rgba(34, 197, 94, 0.22) 38%, rgba(34, 197, 94, 0) 75%);
   filter: blur(10px);
   animation: scanIndicatorGlow 2.8s ease-in-out infinite;
 }
@@ -71,7 +71,7 @@
 .scan-activity-indicator__ring--outer {
   border: 2px solid transparent;
   border-top-color: var(--scan-indicator-accent);
-  border-right-color: rgba(255, 130, 90, 0.88);
+  border-right-color: rgba(74, 222, 128, 0.88);
   animation: scanIndicatorSpin 1.1s linear infinite;
 }
 
@@ -79,7 +79,7 @@
   inset: 10px;
   border: 1px solid transparent;
   border-bottom-color: var(--scan-indicator-ring);
-  border-left-color: rgba(255, 145, 110, 0.5);
+  border-left-color: rgba(134, 239, 172, 0.5);
   animation: scanIndicatorSpinReverse 1.85s linear infinite;
 }
 
@@ -88,7 +88,7 @@
   border: 1px solid var(--scan-indicator-ring-soft);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.02) inset,
-    0 0 18px rgba(255, 90, 54, 0.12);
+    0 0 18px rgba(34, 197, 94, 0.12);
   animation: scanIndicatorPulse 1.8s ease-in-out infinite;
 }
 
@@ -98,12 +98,12 @@
   place-items: center;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 30% 30%, rgba(255, 152, 121, 0.36), rgba(36, 18, 18, 0.96) 62%),
-    rgba(17, 12, 16, 0.94);
-  border: 1px solid rgba(255, 130, 90, 0.28);
+    radial-gradient(circle at 30% 30%, rgba(134, 239, 172, 0.36), rgba(18, 36, 18, 0.96) 62%),
+    rgba(12, 17, 12, 0.94);
+  border: 1px solid rgba(74, 222, 128, 0.28);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 0 28px rgba(255, 90, 54, 0.16);
+    0 0 28px rgba(34, 197, 94, 0.16);
 }
 
 .scan-activity-indicator--inline .scan-activity-indicator__core {
@@ -113,11 +113,11 @@
 .scan-activity-indicator--button .scan-activity-indicator__core {
   inset: 3px;
   border-width: 1px;
-  box-shadow: 0 0 10px rgba(255, 90, 54, 0.12);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.12);
 }
 
 .scan-activity-indicator__shield {
-  filter: drop-shadow(0 0 12px rgba(255, 90, 54, 0.22));
+  filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.22));
 }
 
 .scan-activity-indicator__shield .shield-main {
@@ -184,8 +184,8 @@
 }
 
 .light .scan-activity-indicator {
-  --scan-indicator-accent-soft: rgba(255, 90, 54, 0.16);
-  --scan-indicator-ring-soft: rgba(255, 90, 54, 0.12);
+  --scan-indicator-accent-soft: rgba(34, 197, 94, 0.16);
+  --scan-indicator-ring-soft: rgba(34, 197, 94, 0.12);
   --scan-indicator-title: var(--extensionshield-text-primary);
   --scan-indicator-text: var(--extensionshield-text-secondary);
   --scan-indicator-muted: var(--extensionshield-text-muted);
@@ -193,17 +193,17 @@
 
 .light .scan-activity-indicator__glow {
   background:
-    radial-gradient(circle, rgba(255, 121, 86, 0.32) 0%, rgba(255, 90, 54, 0.12) 42%, rgba(255, 90, 54, 0) 76%);
+    radial-gradient(circle, rgba(74, 222, 128, 0.32) 0%, rgba(34, 197, 94, 0.12) 42%, rgba(34, 197, 94, 0) 76%);
 }
 
 .light .scan-activity-indicator__core {
   background:
-    radial-gradient(circle at 30% 30%, rgba(255, 166, 139, 0.45), rgba(255, 245, 240, 0.98) 62%),
-    rgba(255, 250, 247, 0.98);
-  border-color: rgba(255, 90, 54, 0.18);
+    radial-gradient(circle at 30% 30%, rgba(167, 243, 208, 0.45), rgba(240, 253, 244, 0.98) 62%),
+    rgba(247, 255, 250, 0.98);
+  border-color: rgba(34, 197, 94, 0.18);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.75),
-    0 10px 30px rgba(255, 90, 54, 0.1);
+    0 10px 30px rgba(34, 197, 94, 0.1);
 }
 
 @keyframes scanIndicatorSpin {

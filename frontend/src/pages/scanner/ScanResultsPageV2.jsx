@@ -531,12 +531,16 @@ const ScanResultsPageV2 = () => {
       )}
 
       {/* Partial Report Banner - when scan failed but partial data (scoring_v2, report_view_model) is available */}
-      {scanResults?.status === "failed" && scanResults?.scoring_v2 && (
-        <StatusMessage
-          type="info"
-          message={`Partial report: ${scanResults.error || "Some analysis steps failed"}. Scores and limited findings below are based on available data (e.g. manifest, webstore).`}
-        />
-      )}
+      {scanResults?.status === "failed" && scanResults?.scoring_v2 && (() => {
+        const err = scanResults.error || "Some analysis steps failed";
+        const isDownloadFail = typeof err === "string" && err.includes("download") && (err.includes("failed") || err.includes("sources failed") || err.includes("returned no file"));
+        const bannerMessage = isDownloadFail
+          ? "Partial report: We couldn't download the extension package. Scores and limited findings below are based on available data (e.g. store listing)."
+          : `Partial report: ${err}. Scores and limited findings below are based on available data (e.g. manifest, webstore).`;
+        return (
+          <StatusMessage type="info" message={bannerMessage} />
+        );
+      })()}
 
       {/* Main 2-column Layout: Left (Extension + Quick Summary) | Right (Score + Tiles) */}
       <main className="results-v2-main">

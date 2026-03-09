@@ -185,30 +185,30 @@ def chromestats_downloader_node(state: WorkflowState) -> Command:
 
 def _try_chromestats_fallback(extension_id: str):
     """
-    Fallback: download extension via ChromeStats API when Google CRX endpoint fails.
+    Fallback: download extension when primary download fails.
     Returns (file_path, metadata) or (None, None).
     """
     try:
         downloader = ChromeStatsDownloader()
         if not downloader.enabled:
-            logger.warning("ChromeStats fallback unavailable (CHROMESTATS_API_KEY not set)")
+            logger.warning("Fallback download unavailable (CHROMESTATS_API_KEY not set)")
             return None, None
-        logger.info("Attempting ChromeStats fallback download for %s", extension_id)
+        logger.info("Attempting fallback download for %s", extension_id)
         file_path, metadata = downloader.download_extension(
             extension_id=extension_id, file_format="ZIP"
         )
         if file_path:
-            logger.info("ChromeStats fallback succeeded: %s", file_path)
+            logger.info("Fallback download succeeded: %s", file_path)
         return file_path, metadata
     except Exception as fallback_exc:
-        logger.warning("ChromeStats fallback failed: %s", fallback_exc)
+        logger.warning("Fallback download failed: %s", fallback_exc)
         return None, None
 
 
 def extension_downloader_node(state: WorkflowState) -> Command:
     """
     Node that performs the Chrome extension downloading or extraction operation.
-    Falls back to ChromeStats API when Google CRX download fails (common on cloud servers).
+    Falls back to alternate download when primary download fails (e.g. on cloud servers).
 
     Args:
         state (PipelineState): The current state of the workflow.
@@ -235,32 +235,32 @@ def extension_downloader_node(state: WorkflowState) -> Command:
             extension_info = downloader.download_extension(extension_url=chrome_extension_path)
 
             if not extension_info or "file_path" not in extension_info:
-                # Google CRX download failed — try ChromeStats fallback
+                # Primary download failed — try fallback
                 from extension_shield.utils.extension import extract_extension_id_by_url
                 ext_id = extract_extension_id_by_url(chrome_extension_path)
                 if ext_id:
                     logger.warning(
-                        "Google CRX download failed for %s, trying ChromeStats fallback", ext_id
+                        "Primary download failed for %s, trying fallback", ext_id
                     )
                     fallback_path, fallback_meta = _try_chromestats_fallback(ext_id)
                     if fallback_path:
                         downloaded_crx_path = fallback_path
                         extension_dir = extract_extension_crx(fallback_path)
                         if not extension_dir:
-                            raise RuntimeError("Failed to extract ChromeStats ZIP file.")
+                            raise RuntimeError("Failed to extract extension package.")
                         # Only set metadata if not already populated by extension_metadata_node
                         existing_meta = state.get("extension_metadata")
                         if fallback_meta and not existing_meta:
                             metadata_update["extension_metadata"] = fallback_meta
                         elif fallback_meta and existing_meta:
-                            # Merge: keep existing Web Store metadata, add ChromeStats extras
+                            # Merge: keep existing Web Store metadata, add fallback extras
                             merged = dict(existing_meta)
                             merged["chrome_stats"] = fallback_meta
                             metadata_update["extension_metadata"] = merged
                     else:
                         raise RuntimeError(
                             "Extension download returned no file. "
-                            "Both Google CRX and ChromeStats downloads failed."
+                            "All download sources failed."
                         )
                 else:
                     raise RuntimeError("Extension download returned no file.")
@@ -268,7 +268,7 @@ def extension_downloader_node(state: WorkflowState) -> Command:
                 downloaded_crx_path = extension_info["file_path"]
                 extension_dir = extract_extension_crx(downloaded_crx_path)
                 if not extension_dir:
-                    raise RuntimeError("Failed to extract CRX file.")
+                    raise RuntimeError("Failed to extract extension file.")
 
     except Exception as exc:
         logger.exception("Extension download/extract failed")

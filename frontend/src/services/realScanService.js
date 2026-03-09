@@ -58,6 +58,11 @@ class RealScanService {
   }
 
   async getDeepScanLimitStatus() {
+    const CACHE_MS = 60 * 1000;
+    const now = Date.now();
+    if (this._deepScanLimitCache && now - this._deepScanLimitCacheAt < CACHE_MS) {
+      return this._deepScanLimitCache;
+    }
     const { response, body } = await fetchJson(`${this.baseURL}/api/limits/deep-scan`, {
       method: "GET",
       headers: {
@@ -69,6 +74,8 @@ class RealScanService {
       throw buildFetchError(response, body, "Failed to fetch deep-scan limit status");
     }
 
+    this._deepScanLimitCache = body;
+    this._deepScanLimitCacheAt = Date.now();
     return body;
   }
 
