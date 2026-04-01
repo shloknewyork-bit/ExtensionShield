@@ -15,6 +15,7 @@ class DatabaseService {
     this.baseURL = import.meta.env.VITE_API_URL || "";
     this.API_BASE_URL = `${this.baseURL}/api`;
     this.accessToken = null;
+    this.historyUnavailable = false;
   }
 
   setAccessToken(token) {
@@ -25,6 +26,18 @@ class DatabaseService {
     const token = tokenOverride !== undefined ? tokenOverride : this.accessToken;
     if (!token) return {};
     return { Authorization: `Bearer ${token}` };
+  }
+
+  _isHistoryNotImplemented(response, body, error) {
+    const status = response?.status ?? error?.status;
+    const detail = body?.detail ?? error?.detail;
+    return (
+      status === 501 &&
+      detail &&
+      typeof detail === "object" &&
+      detail.error === "not_implemented" &&
+      detail.feature === "history"
+    );
   }
   /**
    * Get statistics from the database
@@ -53,6 +66,7 @@ class DatabaseService {
    * Get scan history from the database
    */
   async getScanHistory(limit = 50, accessToken = undefined) {
+    if (this.historyUnavailable) return [];
     try {
       const { response, body } = await fetchJson(
         `${this.API_BASE_URL}/history?limit=${limit}`,
@@ -64,12 +78,20 @@ class DatabaseService {
       );
       if (!response.ok) {
         if (response.status === 401) return [];
+        if (this._isHistoryNotImplemented(response, body)) {
+          this.historyUnavailable = true;
+          return [];
+        }
         throw buildFetchError(response, body, "Failed to fetch scan history");
       }
       const historyPayload = body || {};
       if (Array.isArray(historyPayload)) return historyPayload;
       return historyPayload.history || [];
     } catch (error) {
+      if (this._isHistoryNotImplemented(null, null, error)) {
+        this.historyUnavailable = true;
+        return [];
+      }
       // console.error("Error fetching scan history:", error); // prod: no console
       return [];
     }
@@ -79,6 +101,7 @@ class DatabaseService {
    * Get private scan history (uploaded CRX/ZIP builds only)
    */
   async getPrivateScanHistory(limit = 50, accessToken = undefined) {
+    if (this.historyUnavailable) return [];
     try {
       const { response, body } = await fetchJson(
         `${this.API_BASE_URL}/history/private?limit=${limit}`,
@@ -90,12 +113,19 @@ class DatabaseService {
       );
       if (!response.ok) {
         if (response.status === 401) return [];
+        if (this._isHistoryNotImplemented(response, body)) {
+          this.historyUnavailable = true;
+          return [];
+        }
         throw buildFetchError(response, body, "Failed to fetch private scan history");
       }
       const historyPayload = body || {};
       if (Array.isArray(historyPayload)) return historyPayload;
       return historyPayload.history || [];
     } catch (error) {
+      if (this._isHistoryNotImplemented(null, null, error)) {
+        this.historyUnavailable = true;
+      }
       return [];
     }
   }
@@ -209,10 +239,15 @@ class DatabaseService {
    */
   async getDashboardMetrics() {
     const stats = await this.getStatistics();
-    const history = this.accessToken ? await this.getScanHistory(20, this.accessToken) : [];
+    const history = this.accessToken
+      ? await this.getScanHistory(20, this.accessToken)
+      : [];
+    const recentSource = this.historyUnavailable
+      ? await this.getRecentScans(20)
+      : history;
 
     // Get last 7 scans for sparkline (most recent first, then reverse for chronological order)
-    const recentScans = history.slice(0, 7).reverse();
+    const recentScans = recentSource.slice(0, 7).reverse();
     
     // If no scans, return zeros
     if (recentScans.length === 0) {
