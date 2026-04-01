@@ -6,8 +6,9 @@
   min-height: 100vh;
   min-width: 100%;
   width: 100%;
-  background: var(--extensionshield-bg-primary);
-  color: var(--extensionshield-text-primary, #f8fafc);
+  background: transparent;
+  color: var(--theme-text-primary, #f8fafc);
+  font-family: var(--font-sans);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -46,7 +47,7 @@
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 64px 64px 48px;
+  padding: 96px 64px 48px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -120,29 +121,37 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-bottom: 3rem;
   gap: 0.75rem;
+  margin-bottom: 2.25rem;
+  max-width: 760px;
+}
 
-  h1 {
-    font-size: clamp(2rem, 5vw, 2.5rem);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-    background: linear-gradient(135deg, #f8fafc 0%, #94a3b8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0;
-  }
+.history-tagline {
+  font-size: clamp(0.6875rem, 1.5vw, 0.75rem);
+  font-weight: 600;
+  color: var(--extensionshield-text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin: 0;
+  line-height: 1.4;
+}
 
-  p {
-    font-size: 0.9375rem;
-    color: var(--theme-text-muted);
-    max-width: 500px;
-    line-height: 1.5;
-    font-weight: 400;
-    margin: 0;
-  }
+.history-headline {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0;
+  letter-spacing: -0.025em;
+  color: var(--extensionshield-text-primary, #f8fafc);
+}
+
+.history-subtitle {
+  font-size: 0.9375rem;
+  color: var(--theme-text-muted, #94a3b8);
+  max-width: 640px;
+  line-height: 1.5;
+  font-weight: 400;
+  margin: 0;
 }
 
 /* ============================================================================
@@ -153,13 +162,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
   position: relative;
   width: 100%;
   max-width: 1400px;
-  margin-top: 30px;
-  padding: 0 2rem; // Match extensions-table-container padding
+  padding: 0 2rem;
 }
 
 .toolbar-left {
@@ -425,6 +433,36 @@
   color: var(--extensionshield-text-secondary, #94a3b8);
 }
 
+.table-header-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  min-height: 2.5rem;
+}
+
+.loading-indicator {
+  font-size: 0.875rem;
+  color: var(--extensionshield-text-muted, #64748b);
+}
+
+.table-section-heading {
+  .table-section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--extensionshield-text-secondary, #94a3b8);
+    letter-spacing: -0.02em;
+    margin: 0 0 0.125rem;
+  }
+
+  .table-section-subtitle {
+    font-size: 0.75rem;
+    color: var(--extensionshield-text-muted, #64748b);
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
 /* ============================================================================
    EXTENSIONS TABLE - Same as Scanner Page
    ============================================================================ */
@@ -609,8 +647,9 @@
   border-radius: 8px;
   font-size: 0.75rem;
   font-weight: 600;
-  border: 1px solid;
+  border: 2px solid;
   transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.03);
 
   .risk-level {
     text-transform: uppercase;
@@ -1016,14 +1055,12 @@
 
 /* History page – search input same as homepage/scanner, table same as /scan */
 .light .history-page {
-  .history-header h1 {
-    background: linear-gradient(135deg, var(--extensionshield-text-primary) 0%, var(--extensionshield-text-secondary) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .history-headline {
+    color: var(--extensionshield-text-primary);
   }
 
-  .history-header p {
+  .history-tagline,
+  .history-subtitle {
     color: var(--extensionshield-text-secondary);
   }
 
