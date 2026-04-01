@@ -28,7 +28,16 @@ Install the **ExtensionShield Chrome extension** to manage your extensions from 
 
 - Manage installed extensions in one place  
 - Review labels like **Safe**, **Review**, and **Unknown**  
-- Stay safer while browsing with better extension visibility  
+- Stay safer while browsing with better extension visibility
+- Stay up to date with new releases, security findings, product updates,
+  and community announcements from ExtensionShield.
+
+<p>
+  <a href="https://www.linkedin.com/company/extensionshield/posts/?feedView=all">
+    <img src="https://img.shields.io/badge/Follow%20on-LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white"
+         alt="Follow ExtensionShield on LinkedIn" />
+  </a>
+</p>
 
 <p>
   <a href="https://chromewebstore.google.com/detail/extension-shield/lgfembekgpcfapeemgalpeefnlikpobd">
