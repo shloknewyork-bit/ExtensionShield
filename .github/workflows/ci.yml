@@ -1,4 +1,4 @@
-# ExtensionShield CI - runs on all PRs and pushes to main
+# ExtensionShield CI - runs on all PRs and pushes to the active default branch
 #
 # Tests the OSS experience: no Supabase keys, EXTSHIELD_MODE=oss (default).
 
@@ -6,9 +6,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   pull_request:
-    branches: [main]
+    branches: [main, master]
 
 jobs:
   lint-and-test:

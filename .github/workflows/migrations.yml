@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - master
 
 jobs:
   lint-migrations:
@@ -20,4 +21,3 @@ jobs:
 
       - name: Lint migrations
         run: python scripts/cloud_only/lint_migrations.py
-
