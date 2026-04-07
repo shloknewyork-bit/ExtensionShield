@@ -12,12 +12,8 @@
 
 <br />
 
-## **Manage and audit Chrome extensions with confidence**
-
-ExtensionShield helps you check Chrome extensions in a simple and clear way.
-
-It scans extensions from the **Chrome Web Store** or from **CRX/ZIP uploads**, shows risk scores, and helps you understand what an extension can access. The **core scanner, CLI, and local analysis** are **MIT-licensed** and work without any cloud dependency.
-
+ExtensionShield scans extensions from the **Chrome Web Store** or from **CRX/ZIP uploads**, shows risk scores, and helps you understand what an extension can access. The **core scanner, CLI, and local analysis** are **MIT-licensed** and work without any cloud dependency.
+<br>
 
 <table>
 <tr>
@@ -62,15 +58,13 @@ Install the **ExtensionShield Chrome extension** to manage your extensions from 
 
 ---
 
-## **Overview**
+## **What ExtensionShield does**
 
 ExtensionShield scans Chrome extensions, runs security and privacy analysis, and produces risk scores and summary reports.
 
 Optional cloud features such as auth, history, team monitoring, and community queue are available via <a href="https://extensionshield.com" style="color:#2ea043;">ExtensionShield Cloud</a>.
+<br></br>
 
----
-
-## **What ExtensionShield does**
 
 | Feature | Description |
 |--------|-------------|
@@ -79,9 +73,12 @@ Optional cloud features such as auth, history, team monitoring, and community qu
 | **Score** | Generate security and privacy risk scores with reports |
 | **Summarize** | Create written summaries of findings when enabled |
 
+<br>
+
 In **OSS mode** you get the scanner, CLI, local SQLite storage, and report UI with no cloud required.
 
 In **Cloud mode** you also get auth, scan history, telemetry, and enterprise features.
+
 
 ---
 
