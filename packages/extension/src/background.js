@@ -12,6 +12,7 @@ async function getAllExtensions() {
   var all = await chrome.management.getAll();
   var selfId = chrome.runtime.id;
   return all.filter(function (e) {
+    if (!e.permissions) e.permissions = [];
     return e.type === 'extension' && e.id !== selfId;
   });
 }

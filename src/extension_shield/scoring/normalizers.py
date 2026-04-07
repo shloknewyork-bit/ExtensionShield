@@ -698,8 +698,8 @@ def normalize_permissions_baseline(perms: PermissionsSignalPack) -> FactorScore:
     Normalize permissions baseline risk to severity and confidence.
     
     Formula:
-        - n = count of high-risk permissions
-        - severity = 1 - exp(-0.25 * n)
+        - n = sum of weighted risk scores for problematic permissions (with context multipliers)
+        - severity = _saturating_severity(n, k=0.25)
         - confidence = 1.0 if manifest parsed
     
     Args:
@@ -708,10 +708,43 @@ def normalize_permissions_baseline(perms: PermissionsSignalPack) -> FactorScore:
     Returns:
         FactorScore with normalized severity and confidence
     """
-    n = len(perms.high_risk_permissions)
+    PERMISSION_WEIGHTS = {
+        'debugger': 2.0,
+        'webRequestBlocking': 1.5,
+        'proxy': 1.5,
+        'webRequest': 1.2,
+        'desktopCapture': 1.2,
+        'tabCapture': 1.2,
+        'cookies': 1.0,
+        'nativeMessaging': 1.0,
+        'clipboardRead': 0.8,
+        'history': 0.8,
+        'browsingData': 0.8,
+        'downloads': 0.5,
+        'bookmarks': 0.5,
+        'management': 0.5,
+        'ttsEngine': 0.5
+    }
+
+    # Use a set to avoid double counting if a permission is both high risk and unreasonable
+    problematic_perms = set(perms.high_risk_permissions)
+    problematic_perms.update(perms.unreasonable_permissions)
     
-    # Add unreasonable permissions to count
-    n += len(perms.unreasonable_permissions)
+    n = 0.0
+    permission_weights_breakdown = {}
+    for perm_name in problematic_perms:
+        weight = PERMISSION_WEIGHTS.get(perm_name, 0.5)
+        
+        # Context-based evaluation based on justification
+        for p in perms.permission_analysis:
+            if p.permission_name == perm_name:
+                justification = (p.justification or "").lower()
+                if 'abusive' in justification or 'malicious' in justification or 'covert' in justification:
+                    weight *= 2.0  # Double penalty for explicitly malicious context
+                break
+                
+        n += weight
+        permission_weights_breakdown[perm_name] = weight
     
     # Compute severity using saturating formula
     severity = _saturating_severity(n, k=0.25)
@@ -726,6 +759,8 @@ def normalize_permissions_baseline(perms: PermissionsSignalPack) -> FactorScore:
         weight=PRIVACY_WEIGHTS_V1[PrivacyFactors.PERMISSIONS_BASELINE],
         evidence_ids=[f"perm:high_risk:{p}" for p in perms.high_risk_permissions[:5]],
         details={
+            "score_n": round(n, 2),
+            "permission_weights_breakdown": permission_weights_breakdown,
             "high_risk_count": len(perms.high_risk_permissions),
             "unreasonable_count": len(perms.unreasonable_permissions),
             "high_risk_permissions": perms.high_risk_permissions,

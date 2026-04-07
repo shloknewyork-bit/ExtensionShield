@@ -51,6 +51,16 @@ def _parse_virustotal_api_keys() -> List[str]:
     return []
 
 
+def _is_vt_not_found_error(exc: Exception, error_str: Optional[str] = None) -> bool:
+    """
+    True when VirusTotal reports that a specific file hash is not present in its database.
+    This is an expected lookup outcome, not an integration failure.
+    """
+    msg = (error_str or str(exc)).lower()
+    exc_name = type(exc).__name__.lower()
+    return "notfounderror" in exc_name or "not found" in msg or "404" in msg
+
+
 class _VTRateLimiter:
     """
     Per-key rate limiter for VirusTotal free tier.
@@ -355,6 +365,11 @@ class VirusTotalAnalyzer(BaseAnalyzer):
         except vt.error.APIError as e:
             error_str = str(e)
             status_code = getattr(e, "status_code", None)
+
+            if _is_vt_not_found_error(e, error_str):
+                logger.info("[VirusTotal] Hash not present in database for %s", file_hash)
+                return {"found": False, "message": "Hash not found in VirusTotal database"}
+
             logger.warning("[VirusTotal] API error - status_code=%s, error=%s", status_code, error_str)
 
             if status_code == 429 or "rate limit" in error_str.lower() or "quota" in error_str.lower():
@@ -375,9 +390,6 @@ class VirusTotalAnalyzer(BaseAnalyzer):
                     "message": "VirusTotal API key invalid",
                     "error": error_str,
                 }
-
-            if "NotFoundError" in str(type(e).__name__) or "not found" in error_str.lower():
-                return {"found": False, "message": "Hash not found in VirusTotal database"}
 
             logger.error("VirusTotal API error: %s", e)
             return {"found": False, "error": error_str}
@@ -449,6 +461,11 @@ class VirusTotalAnalyzer(BaseAnalyzer):
         except vt.error.APIError as e:
             error_str = str(e)
             status_code = getattr(e, "status_code", None)
+
+            if _is_vt_not_found_error(e, error_str):
+                logger.info("[VirusTotal] Hash not present in database for %s", file_hash)
+                return {"found": False, "message": "Hash not found in VirusTotal database"}
+
             logger.warning("[VirusTotal] API error (sync) - status_code=%s, error=%s", status_code, error_str)
 
             if status_code == 429 or "rate limit" in error_str.lower() or "quota" in error_str.lower():
@@ -469,9 +486,6 @@ class VirusTotalAnalyzer(BaseAnalyzer):
                     "message": "VirusTotal API key invalid",
                     "error": error_str,
                 }
-
-            if "NotFoundError" in str(type(e).__name__) or "not found" in error_str.lower() or "404" in error_str:
-                return {"found": False, "message": "Hash not found in VirusTotal database"}
 
             logger.error("VirusTotal API error: %s", e)
             return {"found": False, "error": error_str}

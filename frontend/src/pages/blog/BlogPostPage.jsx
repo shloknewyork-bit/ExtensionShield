@@ -33,9 +33,11 @@ const BlogPostPage = () => {
 
       <div className="blog-post-page">
         <div className="compare-container">
+          <div className="compare-back-wrapper">
           <button type="button" className="compare-back" onClick={() => navigate(-1)}>
             ← Back
           </button>
+          </div>
 
           <header className="compare-header">
             <span className="blog-post-meta">

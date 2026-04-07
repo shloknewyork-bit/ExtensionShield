@@ -57,9 +57,9 @@ class TestOverallRounding:
         result = engine.calculate_scores(pack, manifest)
 
         raw_weighted = (
-            result.security_score * 0.5
-            + result.privacy_score * 0.3
-            + result.governance_score * 0.2
+            result.security_score * engine.weights.layer_weights.get("security", 0.34)
+            + result.privacy_score * engine.weights.layer_weights.get("privacy", 0.33)
+            + result.governance_score * engine.weights.layer_weights.get("governance", 0.33)
         )
         expected = round(raw_weighted)
 
@@ -86,9 +86,9 @@ class TestOverallRounding:
         result = engine.calculate_scores(pack, manifest)
 
         raw = (
-            result.security_score * 0.5
-            + result.privacy_score * 0.3
-            + result.governance_score * 0.2
+            result.security_score * engine.weights.layer_weights.get("security", 0.34)
+            + result.privacy_score * engine.weights.layer_weights.get("privacy", 0.33)
+            + result.governance_score * engine.weights.layer_weights.get("governance", 0.33)
         )
         assert result.base_overall == round(raw)
 

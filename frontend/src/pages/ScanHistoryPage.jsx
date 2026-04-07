@@ -16,7 +16,6 @@ import "./ScanHistoryPage.scss";
 
 const SHOW_TABLE_WITHOUT_SIGN_IN = false;
 const HISTORY_LIMIT = 100;
-const RECENT_LIMIT = 100;
 const REQUEST_TIMEOUT_MS = 5000;
 
 const SignalTooltip = ({ type, children }) => {
@@ -136,20 +135,6 @@ const withTimeout = (promise, timeoutMs = REQUEST_TIMEOUT_MS) =>
     }),
   ]);
 
-const mergeUniqueScans = (...scanSets) => {
-  const merged = [];
-  const seen = new Set();
-
-  scanSets.flat().forEach((scan) => {
-    const extensionId = scan?.extension_id || scan?.extensionId;
-    if (!extensionId || seen.has(extensionId)) return;
-    seen.add(extensionId);
-    merged.push(scan);
-  });
-
-  return merged;
-};
-
 const formatUserCount = (count) => {
   if (!count) return "—";
   const num = typeof count === "string" ? parseInt(count.replace(/,/g, ""), 10) : count;
@@ -213,13 +198,11 @@ const ScanHistoryPage = () => {
         let scans = [];
 
         if (isAuthenticated) {
-          const [history, recentScans] = await Promise.all([
-            withTimeout(databaseService.getScanHistory(HISTORY_LIMIT, accessToken)).catch(() => []),
-            withTimeout(databaseService.getRecentScans(RECENT_LIMIT, debouncedSearch)).catch(() => []),
-          ]);
-          scans = mergeUniqueScans(history, recentScans);
+          scans = await withTimeout(
+            databaseService.getScanHistory(HISTORY_LIMIT, accessToken)
+          ).catch(() => []);
         } else if (SHOW_TABLE_WITHOUT_SIGN_IN) {
-          scans = await withTimeout(databaseService.getRecentScans(RECENT_LIMIT, debouncedSearch)).catch(() => []);
+          scans = await withTimeout(databaseService.getRecentScans(HISTORY_LIMIT, debouncedSearch)).catch(() => []);
         }
 
         const enrichedFast = await enrichScans(scans, { skipFullFetch: true });
@@ -380,9 +363,9 @@ const ScanHistoryPage = () => {
             <>
               <div className="history-header">
                 <p className="history-tagline">Scan History</p>
-                <h1 className="history-headline">Review previously scanned Chrome extensions.</h1>
+                <h1 className="history-headline">Review your scanned Chrome extensions.</h1>
                 <p className="history-subtitle">
-                  The same scan table used on the main scanner page, with saved history first and recent scans filling the gaps.
+                  Every extension you scan while signed in appears here in your personal history.
                 </p>
               </div>
 

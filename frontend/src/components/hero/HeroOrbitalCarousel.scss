@@ -953,3 +953,20 @@
     }
   }
 }
+
+/* Responsive constraints for small screens (prevents globe from getting cut off) */
+@media (max-width: 520px) {
+  .hero-orbital-carousel {
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .hero-orbital-scene {
+    transform: scale(0.65);
+  }
+}
+
+@media (max-width: 380px) {
+  .hero-orbital-scene {
+    transform: scale(0.55);
+  }
+}

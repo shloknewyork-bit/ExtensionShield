@@ -4,11 +4,15 @@ create table "public"."user_scan_history" (
   "id" uuid primary key default gen_random_uuid(),
   "user_id" uuid not null references auth.users(id) on delete cascade,
   "extension_id" text not null,
-  "created_at" timestamptz not null default now()
+  "created_at" timestamptz not null default now(),
+  "last_viewed_at" timestamptz not null default now()
 );
 
 create index "user_scan_history_user_created_at_idx"
   on "public"."user_scan_history" ("user_id", "created_at" desc);
+
+create index "user_scan_history_user_last_viewed_idx"
+  on "public"."user_scan_history" ("user_id", "last_viewed_at" desc);
 
 alter table "public"."user_scan_history" enable row level security;
 
@@ -29,4 +33,3 @@ create policy "user_scan_history_delete_own"
   on "public"."user_scan_history"
   for delete
   using (auth.uid() = user_id);
-

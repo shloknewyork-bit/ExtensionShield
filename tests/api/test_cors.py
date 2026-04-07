@@ -53,6 +53,7 @@ import sys
 os.environ["ENV"] = "prod"
 os.environ.pop("CORS_ORIGINS", None)
 os.environ.setdefault("EXTENSION_STORAGE_PATH", "/tmp")
+os.environ.setdefault("DATABASE_PATH", "/tmp/test-cors.db")
 try:
     from extension_shield.api import main
     sys.exit(0)

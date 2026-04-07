@@ -779,14 +779,21 @@ body {
 /* Theme toggle styles live in components/ThemeToggle.scss */
 
 .action-signin {
-  padding: 0.5rem 1.25rem;
+  padding: 0.4rem 1rem;
   font-size: 0.9375rem;
   font-weight: 500;
   color: #fff;
   text-decoration: none;
   background: var(--extensionshield-accent-cta, var(--extensionshield-accent));
   border: 1px solid var(--extensionshield-accent-cta, var(--extensionshield-accent));
-  border-radius: 8px;
+  
+  border-radius: 9999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   font-family: inherit;
@@ -1111,25 +1118,25 @@ body {
   width: 100%;
   max-width: var(--layout-max-width);
   margin: 0 auto;
-  padding: clamp(4rem, 8vh, 6rem) var(--layout-padding-x) !important;
+  padding: calc(var(--extensionshield-header-offset) + clamp(2rem, 4vh, 3rem)) var(--layout-padding-x) clamp(4rem, 8vh, 6rem) var(--layout-padding-x) !important;
   animation: pageEnter 0.4s ease-out;
 }
 
 @media (max-width: 1024px) {
   .page-container {
-    padding: clamp(3rem, 6vh, 4rem) var(--layout-padding-x) !important;
+    padding: calc(var(--extensionshield-header-offset) + clamp(1.5rem, 3vh, 2rem)) var(--layout-padding-x) clamp(3rem, 6vh, 4rem) var(--layout-padding-x) !important;
   }
 }
 
 @media (max-width: 768px) {
   .page-container {
-    padding: clamp(2.5rem, 5vh, 3rem) var(--layout-padding-x) !important;
+    padding: calc(var(--extensionshield-header-offset) + clamp(1rem, 2vh, 1.5rem)) var(--layout-padding-x) clamp(2.5rem, 5vh, 3rem) var(--layout-padding-x) !important;
   }
 }
 
 @media (max-width: 480px) {
   .page-container {
-    padding: 2rem var(--layout-padding-x) !important;
+    padding: calc(var(--extensionshield-header-offset) + 1rem) var(--layout-padding-x) 2rem var(--layout-padding-x) !important;
   }
 }
 
@@ -1219,6 +1226,7 @@ body {
   cursor: pointer;
   flex-direction: column;
   gap: 5px;
+  flex-shrink: 0;
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
@@ -1411,7 +1419,7 @@ body {
   }
 
   .header-container {
-    padding: 0 1rem;
+    padding: 0 1.25rem;
   }
 
   .header-nav-desktop,
@@ -1448,7 +1456,7 @@ body {
   }
 
   .header-container {
-    padding: 0 0.75rem;
+    padding: 0 1rem;
   }
 
   .header-logo-img {

@@ -20,10 +20,11 @@ const BrowserExtensionRiskAssessmentPage = () => {
       />
       <div className="compare-page">
         <div className="compare-container">
+          <div className="compare-back-wrapper">
           <button type="button" className="compare-back" onClick={() => navigate(-1)}>
             ← Back
           </button>
-
+          </div>
           <header className="compare-header">
             <h1>Browser Extension Risk Assessment</h1>
             <p>

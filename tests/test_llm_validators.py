@@ -381,7 +381,7 @@ class TestValidatePrivacy:
 class TestGeneratorIntegration:
     """Integration tests showing generators use fallbacks when validation fails."""
 
-    @patch("extension_shield.llm.clients.fallback.invoke_with_fallback")
+    @patch("extension_shield.core.summary_generator.invoke_with_fallback")
     def test_summary_generator_uses_fallback_on_validation_failure(self, mock_invoke):
         """Test that SummaryGenerator uses fallback when validation fails."""
         # Mock LLM response with violation
@@ -402,7 +402,7 @@ class TestGeneratorIntegration:
         # Fallback should not contain the violation
         assert "high risk" not in result.get("one_liner", "").lower() or result.get("score_label") != "LOW RISK"
 
-    @patch("extension_shield.llm.clients.fallback.invoke_with_fallback")
+    @patch("extension_shield.core.impact_analyzer.invoke_with_fallback")
     def test_impact_analyzer_uses_fallback_on_validation_failure(self, mock_invoke):
         """Test that ImpactAnalyzer uses fallback when validation fails."""
         # Mock LLM response with violation (cookies mentioned but can_read_cookies=false)
@@ -411,14 +411,15 @@ class TestGeneratorIntegration:
         mock_invoke.return_value = mock_response
 
         analyzer = ImpactAnalyzer()
+        manifest = {
+            "name": "Test",
+            "version": "1.0.0",
+            "manifest_version": 3,
+            "permissions": [],  # No cookies permission
+        }
         result = analyzer.generate(
             analysis_results={"permissions_analysis": {}},
-            manifest={
-                "name": "Test",
-                "version": "1.0.0",
-                "manifest_version": 3,
-                "permissions": [],  # No cookies permission
-            },
+            manifest=manifest,
         )
 
         # Should return fallback (not the LLM output)
@@ -458,4 +459,3 @@ class TestGeneratorIntegration:
         snapshot = result.get("privacy_snapshot", "").lower()
         # Fallback should be more conservative and not claim sharing without evidence
         assert "shares data" not in snapshot or "third parties" not in snapshot
-

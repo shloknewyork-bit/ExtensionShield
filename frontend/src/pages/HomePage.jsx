@@ -181,7 +181,7 @@ const HomePage = () => {
       {
         "@type": "Question",
         "name": "Is the Chrome extension scanner free?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Our free extension scanner lets you scan any Chrome extension by Web Store URL or extension ID. Private CRX/ZIP upload and audit are available on Pro for developers." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Our free extension scanner lets you scan any Chrome extension by Web Store URL. Private CRX/ZIP upload and audit are available on Pro for developers." }
       }
     ]
   };

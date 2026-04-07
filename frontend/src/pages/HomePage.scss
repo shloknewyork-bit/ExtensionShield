@@ -132,8 +132,9 @@
 
 /* Hero Grid - Two-column layout (left 2/3, right 1/3); edge-to-edge at all breakpoints */
 .hero-grid {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   gap: clamp(2rem, 4vw, 4rem);
   align-items: center;
   width: 100%;
@@ -144,6 +145,7 @@
 
 /* Hero Left - Tagline, Headline, Input, CTA (hero-scan-info) - Typography scale */
 .hero-left {
+  flex: 1.4;
   text-align: left;
   padding-left: 1rem;
   padding-right: 1rem;
@@ -273,6 +275,7 @@
 
 /* Hero Right - Orbital carousel (slightly scaled for original balance) */
 .hero-right {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1773,7 +1776,7 @@
 
 @media (max-width: 1024px) {
   .hero-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 2.5rem;
   }
 
@@ -1815,7 +1818,7 @@
 
   /* Mobile: Stack hero grid (left first, then glass card) */
   .hero-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 2rem;
     padding: 4rem 1rem 5rem;
     order: 1;

@@ -2,7 +2,7 @@
 
 @use "sass:color";
 
-// Variables matching site design
+// Variables
 $modal-bg: rgba(13, 20, 36, 0.98);
 $modal-border: rgba(148, 163, 184, 0.15);
 $accent-green: #22c55e;
@@ -15,7 +15,7 @@ $danger-red: #ef4444;
 $warning-yellow: #b45309;
 $success-green: #22c55e;
 
-// Overlay – matches homepage theme (extensionshield-bg-primary)
+/* Overlay */
 .demo-modal-overlay {
   position: fixed;
   inset: 0;
@@ -49,18 +49,15 @@ $success-green: #22c55e;
   to { opacity: 1; }
 }
 
-// Main content – larger container for bigger image
+/* Content */
 .demo-modal-content {
   position: relative;
   width: 100%;
   max-width: min(820px, 94vw);
-  min-width: 0;
   margin: auto;
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0;
   animation: modal-slide-in 0.25s ease-out;
 }
 
@@ -75,20 +72,17 @@ $success-green: #22c55e;
   }
 }
 
-// Main content area – full width, even spacing
+/* Main */
 .demo-modal-main {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1.25rem;
-  padding: 0;
   width: 100%;
-  align-self: stretch;
 }
 
-// Arrows – consistent size, evenly spaced
+/* Navigation Buttons */
 .demo-nav-btn {
-  flex-shrink: 0;
   width: 44px;
   height: 44px;
   display: flex;
@@ -96,14 +90,8 @@ $success-green: #22c55e;
   justify-content: center;
   border: none;
   border-radius: 50%;
-  padding: 0;
   cursor: pointer;
-  transition: all 0.25s ease;
   background: transparent;
-
-  &:focus-visible {
-    outline: none;
-  }
 
   .demo-nav-btn-inner {
     width: 40px;
@@ -113,7 +101,6 @@ $success-green: #22c55e;
     justify-content: center;
     border-radius: 50%;
     border: 1px solid rgba(255, 255, 255, 0.4);
-    color: rgba(255, 255, 255, 0.9);
     background: rgba(255, 255, 255, 0.08);
     transition: all 0.25s ease;
 
@@ -127,72 +114,28 @@ $success-green: #22c55e;
     background: rgba(34, 197, 94, 0.15);
     border-color: rgba(34, 197, 94, 0.4);
     color: $accent-green;
-    transform: scale(1.05);
-  }
-
-  &:active:not(:disabled) .demo-nav-btn-inner {
-    transform: scale(0.95);
-  }
-
-  &:focus-visible .demo-nav-btn-inner {
-    box-shadow: 0 0 0 2px $accent-green;
   }
 }
 
 .demo-nav-disabled {
   opacity: 0.3;
   cursor: not-allowed;
-
-  .demo-nav-btn-inner {
-    background: rgba(13, 20, 36, 0.5);
-    border-color: $modal-border;
-    color: $text-secondary;
-  }
-
-  &:hover .demo-nav-btn-inner {
-    transform: none;
-    background: rgba(13, 20, 36, 0.5);
-    border-color: $modal-border;
-    color: $text-secondary;
-  }
 }
 
-.demo-nav-finish {
-  .demo-nav-btn-inner {
-    background: $accent-green;
-    border-color: $accent-green;
-    color: #0a0f1a;
-    box-shadow: 0 0 20px $accent-green-glow;
-  }
-
-  &:hover .demo-nav-btn-inner {
-    background: color.adjust($accent-green, $lightness: 5%);
-    border-color: color.adjust($accent-green, $lightness: 5%);
-    color: #0a0f1a;
-    box-shadow: 0 0 30px $accent-green-glow;
-  }
-}
-
-// Image container – bigger for larger image
+/* Image */
 .demo-modal-image-container {
   flex: 1;
-  min-width: 0;
-  width: 100%;
-  max-width: 100%;
 }
 
-// Image wrapper – scaled larger
 .demo-modal-image-wrap {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 10;
   min-height: 300px;
-  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-radius: 6px;
 }
 
 .demo-modal-image {
@@ -201,168 +144,50 @@ $success-green: #22c55e;
   object-fit: contain;
   opacity: 0;
   transition: opacity 0.3s ease;
-
-  &.slide-right {
-    animation: slide-in-right 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  &.slide-left {
-    animation: slide-in-left 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
 }
 
 .demo-modal-image-wrap.loaded .demo-modal-image {
   opacity: 1;
 }
 
-.demo-modal-image-no-motion {
-  animation: none !important;
-  opacity: 1;
-}
-
-@keyframes slide-in-right {
-  0% {
-    opacity: 0;
-    transform: translateX(30px) scale(0.98);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-  }
-}
-
-@keyframes slide-in-left {
-  0% {
-    opacity: 0;
-    transform: translateX(-30px) scale(0.98);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .demo-modal-image {
-    animation: none !important;
-    opacity: 1;
-  }
-}
-
-// Loading skeleton
+/* Skeleton */
 .demo-image-skeleton {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: rgba(148, 163, 184, 0.06);
-  overflow: hidden;
 }
 
-.demo-skeleton-shimmer {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.03) 50%,
-    transparent 100%
-  );
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-// Caption row – flex container for caption + optional store link
+/* Caption */
 .demo-modal-caption-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
   margin-bottom: 1rem;
-  flex-wrap: wrap;
-}
-
-// Caption – 16px, above main, centered, primary for accessibility
-.demo-modal-caption {
-  margin: 0;
-  padding: 0;
-  font-size: 16px;
-  color: var(--theme-text-primary);
-  line-height: 1.5;
   text-align: center;
 }
 
-// Chrome Web Store link (Step 1 only) – short label + icon
-.demo-modal-store-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  color: $text-secondary;
-  transition: color 0.2s ease, transform 0.2s ease;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-
-  .demo-modal-store-link-text {
-    white-space: nowrap;
-  }
-
-  &:hover {
-    color: $accent-green;
-    transform: translateY(-1px);
-  }
-
-  &:focus-visible {
-    outline: none;
-    border-radius: 4px;
-    box-shadow: 0 0 0 2px $accent-green;
-  }
+.demo-modal-caption {
+  font-size: 16px;
+  color: var(--theme-text-primary);
 }
 
-// Responsive – tablet and below
-@media (max-width: 1024px) {
-  .demo-modal-content {
-    max-width: min(700px, 92vw);
-  }
-
-  .demo-modal-image-wrap {
-    min-height: 260px;
-  }
-
-  .demo-modal-caption {
-    font-size: 15px;
-  }
-}
 
 @media (max-width: 768px) {
-  .demo-modal-overlay {
-    padding: 1rem;
-    padding-top: max(1rem, env(safe-area-inset-top));
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
-  }
-
   .demo-modal-content {
     max-width: min(520px, 96vw);
   }
 
   .demo-modal-main {
-    flex-direction: row;
-    gap: 0.5rem;
     position: relative;
+    gap: 0.5rem;
   }
 
+  
   .demo-nav-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     z-index: 5;
+  }
 
+  
   .demo-nav-btn-inner {
     width: 36px;
     height: 36px;
@@ -373,7 +198,6 @@ $success-green: #22c55e;
       width: 18px;
       height: 18px;
     }
-  }
   }
 
   .demo-nav-prev {
@@ -386,71 +210,5 @@ $success-green: #22c55e;
 
   .demo-modal-image-wrap {
     min-height: 240px;
-  }
-
-  .demo-modal-caption {
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 480px) {
-  .demo-modal-overlay {
-    padding: 0.75rem;
-  }
-
-  .demo-modal-content {
-    max-width: 100%;
-  }
-
-  .demo-modal-image-wrap {
-    min-height: 200px;
-  }
-
-  .demo-modal-caption-row {
-    margin-bottom: 0.75rem;
-  }
-
-  .demo-modal-caption {
-    font-size: 13px;
-  }
-
-  .demo-nav-btn .demo-nav-btn-inner {
-    width: 32px;
-    height: 32px;
-
-    svg {
-      width: 16px;
-      height: 16px;
-    }
-  }
-
-  .demo-nav-prev {
-    left: 0.125rem;
-  }
-
-  .demo-nav-next {
-    right: 0.125rem;
-  }
-}
-
-/* Light mode: steps in white for visibility against dark caption bar */
-.light .demo-modal-caption-row {
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-}
-
-.light .demo-modal-caption {
-  color: #fff;
-}
-
-.light .demo-modal-store-link {
-  color: #fff;
-
-  &:hover {
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  svg {
-    color: inherit;
   }
 }

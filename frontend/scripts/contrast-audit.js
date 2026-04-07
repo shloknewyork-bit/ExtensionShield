@@ -17,6 +17,7 @@ const AA_NORMAL = 4.5;
 const AA_NONTEXT = 3;
 
 function parseHslTriple(str) {
+  if (!str) return null;
   const m = str.trim().match(/^(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%$/);
   if (!m) return null;
   return { h: parseFloat(m[1]) / 360, s: parseFloat(m[2]) / 100, l: parseFloat(m[3]) / 100 };
@@ -60,6 +61,7 @@ function contrast(l1, l2) {
 }
 
 function extractTokens(css, block) {
+  css = css.replace(/\/\*[\s\S]*?\*\//g, "");
   const re = block === "root" ? /:root\s*\{([^}]+)\}/ : /\.light\s*\{([^}]+)\}/;
   const m = css.match(re);
   if (!m) return {};

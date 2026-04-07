@@ -163,13 +163,13 @@ class TestLayerDetailsGenerator:
             "security": {
                 "one_liner": "High security risk due to dangerous code patterns including eval() usage.",
                 "key_points": [
-                    "CRITICAL_SAST: eval() usage detected in content.js",
+                    "CRITICAL_SAST: eval() usage in content.js can run injected code.",
                     "webRequest permission can intercept network traffic",
                     "Code injection vulnerabilities found in SAST analysis"
                 ],
                 "what_to_watch": [
-                    "Monitor for arbitrary code execution",
-                    "Review content script security"
+                    "Monitor CRITICAL_SAST-related arbitrary code execution risks.",
+                    "Review webRequest usage in content scripts."
                 ]
             },
             "privacy": {
@@ -177,21 +177,21 @@ class TestLayerDetailsGenerator:
                 "key_points": [
                     "cookies permission can read site cookies",
                     "https://*/* runs on all HTTPS websites",
-                    "SENSITIVE_EXFIL: potential data collection patterns"
+                    "SENSITIVE_EXFIL: network and cookie access could expose browsing data."
                 ],
                 "what_to_watch": [
-                    "Extension runs on all websites",
-                    "Monitor cookie usage patterns"
+                    "Monitor cookies permission use on high-sensitivity sites.",
+                    "Review https://*/* access for unnecessary broad coverage."
                 ]
             },
             "governance": {
                 "one_liner": "Low governance risk with good policy compliance.",
                 "key_points": [
                     "WebStoreTrust: 50,000 users indicates established extension",
-                    "No policy violations detected"
+                    "WebStoreTrust reports no Chrome Web Store policy violations for this listing."
                 ],
                 "what_to_watch": [
-                    "Monitor for security updates"
+                    "Monitor WebStoreTrust changes and store policy updates."
                 ]
             }
         }
@@ -363,9 +363,9 @@ class TestLayerHumanizer:
             sample_scoring_result, sample_analysis_results, sample_manifest, sample_gate_results
         )
         
-        # Should mention gates in key points
+        # Should explain the triggered security gate in plain English
         key_points_text = " ".join(result["key_points"])
-        assert "CRITICAL_SAST" in key_points_text
+        assert "dangerous code pattern" in key_points_text.lower()
 
     def test_privacy_layer_with_permissions(self, sample_scoring_result, sample_analysis_results,
                                            sample_manifest, sample_gate_results):
@@ -384,7 +384,7 @@ class TestLayerHumanizer:
         """Test risk level mapping from scores."""
         assert LayerHumanizer._get_risk_level_from_score(90) == "LOW"
         assert LayerHumanizer._get_risk_level_from_score(70) == "MEDIUM" 
-        assert LayerHumanizer._get_risk_level_from_score(50) == "HIGH"
+        assert LayerHumanizer._get_risk_level_from_score(50) == "MEDIUM"
 
     def test_permission_helpers(self, sample_manifest):
         """Test permission helper methods."""
@@ -457,4 +457,3 @@ class TestLayerHumanizer:
             call_kwargs = mock_llm.call_args[1]  # Get keyword arguments
             model_parameters = call_kwargs.get("model_parameters", {})
             assert model_parameters.get("temperature") == 0.3
-

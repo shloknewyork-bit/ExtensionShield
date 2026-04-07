@@ -88,8 +88,14 @@ ENV PATH="/app/.venv/bin:$PATH"
 # Copy frontend build from stage 1
 COPY --from=frontend-builder /app/frontend/dist ./static
 
-# Create necessary directories
-RUN mkdir -p extensions_storage data
+# Create necessary directories and non-root user
+RUN mkdir -p extensions_storage data && \
+    addgroup --system appgroup && \
+    adduser --system --ingroup appgroup appuser && \
+    chown -R appuser:appgroup /app
+
+# Drop root privileges
+USER appuser
 
 # Set default environment variables
 ENV EXTENSION_STORAGE_PATH=/app/extensions_storage \

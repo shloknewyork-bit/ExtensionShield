@@ -40,15 +40,19 @@ class TestParseFallbackChain:
             chain = _parse_fallback_chain()
             assert chain == [LLMProviderType.OLLAMA]
 
-    def test_parse_fallback_chain_default_watsonx(self):
-        """Test defaulting to watsonx when no provider is set."""
+    def test_parse_fallback_chain_default_chain(self):
+        """Test defaulting to the built-in provider chain when no provider is set."""
         with patch.dict(os.environ, {}, clear=True):
             # Remove both LLM_FALLBACK_CHAIN and LLM_PROVIDER
             for key in ["LLM_FALLBACK_CHAIN", "LLM_PROVIDER", "LLM_PROVIDER_PRIMARY"]:
                 if key in os.environ:
                     del os.environ[key]
             chain = _parse_fallback_chain()
-            assert chain == [LLMProviderType.WATSONX]
+            assert chain == [
+                LLMProviderType.GROQ,
+                LLMProviderType.WATSONX,
+                LLMProviderType.OPENAI,
+            ]
 
     def test_parse_fallback_chain_invalid_provider_skipped(self):
         """Test that invalid providers in chain are skipped."""
@@ -170,6 +174,7 @@ class TestInvokeWithFallback:
     @patch("extension_shield.llm.clients.fallback._parse_fallback_chain")
     @patch("extension_shield.llm.clients.fallback.get_chat_llm_client")
     @patch("extension_shield.llm.clients.fallback._invoke_with_timeout")
+    @patch.dict(os.environ, {"LLM_MAX_RETRIES_PER_PROVIDER": "0"})
     def test_all_providers_fail(self, mock_invoke, mock_get_client, mock_parse_chain):
         """Test that LLMFallbackError is raised when all providers fail."""
         # Setup
@@ -249,4 +254,3 @@ class TestInvokeWithFallback:
                 messages=messages,
                 model_name="llama3",
             )
-

@@ -422,22 +422,24 @@ function AppHeader() {
           )}
         </div>
 
-        {/* Theme toggler next to hamburger (not inside): one-tap access without opening menu */}
-        <div className="header-actions header-actions-mobile">
-          <ThemeToggle />
-        </div>
+        {/* Group ThemeToggle and Hamburger in one wrapper on mobile so space-between aligns properly */}
+        <div className="header-actions-mobile-wrapper" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div className="header-actions header-actions-mobile">
+            <ThemeToggle />
+          </div>
 
-        <button
-          type="button"
-          className="header-mobile-toggle"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={mobileMenuOpen}
-        >
-          <span className="hamburger-bar" />
-          <span className="hamburger-bar" />
-          <span className="hamburger-bar" />
-        </button>
+          <button
+            type="button"
+            className="header-mobile-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
+          >
+            <span className="hamburger-bar" />
+            <span className="hamburger-bar" />
+            <span className="hamburger-bar" />
+          </button>
+        </div>
       </div>
 
       {createPortal(

@@ -140,7 +140,7 @@ class TestEnforcementBundleEndpoint:
             scan_results.pop(ext_id, None)
     
     def test_get_enforcement_bundle_governance_error(self, client):
-        """Test 500 when governance analysis failed."""
+        """Test 500 when governance analysis failed without leaking internal details."""
         ext_id = "goverror12345678901234567890123456"
         
         # Scan result with governance error
@@ -155,8 +155,8 @@ class TestEnforcementBundleEndpoint:
             response = client.get(f"/api/scan/enforcement_bundle/{ext_id}")
             
             assert response.status_code == 500
-            assert "failed" in response.json()["detail"].lower()
-            assert "invalid rulepack" in response.json()["detail"]
+            assert response.json()["detail"] == "Governance analysis failed. Please try again."
+            assert "invalid rulepack" not in response.json()["detail"]
         finally:
             scan_results.pop(ext_id, None)
     
@@ -319,4 +319,3 @@ class TestEnforcementBundleFromDatabase:
             
             assert response.status_code == 200
             assert response.json()["verdict"] == "ALLOW"
-

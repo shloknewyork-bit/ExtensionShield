@@ -8,6 +8,7 @@ and retrieve results.
 import base64
 import mimetypes
 import os
+import hmac
 from pathlib import Path
 
 # Load .env from project root so DB_BACKEND, SUPABASE_*, etc. are set before config/database init
@@ -362,7 +363,12 @@ else:
 app.add_middleware(CSPMiddleware, is_dev=_is_dev)
 
 # Trust X-Forwarded-Proto / X-Forwarded-For from Railway/Cloudflare so request.url.scheme is correct
-app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+TRUSTED_PROXIES = [
+    "173.245.48.0/20",
+    "103.21.244.0/22",
+    "10.0.0.0/8",
+]
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=TRUSTED_PROXIES)
 
 # In-memory state lives in shared.py; import references here so existing
 # code in this file (and tests) can continue using module-level names.
@@ -408,24 +414,11 @@ def _get_client_ip(request: Request) -> str:
     """
     Get the client's IP address for rate limiting anonymous users.
     
-    Handles proxied requests via X-Forwarded-For and X-Real-IP headers.
-    Falls back to client host if no headers present.
+    Relies on ProxyHeadersMiddleware to properly set request.client.host
+    based on trusted reverse proxies, preventing header spoofing.
     """
-    # Check X-Forwarded-For header (from reverse proxy/load balancer)
-    x_forwarded_for = request.headers.get("x-forwarded-for")
-    if x_forwarded_for:
-        # Take the first IP (original client)
-        return x_forwarded_for.split(",")[0].strip()
-    
-    # Check X-Real-IP header (from nginx)
-    x_real_ip = request.headers.get("x-real-ip")
-    if x_real_ip:
-        return x_real_ip.strip()
-    
-    # Fall back to direct client IP
-    if request.client:
+    if request.client and request.client.host:
         return request.client.host
-    
     return "unknown"
 
 
@@ -461,7 +454,6 @@ def _require_admin_key(request: Request) -> None:
             status_code=403,
             detail="Admin API key is not configured"
         )
-    
     provided_key = request.headers.get("X-Admin-Key") or request.headers.get("x-admin-key")
     if not provided_key:
         raise HTTPException(
@@ -469,7 +461,10 @@ def _require_admin_key(request: Request) -> None:
             detail="X-Admin-Key header is required"
         )
     
-    if provided_key != admin_key:
+    if not hmac.compare_digest(
+        provided_key.encode("utf-8"),
+        admin_key.encode("utf-8")
+    ):
         raise HTTPException(
             status_code=403,
             detail="Invalid admin API key"
@@ -496,7 +491,16 @@ def _require_admin_or_telemetry_key(request: Request) -> None:
             status_code=403,
             detail="X-Admin-Key header is required"
         )
-    valid = (admin_key and provided == admin_key) or (telemetry_key and provided == telemetry_key)
+    valid = (
+        (admin_key and hmac.compare_digest(
+            provided.encode("utf-8"),
+            admin_key.encode("utf-8")
+        )) or
+        (telemetry_key and hmac.compare_digest(
+            provided.encode("utf-8"),
+            telemetry_key.encode("utf-8")
+        ))
+    )
     if not valid:
         raise HTTPException(
             status_code=403,
@@ -2934,9 +2938,14 @@ async def get_enforcement_bundle(extension_id: str):
         # Governance analysis was not run or failed
         governance_error = results.get("governance_error")
         if governance_error:
+            logger.error(
+                "Governance failed for %s: %s",
+                extension_id,
+                governance_error,
+            )
             raise HTTPException(
                 status_code=500,
-                detail=f"Governance analysis failed: {governance_error}"
+                detail="Governance analysis failed. Please try again."
             )
         raise HTTPException(
             status_code=404,

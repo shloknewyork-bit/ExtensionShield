@@ -1,17 +1,20 @@
 # ExtensionShield CI/CD Pipeline
-# Deploys to Railway on push to main
+# Deploys to Railway on pushes and PRs targeting the active default branch
 
 name: Deploy to Railway
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   pull_request:
-    branches: [main]
+    branches: [main, master]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  RAILWAY_PROJECT_ID: 24ef50c1-9906-4ade-b25e-92e65aba8aa8
+  RAILWAY_SERVICE: ExtensionShield
+  RAILWAY_ENVIRONMENT: production
 
 jobs:
   # =============================================================================
@@ -50,9 +53,10 @@ jobs:
     name: Build Docker Image
     runs-on: ubuntu-latest
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     
     permissions:
+      actions: write
       contents: read
       packages: write
 
@@ -99,7 +103,7 @@ jobs:
     name: Deploy to Railway
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     
     steps:
       - name: Checkout code
@@ -109,7 +113,7 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Deploy to Railway
-        run: railway up --detach
+        run: railway up --ci --detach --project "$RAILWAY_PROJECT_ID" --service "$RAILWAY_SERVICE" --environment "$RAILWAY_ENVIRONMENT"
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 

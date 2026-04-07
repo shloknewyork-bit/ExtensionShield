@@ -21,10 +21,11 @@ const ChromeExtensionSecurityScannerPage = () => {
       />
       <div className="compare-page">
         <div className="compare-container">
+          <div className="compare-back-wrapper">
           <button type="button" className="compare-back" onClick={() => navigate(-1)}>
             ← Back
           </button>
-
+          </div>
           <header className="compare-header">
             <h1>Chrome Extension Security Scanner</h1>
             <p>
@@ -37,7 +38,7 @@ const ChromeExtensionSecurityScannerPage = () => {
               A <strong>chrome extension security scanner</strong> helps you understand what an extension can access and whether it has been flagged for malicious behavior. ExtensionShield combines static code analysis (SAST), permission checks, and threat intelligence so you get one actionable <strong>extension risk score</strong> plus a breakdown of Security, Privacy, and Governance.
             </p>
             <p>
-              Paste a Chrome Web Store URL or extension ID — no install required. We analyze permissions, network access, obfuscation, and known threats so you can decide if an extension is safe to use.
+              Paste a Chrome Web Store URL — no install required. We analyze permissions, network access, obfuscation, and known threats so you can decide if an extension is safe to use.
             </p>
             <ul>
               <li>Free to use; no account required for a single scan</li>

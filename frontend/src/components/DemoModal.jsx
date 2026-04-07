@@ -16,19 +16,22 @@ const DEMO_STEPS = [
   },
   {
     image: "/images/Demo-step3.png",
-    caption: "Copy the URL from your address bar and paste it into ExtensionShield.",
+    caption:
+      "Copy the URL from your address bar and paste it into ExtensionShield.",
   },
 ];
 
 function DemoModal({ isOpen, onClose, triggerRef }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [direction, setDirection] = useState(1); // 1 = forward, -1 = backward
+  const [direction, setDirection] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+
   const contentRef = useRef(null);
   const previousFocusRef = useRef(null);
 
+  // Detect reduced motion preference
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(mq.matches);
@@ -37,7 +40,7 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  // Preload all step images
+  // Preload images
   useEffect(() => {
     DEMO_STEPS.forEach((step) => {
       const img = new Image();
@@ -45,7 +48,7 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
     });
   }, []);
 
-  // Reset step when opening
+  // Reset on open
   useEffect(() => {
     if (isOpen) {
       setStepIndex(0);
@@ -55,17 +58,23 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
     }
   }, [isOpen]);
 
-  // Focus trap and keyboard
+  // Focus trap + keyboard
   useEffect(() => {
     if (!isOpen) return;
+
     const el = contentRef.current;
     if (!el) return;
 
     const focusables = el.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
+
+    
+    if (!focusables.length) return;
+
     const first = focusables[0];
     const last = focusables[focusables.length - 1];
+
     if (first) first.focus();
 
     const handleKeyDown = (e) => {
@@ -73,6 +82,7 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
         onClose();
         return;
       }
+
       if (e.key === "ArrowRight") {
         e.preventDefault();
         if (stepIndex < DEMO_STEPS.length - 1 && !isAnimating) {
@@ -80,6 +90,7 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
         }
         return;
       }
+
       if (e.key === "ArrowLeft") {
         e.preventDefault();
         if (stepIndex > 0 && !isAnimating) {
@@ -87,6 +98,7 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
         }
         return;
       }
+
       if (e.key === "Tab") {
         if (e.shiftKey) {
           if (document.activeElement === first) {
@@ -104,10 +116,15 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
 
     document.addEventListener("keydown", handleKeyDown);
     document.body.style.overflow = "hidden";
+
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
-      if (previousFocusRef.current && typeof previousFocusRef.current.focus === "function") {
+
+      if (
+        previousFocusRef.current &&
+        typeof previousFocusRef.current.focus === "function"
+      ) {
         previousFocusRef.current.focus();
       }
     };
@@ -122,11 +139,14 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
 
   const handleNext = useCallback(() => {
     if (isAnimating) return;
+
     if (stepIndex < DEMO_STEPS.length - 1) {
       setIsAnimating(true);
       setDirection(1);
       setImageLoaded(false);
+
       setStepIndex((i) => i + 1);
+
       setTimeout(() => setIsAnimating(false), 400);
     } else {
       onClose();
@@ -135,11 +155,14 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
 
   const handleBack = useCallback(() => {
     if (isAnimating) return;
+
     if (stepIndex > 0) {
       setIsAnimating(true);
       setDirection(-1);
       setImageLoaded(false);
+
       setStepIndex((i) => i - 1);
+
       setTimeout(() => setIsAnimating(false), 400);
     }
   }, [stepIndex, isAnimating]);
@@ -167,6 +190,7 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
           <p id="demo-modal-description" className="demo-modal-caption">
             Step {stepIndex + 1}: {step.caption}
           </p>
+
           {stepIndex === 0 && (
             <a
               href={CHROME_WEB_STORE_URL}
@@ -175,17 +199,21 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
               className="demo-modal-store-link"
               aria-label="Open Chrome Web Store"
             >
-              <span className="demo-modal-store-link-text">Chrome Store</span>
+              <span className="demo-modal-store-link-text">
+                Chrome Store
+              </span>
               <ExternalLink size={18} strokeWidth={2} />
             </a>
           )}
         </div>
 
         <div className="demo-modal-main">
-          {/* Left arrow */}
+          {/* Prev */}
           <button
             type="button"
-            className={`demo-nav-btn demo-nav-prev ${isFirst ? 'demo-nav-disabled' : ''}`}
+            className={`demo-nav-btn demo-nav-prev ${
+              isFirst ? "demo-nav-disabled" : ""
+            }`}
             onClick={handleBack}
             disabled={isFirst || isAnimating}
             aria-label="Previous step"
@@ -197,16 +225,23 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
             </div>
           </button>
 
-          {/* Image content only (no browser frame) */}
+          {/* Image */}
           <div className="demo-modal-image-container">
-            <div className={`demo-modal-image-wrap ${imageLoaded ? 'loaded' : ''}`}>
+            <div
+              className={`demo-modal-image-wrap ${
+                imageLoaded ? "loaded" : ""
+              }`}
+            >
               <img
                 key={stepIndex}
                 src={step.image}
                 alt={step.caption}
-                className={`demo-modal-image ${reducedMotion ? "demo-modal-image-no-motion" : ""} ${direction > 0 ? 'slide-right' : 'slide-left'}`}
+                className={`demo-modal-image ${
+                  reducedMotion ? "demo-modal-image-no-motion" : ""
+                } ${direction > 0 ? "slide-right" : "slide-left"}`}
                 onLoad={() => setImageLoaded(true)}
               />
+
               {!imageLoaded && (
                 <div className="demo-image-skeleton">
                   <div className="demo-skeleton-shimmer"></div>
@@ -215,10 +250,12 @@ function DemoModal({ isOpen, onClose, triggerRef }) {
             </div>
           </div>
 
-          {/* Right arrow */}
+          {/* Next */}
           <button
             type="button"
-            className={`demo-nav-btn demo-nav-next ${isLast ? 'demo-nav-finish' : ''}`}
+            className={`demo-nav-btn demo-nav-next ${
+              isLast ? "demo-nav-finish" : ""
+            }`}
             onClick={handleNext}
             disabled={isAnimating}
             aria-label={isLast ? "Finish walkthrough" : "Next step"}

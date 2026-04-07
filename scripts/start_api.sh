@@ -40,9 +40,50 @@ else
   echo "LLM_FALLBACK_CHAIN: not set"
 fi
 
+has_supabase_db_connection() {
+  supabase_host=""
+  if [ -n "${SUPABASE_URL:-}" ]; then
+    supabase_host="${SUPABASE_URL#https://}"
+    supabase_host="${supabase_host#http://}"
+    supabase_host="${supabase_host%%/*}"
+  fi
+
+  if [ -n "${DATABASE_URL:-}" ]; then
+    case "${DATABASE_URL}" in
+      *@${supabase_host}:*|*@${supabase_host}/*)
+        return 1
+        ;;
+    esac
+  fi
+
+  if [ -n "${SUPABASE_DB_URL:-}" ]; then
+    case "${SUPABASE_DB_URL}" in
+      *@${supabase_host}:*|*@${supabase_host}/*)
+        return 1
+        ;;
+    esac
+  fi
+
+  if [ -n "${DATABASE_URL:-}" ] || [ -n "${SUPABASE_DB_URL:-}" ]; then
+    return 0
+  fi
+
+  if [ -n "${supabase_host}" ] && [ "${PGHOST:-}" = "${supabase_host}" ]; then
+    return 1
+  fi
+
+  if [ -n "${PGHOST:-}" ] && [ -n "${PGPORT:-}" ] && [ -n "${PGDATABASE:-}" ] && [ -n "${PGUSER:-}" ] && [ -n "${PGPASSWORD:-}" ]; then
+    return 0
+  fi
+
+  return 1
+}
+
 # Run migrations if Supabase is configured (non-blocking: start API first so healthcheck passes)
 if [ -n "${DB_BACKEND:-}" ] && [ "${DB_BACKEND:-}" != "supabase" ]; then
   echo "⏭️  Skipping Supabase migrations: DB_BACKEND=${DB_BACKEND}"
+elif ! has_supabase_db_connection; then
+  echo "⏭️  Skipping Supabase migrations: no valid direct Postgres connection env set (DATABASE_URL / SUPABASE_DB_URL / PG*)"
 elif [ -n "${SUPABASE_URL:-}" ] && [ -n "${SUPABASE_SERVICE_ROLE_KEY:-}" ]; then
   echo "🔄 Running Supabase migrations in background (API will start immediately)..."
   (
@@ -54,4 +95,3 @@ fi
 
 echo "✅ Starting uvicorn server on port ${PORT:-8007}..."
 exec uvicorn extension_shield.api.main:app --host 0.0.0.0 --port "${PORT:-8007}" --forwarded-allow-ips="*"
-

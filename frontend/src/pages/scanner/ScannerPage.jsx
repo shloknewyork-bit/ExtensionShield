@@ -520,7 +520,7 @@ const ScannerPage = () => {
         "name": "Is there a free Chrome extension scanner?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. ExtensionShield offers a free extension scanner: paste any Chrome Web Store URL or extension ID to get an instant security audit, risk score, permissions check, and malware scan—no signup required."
+          "text": "Yes. ExtensionShield offers a free extension scanner: paste any Chrome Web Store URL to get an instant security audit, risk score, permissions check, and malware scan—no signup required."
         }
       },
       {

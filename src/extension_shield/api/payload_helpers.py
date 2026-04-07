@@ -114,8 +114,10 @@ def upgrade_legacy_payload(payload: Optional[Dict[str, Any]], extension_id: str)
         or (payload.get("governance_bundle") or {}).get("scoring_v2")
     )
     has_report_view_model_before = bool(payload.get("report_view_model"))
+    report_view_model_before = payload.get("report_view_model")
     has_consumer_insights_before = bool(
-        payload.get("report_view_model", {}).get("consumer_insights")
+        isinstance(report_view_model_before, dict)
+        and report_view_model_before.get("consumer_insights")
     )
     upgraded = False
 
@@ -250,8 +252,10 @@ def upgrade_legacy_payload(payload: Optional[Dict[str, Any]], extension_id: str)
 
         final_has_scoring_v2 = bool(payload.get("scoring_v2"))
         final_has_report_view_model = bool(payload.get("report_view_model"))
+        final_report_view_model = payload.get("report_view_model")
         final_has_consumer_insights = bool(
-            payload.get("report_view_model", {}).get("consumer_insights")
+            isinstance(final_report_view_model, dict)
+            and final_report_view_model.get("consumer_insights")
         )
         payload["publisher_disclosures"] = build_publisher_disclosures(
             payload.get("metadata"), payload.get("governance_bundle")
@@ -287,8 +291,10 @@ def upgrade_legacy_payload(payload: Optional[Dict[str, Any]], extension_id: str)
             or (payload.get("governance_bundle") or {}).get("scoring_v2")
         )
         final_has_report_view_model = bool(payload.get("report_view_model"))
+        final_report_view_model = payload.get("report_view_model")
         final_has_consumer_insights = bool(
-            payload.get("report_view_model", {}).get("consumer_insights")
+            isinstance(final_report_view_model, dict)
+            and final_report_view_model.get("consumer_insights")
         )
         logger.info(
             "[UPGRADE] extension_id=%s, results_payload_upgraded=false (error), has_scoring_v2=%s→%s, has_report_view_model=%s→%s, has_consumer_insights=%s→%s",
@@ -305,7 +311,7 @@ def upgrade_legacy_payload(payload: Optional[Dict[str, Any]], extension_id: str)
 
 def ensure_consumer_insights(payload: Dict[str, Any]) -> Dict[str, Any]:
     """Add consumer_insights to report_view_model when missing."""
-    if "report_view_model" not in payload:
+    if not isinstance(payload.get("report_view_model"), dict):
         payload["report_view_model"] = {}
 
     rvm = payload["report_view_model"]

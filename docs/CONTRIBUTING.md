@@ -247,7 +247,7 @@ chore: bump fastapi to 0.115.x
 
 ## Reporting Bugs
 
-Open a [GitHub Issue](../../issues/new) with:
+Open a [GitHub Issue](https://github.com/Stanzin7/ExtensionShield/issues) with:
 
 - Steps to reproduce
 - Expected vs. actual behavior
@@ -260,7 +260,7 @@ Open a [GitHub Issue](../../issues/new) with:
 
 ## Requesting Features
 
-Open a [GitHub Issue](../../issues/new) tagged `enhancement` with:
+Open a [GitHub Issue](https://github.com/Stanzin7/ExtensionShield/issues) tagged `enhancement` with:
 
 - Problem or use case you're solving
 - Proposed solution (if any)

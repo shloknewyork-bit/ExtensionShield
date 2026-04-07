@@ -314,7 +314,7 @@ class TestValidateLayerDetailsReferences:
         output = {
             "security": {
                 "one_liner": "Security issues",
-                "key_points": ["", "CRITICAL_SAST: issue found", ""],  # Empty strings ignored
+                "key_points": ["", "CRITICAL_SAST: eval() usage can run injected code.", ""],  # Empty strings ignored
                 "what_to_watch": ["cookies permission risk"]
             },
             "privacy": {
@@ -333,4 +333,3 @@ class TestValidateLayerDetailsReferences:
         
         # Should accept since non-empty bullets have concrete references
         assert result.ok
-

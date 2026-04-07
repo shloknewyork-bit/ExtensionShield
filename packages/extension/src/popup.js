@@ -64,7 +64,18 @@
     }
   }
 
-  if (tabExtensions) tabExtensions.addEventListener('click', function () { switchTab('extensions'); });
+  if (tabExtensions) {
+    tabExtensions.addEventListener('click', function () { 
+      chrome.permissions.contains({ permissions: ["management"] }, function(hasPerm) {
+        if (!hasPerm) {
+          chrome.permissions.request({ permissions: ["management"] }, function(granted) {
+            if (granted) scan(false);
+          });
+        }
+      });
+      switchTab('extensions'); 
+    });
+  }
   if (tabScanUrl) tabScanUrl.addEventListener('click', function () { switchTab('scanurl'); });
 
   var scanUrlInput = document.getElementById('scanUrlInput');
@@ -152,6 +163,23 @@
 
   function handleScanUrlSubmit() {
     var raw = scanUrlInput && scanUrlInput.value ? scanUrlInput.value.trim() : '';
+
+    if (raw) {
+      var isIdOnly = /^[a-z]{32}$/i.test(raw);
+      if (!isIdOnly) {
+        // If not a simple ID, validate as URL
+        if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
+          raw = 'https://' + raw;
+        }
+        try {
+          new URL(raw);
+        } catch {
+          alert("Invalid URL");
+          return;
+        }
+      }
+    }
+
     var extId = extractExtensionIdFromInput(raw);
     if (!extId) {
       setScanUrlMessage('Enter a Chrome Web Store URL.', 'error');
@@ -620,31 +648,41 @@
   }
 
   function scan(force) {
-    showStatus('Getting extensions…');
-
-    chrome.runtime.sendMessage({ action: 'getAllExtensions' }, function (all) {
-      if (chrome.runtime.lastError || !all) {
-        chrome.management.getAll(function (fallbackAll) {
-          if (chrome.runtime.lastError) {
-            hideStatus();
-            showError('Cannot access extensions: ' + (chrome.runtime.lastError.message || 'unknown'));
-            return;
-          }
-          var selfId = chrome.runtime.id;
-          var filtered = [];
-          for (var j = 0; j < fallbackAll.length; j++) {
-            if (fallbackAll[j].type === 'extension' && fallbackAll[j].id !== selfId && fallbackAll[j].enabled) filtered.push(fallbackAll[j]);
-          }
-          runScanWithExtensions(filtered, force);
-        });
+    chrome.permissions.contains({ permissions: ["management"] }, function(hasPerm) {
+      if (!hasPerm) {
+        showError("Management permission required. Click Extensions tab to grant.");
+        render([]);
         return;
       }
 
-      var exts = [];
-      for (var i = 0; i < all.length; i++) {
-        if (all[i].enabled) exts.push(all[i]);
-      }
-      runScanWithExtensions(exts, force);
+      showStatus('Getting extensions…');
+
+      chrome.runtime.sendMessage({ action: 'getAllExtensions' }, function (all) {
+        if (chrome.runtime.lastError || !all) {
+          chrome.management.getAll(function (fallbackAll) {
+            if (chrome.runtime.lastError) {
+              hideStatus();
+              showError('Cannot access extensions: ' + (chrome.runtime.lastError.message || 'unknown'));
+              return;
+            }
+            var selfId = chrome.runtime.id;
+            var filtered = [];
+            for (var j = 0; j < fallbackAll.length; j++) {
+              if (!fallbackAll[j].permissions) fallbackAll[j].permissions = [];
+              if (fallbackAll[j].type === 'extension' && fallbackAll[j].id !== selfId && fallbackAll[j].enabled) filtered.push(fallbackAll[j]);
+            }
+            runScanWithExtensions(filtered, force);
+          });
+          return;
+        }
+
+        var exts = [];
+        for (var i = 0; i < all.length; i++) {
+          if (!all[i].permissions) all[i].permissions = [];
+          if (all[i].enabled) exts.push(all[i]);
+        }
+        runScanWithExtensions(exts, force);
+      });
     });
   }
 
